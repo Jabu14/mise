@@ -2,37 +2,45 @@
 
 Paste a recipe (from Gemini or anywhere) and cook it one big, clear step at a time, with built-in timers.
 
+There are two versions with the same features and look:
+
+| | `web/` | `mobile/` |
+|---|---|---|
+| What | Installable web app (PWA) | Native iPhone + Android app (React Native / Expo) |
+| Use it | https://jabu14.github.io/mise/ → Share → Add to Home Screen | Expo Go app on your phone (see below) |
+| Timer alarms | Only while the app is open | Ring even when the phone is locked |
+
 ## How to use it
 
-1. In the app, tap **Add recipe** → **Copy prompt for Gemini**.
+1. Tap **Add recipe** → **Copy prompt for Gemini**.
 2. Paste that prompt into your Gemini chat (right after it gives you a recipe).
 3. Copy Gemini's answer, go back to the app and tap **Paste**. Check the preview, then **Save**.
 4. Tap **Start cooking**. Swipe or tap **Next step**; tap a timer button to start a timer.
 
 Any ordinary recipe text (bullet lists, numbered steps) also works without the special prompt.
 
-## Features
+## Run the native app on your iPhone (no Mac needed)
 
-- Cook mode: one step at a time (or all steps in a list), large text, swipe between steps, screen stays on
-- Timers found automatically in the steps ("rise for 1–2 hours" → ⏱ 1 h); several can run at once, with alarm + vibration
-- Ingredient checklist, and "You'll need" chips showing what each step uses
-- Scale the recipe up or down (quantities update everywhere)
-- Look & settings: 8 colour themes, light/dark, 4 fonts, text size, card style, cook-mode layout, editable Gemini prompt
-- Works offline and installs to your home screen (PWA); recipes are saved on the device; export/import backups
+1. Install **Expo Go** from the App Store.
+2. On the PC, in the `mobile` folder:
+   ```bash
+   npx expo start
+   ```
+3. Scan the QR code with the iPhone Camera app. Mise opens inside Expo Go.
 
-## Run it on your computer
+The phone and PC must be on the same Wi-Fi. If the phone can't connect, run `npx expo start --tunnel` instead.
+
+## Run the web app locally
 
 ```bash
-python -m http.server 5173
+python -m http.server 5173 --directory web
 ```
 
-Then open http://localhost:5173.
+Changes pushed to `web/` are published to GitHub Pages automatically.
 
 ## Files
 
-- `index.html`, `styles.css`: page shell and all styling (colour tokens at the top of the CSS)
-- `js/app.js`: screens, themes, actions
-- `js/parser.js`: reads pasted recipes (JSON from the Gemini prompt or free text), finds timers, scales quantities
-- `js/content.js`: the Gemini prompt and the sample recipe
-- `js/store.js`, `js/timers.js`: saving data and kitchen timers
-- `sw.js`, `manifest.webmanifest`, `icons/`: offline support and home-screen install
+- `web/`: the web app (`js/parser.js` reads recipes, `js/app.js` has the screens)
+- `mobile/src/app/`: native screens (library, add/edit, recipe, cook mode, settings)
+- `mobile/src/lib/`: saved data, timers + notifications, themes
+- `mobile/src/shared/`: copied from `web/js/` by `npm run sync-shared` so both apps read recipes the same way

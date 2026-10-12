@@ -4,8 +4,29 @@
     {
       "name": "mise",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "5173", "--directory", "web", "--bind", "0.0.0.0"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "5173",
+        "--directory",
+        "web",
+        "--bind",
+        "0.0.0.0"
+      ],
       "port": 5173
+    },
+    {
+      "name": "mise-mobile-web",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "expo",
+        "start",
+        "--web",
+        "--port",
+        "8082"
+      ],
+      "cwd": "mobile",
+      "port": 8082
     }
   ]
 }
