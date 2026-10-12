@@ -26,6 +26,7 @@ export default function TimersTab() {
   const [picking, setPicking] = useState(false);
   const [duration, setDuration] = useState({ hours: 0, minutes: 5, seconds: 0 });
   const [label, setLabel] = useState('');
+  const [wheelActive, setWheelActive] = useState(false); // stops the page scrolling while a wheel is used
   const th = useTheme();
 
   const focused = timers.find(t => t.id === focusId) || timers[timers.length - 1];
@@ -48,7 +49,7 @@ export default function TimersTab() {
         <Txt kind="head" weight="bold" size={30} style={{ flex: 1, paddingLeft: 8 }}>Timers</Txt>
       </TopBar>
 
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32, gap: 18 }} keyboardShouldPersistTaps="handled">
+      <ScrollView scrollEnabled={!wheelActive} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32, gap: 18 }} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
         {timers.length > 1 || (timers.length && showPicker) ? (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
             {timers.map(t => (
@@ -66,7 +67,7 @@ export default function TimersTab() {
         {showPicker ? (
           <View style={{ gap: 14 }}>
             <View style={{ paddingVertical: 8 }}>
-              <DurationPicker {...duration} haptics={settings.haptics} onChange={setDuration} />
+              <DurationPicker {...duration} haptics={settings.haptics} onChange={setDuration} onActive={setWheelActive} />
             </View>
             <Card style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, gap: 12, borderRadius: 18 }}>
               <Txt weight="bold">Label</Txt>
@@ -224,7 +225,7 @@ function RecentTimers({ onStart }: { onStart: (minutes: number, label: string) =
           <Txt weight="black" color="#fff">{selected.size ? `Delete ${selected.size}` : 'Select timers to delete'}</Txt>
         </Pressable>
       ) : history.length ? (
-        <Txt muted size={12} style={{ textAlign: 'center' }}>Swipe a timer left or right to remove it</Txt>
+        <Txt muted size={12} style={{ textAlign: 'center' }}>Swipe a timer left to remove it</Txt>
       ) : null}
     </View>
   );
