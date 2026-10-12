@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { guessEmoji } from '../shared/parser';
+import { startAlarmSound, stopAlarmSound } from './alarm';
 import { cancelAlarm, scheduleAlarm } from './notifications';
 import { LIMITS, cleanHistory, cleanParsed, cleanRecipes, cleanSettings, cleanTimers } from './validate';
 
@@ -42,6 +43,7 @@ export const DEFAULT_SETTINGS = {
   highlightTimes: true,
   keepAwake: true,
   haptics: true,
+  alarmSound: true,
   timerStyle: 'ring',   // ring | clock | sand
   name: '',
   recipePrompt: '',     // empty = the built-in prompt
@@ -88,7 +90,7 @@ type TimerValue = {
   removeTimer: (id: string) => void;
   history: TimerHistoryItem[];
   timersStarted: number;
-  clearHistory: () => void;
+  removeHistory: (ats: number[]) => void;
 };
 
 const AppContext = createContext<AppValue | null>(null);
@@ -257,15 +259,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setTimers(list => list.filter(x => x.id !== id));
   }, []);
 
-  const clearHistory = useCallback(() => setHistory(h => ({ ...h, items: [] })), []);
+  const removeHistory = useCallback((ats: number[]) => {
+    const gone = new Set(ats);
+    setHistory(h => ({ ...h, items: h.items.filter(i => !gone.has(i.at)) }));
+  }, []);
+
+  // Ring while any timer says "Time's up!"; stop once they're all stopped or extended.
+  const anyRinging = timers.some(t => t.done);
+  const soundOn = settings.alarmSound;
+  useEffect(() => {
+    if (anyRinging && soundOn) startAlarmSound();
+    else stopAlarmSound();
+  }, [anyRinging, soundOn]);
 
   const appValue = useMemo<AppValue>(
     () => ({ ready, settings, updateSettings, resetLook, recipes, getRecipe, saveParsed, patchRecipe, setProgress, markCooked, deleteRecipe }),
     [ready, settings, updateSettings, resetLook, recipes, getRecipe, saveParsed, patchRecipe, setProgress, markCooked, deleteRecipe],
   );
   const timerValue = useMemo<TimerValue>(
-    () => ({ timers, now, remaining, startTimer, togglePause, addTime, removeTimer, history: history.items, timersStarted: history.started, clearHistory }),
-    [timers, now, remaining, startTimer, togglePause, addTime, removeTimer, history, clearHistory],
+    () => ({ timers, now, remaining, startTimer, togglePause, addTime, removeTimer, history: history.items, timersStarted: history.started, removeHistory }),
+    [timers, now, remaining, startTimer, togglePause, addTime, removeTimer, history, removeHistory],
   );
 
   return (

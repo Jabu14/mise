@@ -1,9 +1,7 @@
 // Bottom navigation bar, styled with the app's theme.
-// The Add button starts as a wide "+ Add recipe" pill and shrinks to a "+" after a moment.
 import * as Haptics from 'expo-haptics';
 import type { BottomTabBarProps } from 'expo-router/js-tabs';
-import { useEffect, useState } from 'react';
-import { Animated, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useApp, useTimers } from '../lib/store';
 import { useTheme } from '../lib/theme';
@@ -21,13 +19,6 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const { settings } = useApp();
   const { timers } = useTimers();
-
-  // 1 = wide "+ Add recipe" pill, 0 = round "+" button.
-  const [expand] = useState(() => new Animated.Value(1));
-  useEffect(() => {
-    const t = setTimeout(() => Animated.spring(expand, { toValue: 0, friction: 9, tension: 50, useNativeDriver: false }).start(), 2600);
-    return () => clearTimeout(t);
-  }, [expand]);
 
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 8, paddingBottom: Math.max(insets.bottom, 10), paddingHorizontal: 8, backgroundColor: th.c.surface, borderTopWidth: 1, borderTopColor: th.c.line }}>
@@ -47,29 +38,13 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
 
         if (route.name === 'add') {
           return (
-            <Animated.View key={route.key} style={{ width: expand.interpolate({ inputRange: [0, 1], outputRange: [76, 148] }), alignItems: 'center' }}>
-              <Pressable onPress={onPress} accessibilityRole="tab" accessibilityState={{ selected: focused }} accessibilityLabel="Add recipe" style={({ pressed }) => ({ transform: [{ scale: pressed ? 0.94 : 1 }] })}>
-                <Animated.View
-                  style={{
-                    height: 46,
-                    width: expand.interpolate({ inputRange: [0, 1], outputRange: [46, 136] }),
-                    borderRadius: 23,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 4,
-                    overflow: 'hidden',
-                    backgroundColor: th.c.accent,
-                    ...(th.dark ? {} : { shadowColor: th.c.accent, shadowOpacity: 0.35, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 }),
-                  }}
-                >
-                  <Icon name="add" size={28} color={th.c.onAccent} />
-                  <Animated.View style={{ opacity: expand.interpolate({ inputRange: [0, 0.7, 1], outputRange: [0, 0, 1] }), maxWidth: expand.interpolate({ inputRange: [0, 1], outputRange: [0, 100] }) }}>
-                    <Txt weight="black" size={15} color={th.c.onAccent} numberOfLines={1}>Add recipe</Txt>
-                  </Animated.View>
-                </Animated.View>
+            <View key={route.key} style={{ width: 76, alignItems: 'center' }}>
+              <Pressable onPress={onPress} accessibilityRole="tab" accessibilityState={{ selected: focused }} accessibilityLabel="Add recipe" style={({ pressed }) => ({ transform: [{ scale: pressed ? 0.92 : 1 }] })}>
+                <View style={{ width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.accent, ...(th.dark ? {} : { shadowColor: th.c.accent, shadowOpacity: 0.35, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 }) }}>
+                  <Icon name="add" size={30} color={th.c.onAccent} />
+                </View>
               </Pressable>
-            </Animated.View>
+            </View>
           );
         }
 

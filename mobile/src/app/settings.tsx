@@ -4,8 +4,7 @@ import { router } from 'expo-router';
 import { Alert, Pressable, ScrollView, Switch, TextInput, View } from 'react-native';
 import { Btn, Card, Icon, IconBtn, Screen, StepBody, TopBar, Txt } from '../components/ui';
 import { RECIPE_PROMPT } from '../shared/content';
-import { scheduleAlarm } from '../lib/notifications';
-import { useApp, type Settings } from '../lib/store';
+import { useApp, useTimers, type Settings } from '../lib/store';
 import { FONTS, THEMES, useTheme } from '../lib/theme';
 
 const SAMPLE_STEP = {
@@ -19,14 +18,13 @@ const SAMPLE_STEP = {
 export default function SettingsScreen() {
   const th = useTheme();
   const { settings, updateSettings, resetLook } = useApp();
+  const { startTimer } = useTimers();
   const prompt = settings.recipePrompt || RECIPE_PROMPT;
 
-  const testAlarm = async () => {
-    const id = await scheduleAlarm('Test timer', 'Mise', 5000);
-    Alert.alert(
-      id ? 'Alarm in 5 seconds' : 'Notifications are off',
-      id ? 'Lock your phone now to check the alarm works with the screen off.' : 'Turn on notifications for this app in your phone settings so timers can ring.',
-    );
+  // A real 5-second timer: tests the in-app sound, and the notification if you lock the phone.
+  const testAlarm = () => {
+    startTimer({ minutes: 5 / 60, label: 'Test alarm' });
+    Alert.alert('Alarm in 5 seconds', 'Keep the app open to hear the alarm sound, or lock your phone to check the notification.');
   };
 
   return (
@@ -75,6 +73,7 @@ export default function SettingsScreen() {
             <Toggle k="stepIngredients" label="Show what each step needs" hint="Lists the ingredients mentioned in the step" />
             <Toggle k="highlightTimes" label="Highlight times & temperatures" />
             <Toggle k="keepAwake" label="Keep the screen on while cooking" />
+            <Toggle k="alarmSound" label="Alarm sound when a timer ends" hint="Rings until you stop it, even on silent" />
             <Toggle k="haptics" label="Vibration feedback" last />
           </Card>
           <Btn title="Test the alarm" icon="timer-outline" variant="ghost" size="small" onPress={testAlarm} style={{ alignSelf: 'flex-start' }} />

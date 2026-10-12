@@ -5,8 +5,9 @@ import { Platform } from 'react-native';
 const CHANNEL = 'timers';
 
 Notifications.setNotificationHandler({
+  // While the app is open, the in-app alarm (alarm.ts) plays the sound, so the banner stays silent.
   handleNotification: async () => ({
-    shouldPlaySound: true,
+    shouldPlaySound: false,
     shouldSetBadge: false,
     shouldShowBanner: true,
     shouldShowList: true,

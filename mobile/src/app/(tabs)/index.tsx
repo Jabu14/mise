@@ -2,6 +2,7 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, TextInput, View } from 'react-native';
+import { AddFab } from '../../components/add-fab';
 import { Btn, Card, Dock, Icon, IconBtn, Screen, TopBar, Txt } from '../../components/ui';
 import { SAMPLE_RECIPE } from '../../shared/content';
 import { parseRecipe } from '../../shared/parser';
@@ -60,7 +61,9 @@ export default function Library() {
         </ScrollView>
       )}
 
-      <Dock onHeight={setDockH} />
+      <Dock onHeight={setDockH}>
+        {recipes.length ? <AddFab onPress={() => router.navigate('/add')} /> : null}
+      </Dock>
     </Screen>
   );
 }

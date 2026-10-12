@@ -15,6 +15,7 @@ function Wheel({ count, value, onChange, unit, haptics }: WheelProps) {
   const ref = useRef<ScrollView>(null);
   const [index, setIndex] = useState(value);
   const current = useRef(value);
+  const lastTick = useRef(0);
 
   // Jump to the starting value once laid out, and whenever it's changed from outside.
   useEffect(() => {
@@ -30,7 +31,12 @@ function Wheel({ count, value, onChange, unit, haptics }: WheelProps) {
       current.current = i;
       setIndex(i);
       onChange(i);
-      if (haptics) Haptics.selectionAsync().catch(() => {});
+      // A click per number, but not faster than ~25 a second during a fast flick.
+      const t = Date.now();
+      if (haptics && t - lastTick.current > 40) {
+        lastTick.current = t;
+        Haptics.selectionAsync().catch(() => {});
+      }
     }
   };
 
@@ -42,7 +48,8 @@ function Wheel({ count, value, onChange, unit, haptics }: WheelProps) {
         contentContainerStyle={{ paddingVertical: WHEEL_ITEM * 2 }}
         showsVerticalScrollIndicator={false}
         snapToInterval={WHEEL_ITEM}
-        decelerationRate="fast"
+        decelerationRate="normal"
+        disableIntervalMomentum={false}
         scrollEventThrottle={16}
         onScroll={onScroll}
         onLayout={() => ref.current?.scrollTo({ y: value * WHEEL_ITEM, animated: false })}
@@ -79,7 +86,7 @@ export function DurationPicker({ hours, minutes, seconds, onChange, haptics }: {
   return (
     <View style={{ height: WHEEL_ITEM * VISIBLE, justifyContent: 'center' }}>
       {/* highlight band behind the selected row */}
-      <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: WHEEL_ITEM * 2, height: WHEEL_ITEM, borderRadius: 12, backgroundColor: th.c.soft }} />
+      <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: WHEEL_ITEM * 2, height: WHEEL_ITEM, borderRadius: WHEEL_ITEM / 2, backgroundColor: th.c.soft }} />
       <View style={{ flexDirection: 'row', gap: 4 }}>
         <Wheel count={24} value={hours} unit="hours" haptics={haptics} onChange={h => onChange({ hours: h, minutes, seconds })} />
         <Wheel count={60} value={minutes} unit="min" haptics={haptics} onChange={m => onChange({ hours, minutes: m, seconds })} />
