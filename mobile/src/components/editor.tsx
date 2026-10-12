@@ -1,19 +1,19 @@
 // Add or edit a recipe: copy the Gemini prompt, paste the answer, preview, save.
 import * as Clipboard from 'expo-clipboard';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, TextInput, View } from 'react-native';
-import { Btn, Card, Dock, IconBtn, Label, Screen, TopBar, Txt } from '../components/ui';
+import { Btn, Card, Dock, IconBtn, Label, Screen, TopBar, Txt } from './ui';
 import { GEMINI_PROMPT } from '../shared/content';
 import { parseRecipe, plainText, guessEmoji } from '../shared/parser';
 import { useApp } from '../lib/store';
 import { useTheme } from '../lib/theme';
 
-export default function Editor() {
+// Used by the Add tab (no id) and the Edit screen (with the recipe's id).
+export function Editor({ existingId }: { existingId?: string }) {
   const th = useTheme();
-  const { id } = useLocalSearchParams<{ id?: string }>();
   const { getRecipe, saveParsed, settings } = useApp();
-  const existing = getRecipe(id);
+  const existing = getRecipe(existingId);
   const [source, setSource] = useState(existing?.source || '');
   const [debounced, setDebounced] = useState(source);
   const [showPrompt, setShowPrompt] = useState(false);
@@ -45,15 +45,23 @@ export default function Editor() {
     const parsed = parseRecipe(source);
     if (!parsed?.steps.length) return;
     const newId = saveParsed(parsed, source, existing?.id);
-    if (existing) router.back();
-    else router.replace(`/recipe/${newId}`);
+    if (existing) return router.back();
+    setSource('');
+    setDebounced('');
+    router.push(`/recipe/${newId}`);
   };
 
   return (
     <Screen>
       <TopBar>
-        <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
-        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>{existing ? 'Edit recipe' : 'Add a recipe'}</Txt>
+        {existing ? (
+          <>
+            <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
+            <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>Edit recipe</Txt>
+          </>
+        ) : (
+          <Txt kind="head" weight="bold" size={30} style={{ flex: 1, paddingLeft: 8 }}>Add a recipe</Txt>
+        )}
       </TopBar>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 4, paddingBottom: dockH + 24, gap: 16 }} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>

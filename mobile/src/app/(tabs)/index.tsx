@@ -2,11 +2,11 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, TextInput, View } from 'react-native';
-import { Btn, Card, Dock, Icon, IconBtn, Screen, TopBar, Txt } from '../components/ui';
-import { SAMPLE_RECIPE } from '../shared/content';
-import { parseRecipe } from '../shared/parser';
-import { useApp, type Recipe } from '../lib/store';
-import { artColor, useTheme } from '../lib/theme';
+import { Btn, Card, Dock, Icon, Screen, TopBar, Txt } from '../../components/ui';
+import { SAMPLE_RECIPE } from '../../shared/content';
+import { parseRecipe } from '../../shared/parser';
+import { useApp, type Recipe } from '../../lib/store';
+import { artColor, useTheme } from '../../lib/theme';
 
 export default function Library() {
   const th = useTheme();
@@ -32,7 +32,6 @@ export default function Library() {
           <Icon name="restaurant-outline" size={24} color={th.c.accent} />
           <Txt kind="head" weight="bold" size={24}>Mise</Txt>
         </View>
-        <IconBtn name="color-palette-outline" label="Look and settings" onPress={() => router.push('/settings')} />
       </TopBar>
 
       {recipes.length ? (
@@ -55,14 +54,12 @@ export default function Library() {
           <Txt muted style={{ textAlign: 'center', maxWidth: 300 }}>
             Paste a recipe from Gemini (or anywhere) and get big, simple steps with built-in timers.
           </Txt>
-          <Btn title="Add your first recipe" icon="add" size="big" onPress={() => router.push('/new')} style={{ marginTop: 8 }} />
+          <Btn title="Add your first recipe" icon="add" size="big" onPress={() => router.navigate('/add')} style={{ marginTop: 8 }} />
           <Btn title="Try a sample bread recipe" variant="ghost" onPress={addSample} />
         </ScrollView>
       )}
 
-      <Dock onHeight={setDockH}>
-        {recipes.length ? <Btn title="Add recipe" icon="add" size="big" onPress={() => router.push('/new')} /> : null}
-      </Dock>
+      <Dock onHeight={setDockH} />
     </Screen>
   );
 }

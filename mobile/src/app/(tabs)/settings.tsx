@@ -1,12 +1,11 @@
 // Look & settings, with a live preview of a cook-mode step at the top.
 import * as Clipboard from 'expo-clipboard';
-import { router } from 'expo-router';
 import { Alert, Pressable, ScrollView, Switch, TextInput, View } from 'react-native';
-import { Btn, Card, Icon, IconBtn, Screen, StepBody, TopBar, Txt } from '../components/ui';
-import { GEMINI_PROMPT } from '../shared/content';
-import { scheduleAlarm } from '../lib/notifications';
-import { useApp, type Settings } from '../lib/store';
-import { FONTS, THEMES, useTheme } from '../lib/theme';
+import { Btn, Card, Icon, Screen, StepBody, TopBar, Txt } from '../../components/ui';
+import { GEMINI_PROMPT } from '../../shared/content';
+import { scheduleAlarm } from '../../lib/notifications';
+import { useApp, type Settings } from '../../lib/store';
+import { FONTS, THEMES, useTheme } from '../../lib/theme';
 
 const SAMPLE_STEP = {
   phase: 'Shaping',
@@ -32,8 +31,7 @@ export default function SettingsScreen() {
   return (
     <Screen>
       <TopBar>
-        <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
-        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>Look & settings</Txt>
+        <Txt kind="head" weight="bold" size={30} style={{ flex: 1, paddingLeft: 8 }}>Look & settings</Txt>
       </TopBar>
 
       <View style={{ paddingHorizontal: 16, paddingBottom: 12, backgroundColor: th.c.bg }}>

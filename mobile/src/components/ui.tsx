@@ -1,7 +1,8 @@
 // Shared building blocks: text, buttons, cards, step layout, rich text, bottom dock with timers.
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
-import type { ComponentProps, ReactNode } from 'react';
+import { BottomTabBarHeightContext } from 'expo-router/js-tabs';
+import { useContext, type ComponentProps, type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View, type StyleProp, type TextProps, type TextStyle, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTimers, type KitchenTimer, type Step } from '../lib/store';
@@ -139,16 +140,23 @@ export function Chip({ children, icon, outlined }: { children: ReactNode; icon?:
 }
 
 // Fixed bottom area: running timers above the screen's main buttons.
-export function Dock({ children, onHeight }: { children?: ReactNode; onHeight?: (h: number) => void }) {
+// On tab screens it sits right above the tab bar, which already handles the phone's bottom edge.
+export function Dock({ children, onHeight, hideTimers }: { children?: ReactNode; onHeight?: (h: number) => void; hideTimers?: boolean }) {
   const th = useTheme();
   const insets = useSafeAreaInsets();
+  const inTabs = useContext(BottomTabBarHeightContext) != null;
+  const { timers } = useTimers();
+  const empty = !children && (hideTimers || !timers.length);
   return (
     <View
-      onLayout={e => onHeight?.(e.nativeEvent.layout.height)}
+      onLayout={e => onHeight?.(empty ? 0 : e.nativeEvent.layout.height)}
       pointerEvents="box-none"
-      style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingBottom: Math.max(insets.bottom, 12), paddingTop: 10, paddingHorizontal: 16, gap: 10, backgroundColor: th.c.bg + 'F2' }}
+      style={[
+        { position: 'absolute', left: 0, right: 0, bottom: 0, paddingBottom: inTabs ? 10 : Math.max(insets.bottom, 12), paddingTop: 10, paddingHorizontal: 16, gap: 10, backgroundColor: th.c.bg + 'F2' },
+        empty && { opacity: 0, paddingTop: 0, paddingBottom: 0 },
+      ]}
     >
-      <TimerTray />
+      {!hideTimers && <TimerTray />}
       {children ? <View style={{ flexDirection: 'row', gap: 10, justifyContent: 'flex-end' }}>{children}</View> : null}
     </View>
   );
@@ -171,14 +179,14 @@ function TimerTray() {
 
 function TrayTimer({ t }: { t: KitchenTimer }) {
   const th = useTheme();
-  const { remaining, togglePause, addMinute, removeTimer } = useTimers();
+  const { remaining, togglePause, addTime, removeTimer } = useTimers();
   const paused = t.pausedLeft != null;
   const bg = t.done ? th.c.accent : th.c.tray;
   const fg = t.done ? th.c.onAccent : th.c.onTray;
   return (
     <View style={[styles.tray, { backgroundColor: bg }]}>
-      <Pressable style={{ flex: 1 }} onPress={() => router.push(`/recipe/${t.recipeId}`)}>
-        <Txt size={12} color={fg} numberOfLines={1} style={{ opacity: 0.7 }}>{t.recipeTitle}</Txt>
+      <Pressable style={{ flex: 1 }} onPress={() => (t.recipeId ? router.push(`/recipe/${t.recipeId}`) : router.navigate('/timers'))}>
+        <Txt size={12} color={fg} numberOfLines={1} style={{ opacity: 0.7 }}>{t.recipeTitle || 'Quick timer'}</Txt>
         <Txt weight="bold" size={15} color={fg} numberOfLines={1}>{t.label}</Txt>
       </Pressable>
       <Txt weight="black" size={19} color={fg} style={{ fontVariant: ['tabular-nums'], opacity: paused ? 0.55 : 1, paddingHorizontal: 4 }}>
@@ -191,7 +199,7 @@ function TrayTimer({ t }: { t: KitchenTimer }) {
       ) : (
         <>
           <IconBtn size={38} name={paused ? 'play' : 'pause'} color={fg} label={paused ? 'Resume timer' : 'Pause timer'} onPress={() => togglePause(t.id)} />
-          <Pressable onPress={() => addMinute(t.id)} style={styles.plusOne} accessibilityLabel="Add one minute">
+          <Pressable onPress={() => addTime(t.id, 1)} style={styles.plusOne} accessibilityLabel="Add one minute">
             <Txt weight="black" size={14} color={fg}>+1</Txt>
           </Pressable>
           <IconBtn size={38} name="close" color={fg} label="Cancel timer" onPress={() => removeTimer(t.id)} />

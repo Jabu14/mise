@@ -33,7 +33,7 @@ export default function RecipeScreen() {
       <TopBar>
         <IconBtn name="arrow-back" label="All recipes" onPress={() => router.back()} />
         <View style={{ flex: 1 }} />
-        <IconBtn name="create-outline" label="Edit recipe" onPress={() => router.push({ pathname: '/new', params: { id: r.id } })} />
+        <IconBtn name="create-outline" label="Edit recipe" onPress={() => router.push(`/edit/${r.id}`)} />
         <IconBtn name="trash-outline" label="Delete recipe" onPress={confirmDelete} />
       </TopBar>
 

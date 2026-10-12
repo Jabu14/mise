@@ -47,8 +47,9 @@ export type KitchenTimer = {
   id: string;
   key: string;
   label: string;
-  recipeId: string;
+  recipeId: string;      // '' for a quick timer started from the Timers tab
   recipeTitle: string;
+  total: number;         // full length in ms (for the progress bar)
   endAt: number;
   pausedLeft: number | null;
   done: boolean;
@@ -75,9 +76,9 @@ type TimerValue = {
   timers: KitchenTimer[];
   now: number;
   remaining: (t: KitchenTimer) => number;
-  startTimer: (t: { key: string; minutes: number; label: string; recipeId: string; recipeTitle: string }) => void;
+  startTimer: (t: { key?: string; minutes: number; label: string; recipeId?: string; recipeTitle?: string }) => void;
   togglePause: (id: string) => void;
-  addMinute: (id: string) => void;
+  addTime: (id: string, minutes?: number) => void;
   removeTimer: (id: string) => void;
 };
 
@@ -193,9 +194,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     Promise.resolve(fn(current)).then(next => setTimers(list => list.map(t => (t.id === id ? next : t))));
   }, []);
 
-  const startTimer = useCallback<TimerValue['startTimer']>(async ({ key, minutes, label, recipeId, recipeTitle }) => {
+  const startTimer = useCallback<TimerValue['startTimer']>(async ({ key, minutes, label, recipeId = '', recipeTitle = '' }) => {
     const ms = Math.round(minutes * 60000);
-    const timer: KitchenTimer = { id: newId(), key, label, recipeId, recipeTitle, endAt: Date.now() + ms, pausedLeft: null, done: false, notificationId: null };
+    const id = newId();
+    const timer: KitchenTimer = { id, key: key || `quick:${id}`, label, recipeId, recipeTitle, total: ms, endAt: Date.now() + ms, pausedLeft: null, done: false, notificationId: null };
     setTimers(list => [...list, timer]);
     setNow(Date.now());
     const notificationId = await scheduleAlarm(label, recipeTitle, ms);
@@ -214,13 +216,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   }, [updateTimer]);
 
-  const addMinute = useCallback((id: string) => {
+  const addTime = useCallback((id: string, minutes = 1) => {
+    const ms = minutes * 60000;
     updateTimer(id, async t => {
       await cancelAlarm(t.notificationId);
-      if (t.pausedLeft != null) return { ...t, pausedLeft: t.pausedLeft + 60000 };
-      const endAt = t.done ? Date.now() + 60000 : t.endAt + 60000;
+      const total = (t.total || ms) + ms;
+      if (t.pausedLeft != null) return { ...t, total, pausedLeft: t.pausedLeft + ms };
+      const endAt = t.done ? Date.now() + ms : t.endAt + ms;
       const notificationId = await scheduleAlarm(t.label, t.recipeTitle, endAt - Date.now());
-      return { ...t, endAt, done: false, notificationId };
+      return { ...t, total: t.done ? ms : total, endAt, done: false, notificationId };
     });
     setNow(Date.now());
   }, [updateTimer]);
@@ -236,8 +240,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [ready, settings, updateSettings, resetLook, recipes, getRecipe, saveParsed, patchRecipe, setProgress, deleteRecipe],
   );
   const timerValue = useMemo<TimerValue>(
-    () => ({ timers, now, remaining, startTimer, togglePause, addMinute, removeTimer }),
-    [timers, now, remaining, startTimer, togglePause, addMinute, removeTimer],
+    () => ({ timers, now, remaining, startTimer, togglePause, addTime, removeTimer }),
+    [timers, now, remaining, startTimer, togglePause, addTime, removeTimer],
   );
 
   return (

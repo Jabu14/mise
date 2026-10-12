@@ -27,6 +27,9 @@ function Shell({ fontsLoaded }: { fontsLoaded: boolean }) {
     <>
       <StatusBar style={th.dark ? 'light' : 'dark'} />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: th.c.bg } }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="recipe/[id]" />
+        <Stack.Screen name="edit/[id]" options={{ presentation: 'modal' }} />
         <Stack.Screen name="cook/[id]" options={{ gestureEnabled: false, animation: 'fade_from_bottom' }} />
       </Stack>
     </>
