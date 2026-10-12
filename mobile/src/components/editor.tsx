@@ -3,6 +3,7 @@ import * as Clipboard from 'expo-clipboard';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, TextInput, View } from 'react-native';
+import { AiImportCard } from './ai-import';
 import { Btn, Card, Dock, IconBtn, Label, Screen, TopBar, Txt } from './ui';
 import { RECIPE_PROMPT } from '../shared/content';
 import { parseRecipe, plainText, guessEmoji } from '../shared/parser';
@@ -65,6 +66,16 @@ export function Editor({ existingId }: { existingId?: string }) {
       </TopBar>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 4, paddingBottom: dockH + 24, gap: 16 }} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
+        {!existing && (
+          <>
+            <AiImportCard pastedText={source} onResult={text => { setSource(text); setDebounced(text); }} />
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 2 }}>
+              <View style={{ flex: 1, height: 1, backgroundColor: th.c.line }} />
+              <Txt muted size={13} weight="bold">or paste it yourself</Txt>
+              <View style={{ flex: 1, height: 1, backgroundColor: th.c.line }} />
+            </View>
+          </>
+        )}
         <Card style={{ padding: 18, gap: 14 }}>
           <HowStep n={1} title="Get the recipe in app format" text="Copy this prompt and send it to your AI assistant in the same chat as your recipe." />
           <Btn title="Copy recipe prompt" icon="copy-outline" variant="secondary" onPress={copyPrompt} />
