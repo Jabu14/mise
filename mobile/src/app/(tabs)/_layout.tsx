@@ -9,7 +9,7 @@ export default function TabsLayout() {
       <Tabs.Screen name="index" />
       <Tabs.Screen name="add" />
       <Tabs.Screen name="timers" />
-      <Tabs.Screen name="settings" />
+      <Tabs.Screen name="account" />
     </Tabs>
   );
 }

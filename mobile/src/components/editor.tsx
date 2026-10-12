@@ -1,10 +1,10 @@
-// Add or edit a recipe: copy the Gemini prompt, paste the answer, preview, save.
+// Add or edit a recipe: copy the recipe prompt, paste the answer, preview, save.
 import * as Clipboard from 'expo-clipboard';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { Btn, Card, Dock, IconBtn, Label, Screen, TopBar, Txt } from './ui';
-import { GEMINI_PROMPT } from '../shared/content';
+import { RECIPE_PROMPT } from '../shared/content';
 import { parseRecipe, plainText, guessEmoji } from '../shared/parser';
 import { useApp } from '../lib/store';
 import { useTheme } from '../lib/theme';
@@ -18,7 +18,7 @@ export function Editor({ existingId }: { existingId?: string }) {
   const [debounced, setDebounced] = useState(source);
   const [showPrompt, setShowPrompt] = useState(false);
   const [dockH, setDockH] = useState(0);
-  const prompt = settings.geminiPrompt || GEMINI_PROMPT;
+  const prompt = settings.recipePrompt || RECIPE_PROMPT;
 
   useEffect(() => {
     const t = setTimeout(() => setDebounced(source), 250);
@@ -31,12 +31,12 @@ export function Editor({ existingId }: { existingId?: string }) {
 
   const copyPrompt = async () => {
     await Clipboard.setStringAsync(prompt);
-    Alert.alert('Prompt copied', 'Paste it into your Gemini chat, right after the recipe.');
+    Alert.alert('Prompt copied', 'Paste it into your AI chat, right after the recipe.');
   };
 
   const paste = async () => {
     const text = await Clipboard.getStringAsync();
-    if (!text) return Alert.alert('Clipboard is empty', "Copy Gemini's answer first.");
+    if (!text) return Alert.alert('Clipboard is empty', "Copy the recipe or the AI's answer first.");
     setSource(text);
     setDebounced(text);
   };
@@ -66,8 +66,8 @@ export function Editor({ existingId }: { existingId?: string }) {
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 4, paddingBottom: dockH + 24, gap: 16 }} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
         <Card style={{ padding: 18, gap: 14 }}>
-          <HowStep n={1} title="Ask Gemini for the app format" text="Copy this prompt and send it in the same Gemini chat as your recipe." />
-          <Btn title="Copy prompt for Gemini" icon="copy-outline" variant="secondary" onPress={copyPrompt} />
+          <HowStep n={1} title="Get the recipe in app format" text="Copy this prompt and send it to your AI assistant in the same chat as your recipe." />
+          <Btn title="Copy recipe prompt" icon="copy-outline" variant="secondary" onPress={copyPrompt} />
           <Pressable onPress={() => setShowPrompt(v => !v)} hitSlop={8}>
             <Txt weight="bold" size={14} color={th.c.accent}>{showPrompt ? '▾ Hide the prompt' : '▸ See the prompt'}</Txt>
           </Pressable>
@@ -76,7 +76,7 @@ export function Editor({ existingId }: { existingId?: string }) {
               <Txt size={12} selectable style={{ fontFamily: 'monospace' }}>{prompt}</Txt>
             </View>
           )}
-          <HowStep n={2} title="Paste Gemini's answer below" text="Any recipe text works too. Mise will do its best to read it." />
+          <HowStep n={2} title="Paste the answer below" text="Any recipe text works too. Mise will do its best to read it." />
         </Card>
 
         <TextInput
@@ -87,6 +87,7 @@ export function Editor({ existingId }: { existingId?: string }) {
           placeholderTextColor={th.c.muted}
           textAlignVertical="top"
           autoCorrect={false}
+          maxLength={100000}
           style={[{ minHeight: 220, maxHeight: 360, padding: 16, borderRadius: th.radius, borderWidth: 1.5, borderColor: th.c.line, backgroundColor: th.c.surface, color: th.c.text, fontSize: th.fs(15) }, th.f('body')]}
         />
         <View style={{ flexDirection: 'row', gap: 8, marginTop: -6 }}>

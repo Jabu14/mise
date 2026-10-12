@@ -1,7 +1,7 @@
 import { parseRecipe, scaleText, formatDuration, guessEmoji, ingredientsUsedIn, plainText } from './parser.js';
 import * as store from './store.js';
 import * as timers from './timers.js';
-import { GEMINI_PROMPT, SAMPLE_RECIPE } from './content.js';
+import { RECIPE_PROMPT, SAMPLE_RECIPE } from './content.js';
 import { icon } from './icons.js';
 
 const app = document.getElementById('app');
@@ -70,7 +70,7 @@ const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const truncate = (s, n) => (s.length > n ? `${s.slice(0, n - 1).trimEnd()}…` : s);
 const hue = s => [...String(s)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 17);
-const currentPrompt = () => store.settings.geminiPrompt || GEMINI_PROMPT;
+const currentPrompt = () => store.settings.recipePrompt || RECIPE_PROMPT;
 
 const TIME_RE = /\b\d+(?:[.,]\d+)?(?:\s*(?:-|–|to)\s*\d+(?:[.,]\d+)?)?\s*(?:hours?|hrs?|minutes?|mins?|seconds?|secs?)\b/gi;
 const TEMP_RE = /\b\d{2,3}\s*°\s*[CF]\b/g;
@@ -221,7 +221,7 @@ function renderLibrary() {
         <div class="empty">
           <div class="empty-art">🍞</div>
           <h1>Cook without scrolling back</h1>
-          <p>Paste a recipe from Gemini (or anywhere) and get big, simple steps with built-in timers.</p>
+          <p>Paste a recipe prompt and get big, simple steps with built-in timers.</p>
           <button class="btn primary big" data-action="go" data-to="#/new">${icon('plus')} Add your first recipe</button>
           <button class="btn ghost" data-action="sample">Try a sample bread recipe</button>
         </div>
@@ -235,8 +235,8 @@ function recipeCard(r) {
   const step = r.progress?.step || 0;
   const inProgress = step > 0 && step < r.steps.length;
   return `
-    <a class="recipe-card" href="#/r/${r.id}" data-title="${esc(r.title.toLowerCase())}">
-      <div class="card-art" style="--h:${hue(r.title)}">${r.emoji || '🍳'}</div>
+    <a class="recipe-card" href="#/r/${esc(r.id)}" data-title="${esc(r.title.toLowerCase())}">
+      <div class="card-art" style="--h:${hue(r.title)}">${esc(r.emoji || '🍳')}</div>
       <div class="card-body">
         <h3>${esc(r.title)}</h3>
         <p class="muted">${esc(meta)}</p>
@@ -260,13 +260,13 @@ function renderEditor(id) {
     <main class="page editor">
       <section class="card how">
         <div class="how-step"><span class="num">1</span><div>
-          <h3>Ask Gemini for the app format</h3>
-          <p class="muted">Copy this prompt and send it in the same Gemini chat as your recipe.</p>
+          <h3>Get the recipe in app format</h3>
+          <p class="muted">Copy this prompt and send it to your AI assistant in the same chat as your recipe.</p>
         </div></div>
-        <button class="btn secondary" data-action="copy-prompt">${icon('copy')} Copy prompt for Gemini</button>
+        <button class="btn secondary" data-action="copy-prompt">${icon('copy')} Copy recipe prompt</button>
         <details><summary>See the prompt</summary><pre class="prompt-preview">${esc(currentPrompt())}</pre></details>
         <div class="how-step"><span class="num">2</span><div>
-          <h3>Paste Gemini's answer below</h3>
+          <h3>Paste the answer below</h3>
           <p class="muted">Any recipe text works too. Mise will do its best to read it.</p>
         </div></div>
       </section>
@@ -357,7 +357,7 @@ function renderRecipe(id) {
     </header>
     <main class="page recipe">
       <div class="hero">
-        <div class="hero-art" style="--h:${hue(r.title)}">${r.emoji || '🍳'}</div>
+        <div class="hero-art" style="--h:${hue(r.title)}">${esc(r.emoji || '🍳')}</div>
         <h1 class="recipe-title">${esc(r.title)}</h1>
         ${r.description ? `<p class="lede">${inline(r.description)}</p>` : ''}
         ${r.times.length ? `<div class="chips">${r.times.map(t => `<span class="chip">${icon('clock')}<b>${esc(t.label)}</b>${esc(t.value)}</span>`).join('')}</div>` : ''}
@@ -512,7 +512,7 @@ function renderFinished(r) {
     <main class="finished">
       <div class="big-emoji">🎉</div>
       <h1>All done!</h1>
-      <p class="muted">Enjoy your ${esc(r.title)}. ${r.emoji || ''}</p>
+      <p class="muted">Enjoy your ${esc(r.title)}. ${esc(r.emoji || '')}</p>
       <div class="actions">
         <a class="btn primary big" href="#/r/${r.id}">Back to recipe</a>
         <button class="btn secondary" data-action="cook" data-id="${r.id}" data-step="0">${icon('restart')} Cook it again</button>
@@ -594,9 +594,9 @@ function renderSettings() {
       </section>
 
       <section class="setting-group">
-        <h2>Gemini prompt</h2>
-        <p class="muted hint">This is what “Copy prompt for Gemini” copies. You can change it, for example to ask for metric units only.</p>
-        <textarea class="mono" data-input="prompt" aria-label="Gemini prompt">${esc(currentPrompt())}</textarea>
+        <h2>Recipe prompt</h2>
+        <p class="muted hint">This is what “Copy recipe prompt” copies. You can change it, for example to ask for metric units only.</p>
+        <textarea class="mono" data-input="prompt" aria-label="Recipe prompt">${esc(currentPrompt())}</textarea>
         <div class="row"><button class="btn secondary small" data-action="copy-prompt">${icon('copy')} Copy</button>
         <button class="btn ghost small" data-action="reset-prompt">${icon('restart')} Restore original</button></div>
       </section>
@@ -706,7 +706,7 @@ const actions = {
 
   async 'copy-prompt'() {
     const ok = await copyText(currentPrompt());
-    toast(ok ? 'Prompt copied! Paste it into your Gemini chat.' : "Couldn't copy. Open “See the prompt” and copy it by hand.");
+    toast(ok ? 'Prompt copied! Paste it into your AI chat.' : "Couldn't copy. Open “See the prompt” and copy it by hand.");
   },
 
   async paste() {
@@ -830,7 +830,7 @@ const actions = {
   },
 
   'reset-prompt'() {
-    store.updateSettings({ geminiPrompt: '' });
+    store.updateSettings({ recipePrompt: '' });
     rerender();
     toast('Original prompt restored');
   },
@@ -870,7 +870,7 @@ const inputs = {
   },
   prompt: el => {
     clearTimeout(inputTimer);
-    inputTimer = setTimeout(() => store.updateSettings({ geminiPrompt: el.value.trim() === GEMINI_PROMPT.trim() ? '' : el.value }), 400);
+    inputTimer = setTimeout(() => store.updateSettings({ recipePrompt: el.value.trim() === RECIPE_PROMPT.trim() ? '' : el.value }), 400);
   },
   search: el => {
     const q = el.value.trim().toLowerCase();

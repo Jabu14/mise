@@ -1,6 +1,6 @@
 # Mise: step-by-step cooking
 
-Paste a recipe (from Gemini or anywhere) and cook it one big, clear step at a time, with built-in timers.
+Paste a recipe (from an AI assistant or anywhere) and cook it one big, clear step at a time, with built-in timers.
 
 There are two versions with the same features and look:
 
@@ -12,9 +12,9 @@ There are two versions with the same features and look:
 
 ## How to use it
 
-1. Tap **Add recipe** → **Copy prompt for Gemini**.
-2. Paste that prompt into your Gemini chat (right after it gives you a recipe).
-3. Copy Gemini's answer, go back to the app and tap **Paste**. Check the preview, then **Save**.
+1. Tap **Add recipe** → **Copy recipe prompt**.
+2. Paste that prompt into your AI chat (right after it gives you a recipe).
+3. Copy the answer, go back to the app and tap **Paste**. Check the preview, then **Save**.
 4. Tap **Start cooking**. Swipe or tap **Next step**; tap a timer button to start a timer.
 
 Any ordinary recipe text (bullet lists, numbered steps) also works without the special prompt.

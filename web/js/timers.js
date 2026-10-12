@@ -1,6 +1,7 @@
 // Kitchen timers. Each one stores its end time (not a countdown), so they stay
 // correct if the phone locks or the app reloads.
 import { settings } from './store.js';
+import { cleanTimers } from './validate.js';
 
 const KEY = 'mise.timers.v1';
 let timers = load();
@@ -11,7 +12,7 @@ let alarmStop = null;
 
 function load() {
   try {
-    return JSON.parse(localStorage.getItem(KEY)) || [];
+    return cleanTimers(JSON.parse(localStorage.getItem(KEY)));
   } catch {
     return [];
   }

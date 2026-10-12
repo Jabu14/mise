@@ -58,14 +58,15 @@ type BtnProps = {
   grow?: boolean;
   style?: StyleProp<ViewStyle>;
   accessibilityLabel?: string;
+  textSize?: number;
 };
 
-export function Btn({ title, icon, iconRight, onPress, variant = 'primary', size = 'normal', disabled, grow, style, accessibilityLabel }: BtnProps) {
+export function Btn({ title, icon, iconRight, onPress, variant = 'primary', size = 'normal', disabled, grow, style, accessibilityLabel, textSize }: BtnProps) {
   const th = useTheme();
   const bg = { primary: th.c.accent, secondary: th.c.accentSoft, ghost: 'transparent', danger: '#C2382B' }[variant];
   const fg = { primary: th.c.onAccent, secondary: th.c.accent, ghost: th.c.accent, danger: '#fff' }[variant];
   const height = { small: 38, normal: 46, big: 58 }[size];
-  const fontSize = { small: 14, normal: 16, big: 17 }[size];
+  const fontSize = textSize ?? { small: 14, normal: 16, big: 17 }[size];
   return (
     <Pressable
       onPress={onPress}

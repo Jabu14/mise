@@ -1,12 +1,27 @@
 import { Fraunces_500Medium, Fraunces_700Bold, Fraunces_800ExtraBold } from '@expo-google-fonts/fraunces';
 import { Nunito_500Medium, Nunito_700Bold, Nunito_800ExtraBold } from '@expo-google-fonts/nunito';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, type ErrorBoundaryProps } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppProvider, useApp } from '../lib/store';
 import { useTheme } from '../lib/theme';
+
+// If a screen ever crashes, show a friendly screen with a retry instead of closing the app.
+// Kept dependency-free (no theme/store) so it still works if those are what broke.
+export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 14, padding: 32, backgroundColor: '#FBF6EF' }}>
+      <Text style={{ fontSize: 48 }}>🍞</Text>
+      <Text style={{ fontSize: 22, fontWeight: '800', color: '#2A1F17', textAlign: 'center' }}>Something went wrong</Text>
+      <Text style={{ fontSize: 15, color: '#7C6B5D', textAlign: 'center' }}>Your recipes are safe. Try again, and if it keeps happening, restart the app.</Text>
+      <Pressable onPress={retry} style={{ marginTop: 8, paddingHorizontal: 28, paddingVertical: 14, borderRadius: 999, backgroundColor: '#B8622B' }}>
+        <Text style={{ color: '#fff', fontWeight: '800', fontSize: 16 }}>Try again</Text>
+      </Pressable>
+    </View>
+  );
+}
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({ Fraunces_500Medium, Fraunces_700Bold, Fraunces_800ExtraBold, Nunito_500Medium, Nunito_700Bold, Nunito_800ExtraBold });
@@ -30,6 +45,7 @@ function Shell({ fontsLoaded }: { fontsLoaded: boolean }) {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="recipe/[id]" />
         <Stack.Screen name="edit/[id]" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="settings" />
         <Stack.Screen name="cook/[id]" options={{ gestureEnabled: false, animation: 'fade_from_bottom' }} />
       </Stack>
     </>

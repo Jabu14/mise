@@ -2,7 +2,7 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, TextInput, View } from 'react-native';
-import { Btn, Card, Dock, Icon, Screen, TopBar, Txt } from '../../components/ui';
+import { Btn, Card, Dock, Icon, IconBtn, Screen, TopBar, Txt } from '../../components/ui';
 import { SAMPLE_RECIPE } from '../../shared/content';
 import { parseRecipe } from '../../shared/parser';
 import { useApp, type Recipe } from '../../lib/store';
@@ -32,6 +32,7 @@ export default function Library() {
           <Icon name="restaurant-outline" size={24} color={th.c.accent} />
           <Txt kind="head" weight="bold" size={24}>Mise</Txt>
         </View>
+        <IconBtn name="settings-outline" label="Look and settings" onPress={() => router.push('/settings')} />
       </TopBar>
 
       {recipes.length ? (
@@ -52,10 +53,10 @@ export default function Library() {
           </View>
           <Txt kind="head" weight="bold" size={30} style={{ textAlign: 'center', maxWidth: 280 }}>Cook without scrolling back</Txt>
           <Txt muted style={{ textAlign: 'center', maxWidth: 300 }}>
-            Paste a recipe from Gemini (or anywhere) and get big, simple steps with built-in timers.
+            Paste a recipe prompt and get big, simple steps with built-in timers.
           </Txt>
           <Btn title="Add your first recipe" icon="add" size="big" onPress={() => router.navigate('/add')} style={{ marginTop: 8 }} />
-          <Btn title="Try a sample bread recipe" variant="ghost" onPress={addSample} />
+          <Btn title="Try a sample bread recipe" variant="ghost" textSize={14.5} onPress={addSample} />
         </ScrollView>
       )}
 

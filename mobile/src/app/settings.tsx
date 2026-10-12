@@ -1,11 +1,12 @@
 // Look & settings, with a live preview of a cook-mode step at the top.
 import * as Clipboard from 'expo-clipboard';
+import { router } from 'expo-router';
 import { Alert, Pressable, ScrollView, Switch, TextInput, View } from 'react-native';
-import { Btn, Card, Icon, Screen, StepBody, TopBar, Txt } from '../../components/ui';
-import { GEMINI_PROMPT } from '../../shared/content';
-import { scheduleAlarm } from '../../lib/notifications';
-import { useApp, type Settings } from '../../lib/store';
-import { FONTS, THEMES, useTheme } from '../../lib/theme';
+import { Btn, Card, Icon, IconBtn, Screen, StepBody, TopBar, Txt } from '../components/ui';
+import { RECIPE_PROMPT } from '../shared/content';
+import { scheduleAlarm } from '../lib/notifications';
+import { useApp, type Settings } from '../lib/store';
+import { FONTS, THEMES, useTheme } from '../lib/theme';
 
 const SAMPLE_STEP = {
   phase: 'Shaping',
@@ -18,7 +19,7 @@ const SAMPLE_STEP = {
 export default function SettingsScreen() {
   const th = useTheme();
   const { settings, updateSettings, resetLook } = useApp();
-  const prompt = settings.geminiPrompt || GEMINI_PROMPT;
+  const prompt = settings.recipePrompt || RECIPE_PROMPT;
 
   const testAlarm = async () => {
     const id = await scheduleAlarm('Test timer', 'Mise', 5000);
@@ -31,7 +32,8 @@ export default function SettingsScreen() {
   return (
     <Screen>
       <TopBar>
-        <Txt kind="head" weight="bold" size={30} style={{ flex: 1, paddingLeft: 8 }}>Look & settings</Txt>
+        <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
+        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>Look & settings</Txt>
       </TopBar>
 
       <View style={{ paddingHorizontal: 16, paddingBottom: 12, backgroundColor: th.c.bg }}>
@@ -78,18 +80,19 @@ export default function SettingsScreen() {
           <Btn title="Test the alarm" icon="timer-outline" variant="ghost" size="small" onPress={testAlarm} style={{ alignSelf: 'flex-start' }} />
         </Group>
 
-        <Group title="Gemini prompt">
-          <Txt muted size={14}>This is what “Copy prompt for Gemini” copies. You can change it, for example to ask for metric units only.</Txt>
+        <Group title="Recipe prompt">
+          <Txt muted size={14}>This is what “Copy recipe prompt” copies. You can change it, for example to ask for metric units only.</Txt>
           <TextInput
             multiline
             value={prompt}
-            onChangeText={text => updateSettings({ geminiPrompt: text.trim() === GEMINI_PROMPT.trim() ? '' : text })}
+            onChangeText={text => updateSettings({ recipePrompt: text.trim() === RECIPE_PROMPT.trim() ? '' : text })}
+            maxLength={8000}
             textAlignVertical="top"
             style={{ minHeight: 200, maxHeight: 320, padding: 14, borderRadius: th.radius, borderWidth: 1.5, borderColor: th.c.line, backgroundColor: th.c.surface, color: th.c.text, fontSize: 13, fontFamily: 'monospace' }}
           />
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <Btn title="Copy" icon="copy-outline" variant="secondary" size="small" onPress={() => Clipboard.setStringAsync(prompt)} />
-            <Btn title="Restore original" icon="refresh" variant="ghost" size="small" onPress={() => updateSettings({ geminiPrompt: '' })} />
+            <Btn title="Restore original" icon="refresh" variant="ghost" size="small" onPress={() => updateSettings({ recipePrompt: '' })} />
           </View>
         </Group>
 

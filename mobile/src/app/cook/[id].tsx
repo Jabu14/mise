@@ -21,7 +21,7 @@ export default function Cook() {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const { id, step } = useLocalSearchParams<{ id: string; step?: string }>();
-  const { getRecipe, setProgress, patchRecipe, settings } = useApp();
+  const { getRecipe, setProgress, markCooked, settings } = useApp();
   const r = getRecipe(id);
   const total = r?.steps.length ?? 0;
   const [index, setIndex] = useState(() => Math.min(Math.max(parseInt(step || '0', 10) || 0, 0), Math.max(total - 1, 0)));
@@ -49,7 +49,7 @@ export default function Cook() {
     if (settings.haptics) Haptics.selectionAsync().catch(() => {});
     if (i >= total) {
       setFinished(true);
-      patchRecipe(r.id, { lastCooked: Date.now() });
+      markCooked(r.id);
       return;
     }
     setIndex(i);

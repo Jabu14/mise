@@ -1,6 +1,6 @@
-// The prompt you give Gemini, and a sample recipe to try the app with.
+// The prompt you give your AI assistant, and a sample recipe to try the app with.
 
-export const GEMINI_PROMPT = `Please rewrite the recipe from our conversation for my cooking app.
+export const RECIPE_PROMPT = `Please rewrite the recipe from our conversation for my cooking app.
 
 Reply with ONLY one JSON code block (nothing before or after it) using exactly this structure:
 

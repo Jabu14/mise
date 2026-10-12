@@ -1,4 +1,4 @@
-// Copies the recipe reader and Gemini prompt from the web app so both apps behave the same.
+// Copies the recipe reader and recipe prompt from the web app so both apps behave the same.
 // Run after changing web/js/parser.js or web/js/content.js:  npm run sync-shared
 const fs = require('fs');
 const path = require('path');

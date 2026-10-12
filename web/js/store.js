@@ -1,4 +1,5 @@
 // Everything is saved on this device (localStorage): your recipes and your look & feel settings.
+import { cleanRecipe, cleanRecipes, cleanSettings, newId as makeId } from './validate.js';
 
 const RECIPES_KEY = 'mise.recipes.v1';
 const SETTINGS_KEY = 'mise.settings.v1';
@@ -32,24 +33,24 @@ export const DEFAULT_SETTINGS = {
   keepAwake: true,
   timerSound: true,
   vibrate: true,
-  geminiPrompt: '',     // empty = the built-in prompt
+  recipePrompt: '',     // empty = the built-in prompt
 };
 
-export const settings = { ...DEFAULT_SETTINGS, ...read(SETTINGS_KEY, {}) };
+export const settings = cleanSettings(read(SETTINGS_KEY, {}), DEFAULT_SETTINGS);
 
 export function updateSettings(patch) {
-  Object.assign(settings, patch);
+  Object.assign(settings, cleanSettings({ ...settings, ...patch }, DEFAULT_SETTINGS));
   write(SETTINGS_KEY, settings);
 }
 
 export function resetLook() {
-  Object.assign(settings, DEFAULT_SETTINGS, { geminiPrompt: settings.geminiPrompt });
+  Object.assign(settings, DEFAULT_SETTINGS, { recipePrompt: settings.recipePrompt });
   write(SETTINGS_KEY, settings);
 }
 
-let recipes = read(RECIPES_KEY, []);
+let recipes = cleanRecipes(read(RECIPES_KEY, []));
 const persist = () => write(RECIPES_KEY, recipes);
-const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const newId = makeId;
 
 export function listRecipes() {
   return [...recipes].sort((a, b) => (b.lastOpened || b.updatedAt) - (a.lastOpened || a.updatedAt));
@@ -93,9 +94,10 @@ export function exportRecipes() {
 
 export function importRecipes(list) {
   let added = 0;
-  for (const r of Array.isArray(list) ? list : []) {
-    if (!r || !r.title || !Array.isArray(r.steps) || (r.id && getRecipe(r.id))) continue;
-    recipes.push({ ...r, id: r.id || newId(), updatedAt: r.updatedAt || Date.now() });
+  for (const raw of Array.isArray(list) ? list.slice(0, 2000) : []) {
+    const r = cleanRecipe(raw);
+    if (!r || getRecipe(r.id)) continue;
+    recipes.push(r);
     added++;
   }
   persist();

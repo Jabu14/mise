@@ -1,117 +1,203 @@
-// Timers tab: every running timer in one place, plus quick timers that don't need a recipe.
+// Timers tab: set a timer with iPhone-style wheels, watch it as a ring, clock or hourglass,
+// and restart recent timers from the history at the bottom.
+import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
-import { Pressable, ScrollView, View, useWindowDimensions } from 'react-native';
-import { Card, Dock, Icon, IconBtn, Label, Screen, TopBar, Txt, clock } from '../../components/ui';
+import { useState } from 'react';
+import { Pressable, ScrollView, TextInput, View, useWindowDimensions } from 'react-native';
+import { ClockFace, RingFace, SandFace, useSmoothNow, type FaceProps } from '../../components/timer-faces';
+import { Card, Icon, Label, Screen, TopBar, Txt, clock, type IconName } from '../../components/ui';
+import { DurationPicker } from '../../components/wheel-picker';
 import { formatDuration } from '../../shared/parser';
-import { useTimers, type KitchenTimer } from '../../lib/store';
+import { useApp, useTimers, type KitchenTimer, type Settings } from '../../lib/store';
 import { useTheme } from '../../lib/theme';
 
-const QUICK = [1, 3, 5, 10, 15, 20, 30, 45, 60, 90];
+const STYLES: { key: Settings['timerStyle']; label: string; icon: IconName }[] = [
+  { key: 'ring', label: 'Ring', icon: 'ellipse-outline' },
+  { key: 'clock', label: 'Clock', icon: 'time-outline' },
+  { key: 'sand', label: 'Sand', icon: 'hourglass-outline' },
+];
 
 export default function TimersTab() {
   const th = useTheme();
-  const { timers, startTimer } = useTimers();
   const { width } = useWindowDimensions();
-  const tile = Math.floor((Math.min(width, 680) - 32 - 4 * 8) / 5);
+  const { settings, updateSettings } = useApp();
+  const { timers, history, startTimer, clearHistory } = useTimers();
+  const [focusId, setFocusId] = useState<string | null>(null);
+  const [picking, setPicking] = useState(false);
+  const [duration, setDuration] = useState({ hours: 0, minutes: 5, seconds: 0 });
+  const [label, setLabel] = useState('');
 
-  const quick = (minutes: number) =>
-    startTimer({ minutes, label: `${formatDuration(minutes)} timer` });
+  const focused = timers.find(t => t.id === focusId) || timers[timers.length - 1];
+  const showPicker = picking || !focused;
+  const totalMinutes = duration.hours * 60 + duration.minutes + duration.seconds / 60;
+  const faceSize = Math.min(width - 64, 320);
+
+  const start = (minutes: number, name?: string) => {
+    if (!(minutes > 0)) return;
+    if (settings.haptics) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+    startTimer({ minutes, label: name?.trim() || `${formatDuration(minutes)} timer` });
+    setFocusId(null);
+    setPicking(false);
+    setLabel('');
+  };
 
   return (
     <Screen>
       <TopBar>
         <Txt kind="head" weight="bold" size={30} style={{ flex: 1, paddingLeft: 8 }}>Timers</Txt>
+        <View style={{ flexDirection: 'row', padding: 3, borderRadius: 999, backgroundColor: th.c.soft }}>
+          {STYLES.map(s => {
+            const on = settings.timerStyle === s.key;
+            return (
+              <Pressable
+                key={s.key}
+                onPress={() => updateSettings({ timerStyle: s.key })}
+                accessibilityRole="radio"
+                accessibilityState={{ selected: on }}
+                accessibilityLabel={`${s.label} style`}
+                style={{ width: 42, height: 34, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? th.c.surface : 'transparent' }}
+              >
+                <Icon name={s.icon} size={19} color={on ? th.c.accent : th.c.muted} />
+              </Pressable>
+            );
+          })}
+        </View>
       </TopBar>
 
-      <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 4, paddingBottom: 32, gap: 12 }}>
-        {timers.length ? (
-          timers.map(t => <TimerCard key={t.id} t={t} />)
-        ) : (
-          <Card style={{ padding: 22, alignItems: 'center', gap: 8 }}>
-            <View style={{ width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.accentSoft }}>
-              <Icon name="timer-outline" size={32} color={th.c.accent} />
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32, gap: 18 }} keyboardShouldPersistTaps="handled">
+        {timers.length > 1 || (timers.length && showPicker) ? (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
+            {timers.map(t => (
+              <MiniTimer key={t.id} t={t} active={!showPicker && t.id === focused?.id} onPress={() => { setFocusId(t.id); setPicking(false); }} />
+            ))}
+            {!showPicker && (
+              <Pressable onPress={() => setPicking(true)} style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 14, height: 40, borderRadius: 999, borderWidth: 1.5, borderStyle: 'dashed', borderColor: th.c.line }}>
+                <Icon name="add" size={18} color={th.c.accent} />
+                <Txt weight="black" size={14} color={th.c.accent}>New</Txt>
+              </Pressable>
+            )}
+          </ScrollView>
+        ) : null}
+
+        {showPicker ? (
+          <View style={{ gap: 18 }}>
+            <View style={{ paddingVertical: 8 }}>
+              <DurationPicker {...duration} haptics={settings.haptics} onChange={setDuration} />
             </View>
-            <Txt weight="black" size={17}>No timers running</Txt>
-            <Txt muted size={14} style={{ textAlign: 'center' }}>
-              Start one from a recipe step, or tap a quick timer below. Alarms ring even when your phone is locked.
-            </Txt>
-          </Card>
+            <Card style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, gap: 12 }}>
+              <Txt weight="bold">Label</Txt>
+              <TextInput
+                value={label}
+                onChangeText={setLabel}
+                placeholder="Timer"
+                placeholderTextColor={th.c.muted}
+                maxLength={60}
+                style={[{ flex: 1, textAlign: 'right', color: th.c.text, fontSize: th.fs(16), paddingVertical: 14 }, th.f('body')]}
+              />
+            </Card>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 8 }}>
+              <RoundButton label="Cancel" onPress={() => setPicking(false)} disabled={!focused} />
+              <RoundButton label="Start" primary onPress={() => start(totalMinutes, label)} disabled={!(totalMinutes > 0)} />
+            </View>
+          </View>
+        ) : (
+          focused && <RunningTimer t={focused} size={faceSize} styleKey={settings.timerStyle} />
         )}
 
-        <View style={{ marginTop: 16, gap: 10 }}>
-          <Label color={th.c.muted}>Quick timer</Label>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-            {QUICK.map(m => (
-              <Pressable
-                key={m}
-                onPress={() => quick(m)}
-                accessibilityLabel={`Start a ${formatDuration(m)} timer`}
-                style={({ pressed }) => ({ width: tile, height: tile, borderRadius: th.radiusSm, alignItems: 'center', justifyContent: 'center', backgroundColor: pressed ? th.c.accentSoft : th.c.surface, borderWidth: 1, borderColor: th.c.line })}
-              >
-                <Txt kind="head" weight="bold" size={20} color={th.c.accent}>{m >= 60 ? String(m / 60).replace('.5', '½') : m}</Txt>
-                <Txt muted size={11} weight="bold">{m >= 60 ? (m === 60 ? 'hour' : 'hours') : 'min'}</Txt>
-              </Pressable>
-            ))}
+        <View style={{ gap: 8, marginTop: 6 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 4 }}>
+            <Label color={th.c.muted}>Recent</Label>
+            {history.length ? (
+              <Pressable onPress={clearHistory} hitSlop={8}><Txt weight="bold" size={13} color={th.c.accent}>Clear</Txt></Pressable>
+            ) : null}
           </View>
+          {history.length ? (
+            <Card style={{ paddingHorizontal: 16 }}>
+              {history.map((h, i) => (
+                <View key={`${h.minutes}-${h.label}-${i}`} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: i === history.length - 1 ? 0 : 1, borderBottomColor: th.c.line }}>
+                  <View style={{ flex: 1 }}>
+                    <Txt kind="head" size={30} style={{ fontVariant: ['tabular-nums'], lineHeight: 36 }}>{clock(h.minutes * 60000)}</Txt>
+                    <Txt muted size={13} numberOfLines={1}>{h.label}</Txt>
+                  </View>
+                  <Pressable onPress={() => start(h.minutes, h.label)} accessibilityLabel={`Start ${h.label} again`} style={({ pressed }) => ({ width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.accentSoft, opacity: pressed ? 0.7 : 1 })}>
+                    <Icon name="play" size={20} color={th.c.accent} />
+                  </Pressable>
+                </View>
+              ))}
+            </Card>
+          ) : (
+            <Txt muted size={14} style={{ paddingHorizontal: 4 }}>Timers you start will show up here so you can run them again with one tap.</Txt>
+          )}
         </View>
       </ScrollView>
-
-      <Dock hideTimers />
     </Screen>
   );
 }
 
-function TimerCard({ t }: { t: KitchenTimer }) {
+function RunningTimer({ t, size, styleKey }: { t: KitchenTimer; size: number; styleKey: Settings['timerStyle'] }) {
   const th = useTheme();
-  const { remaining, togglePause, addTime, removeTimer } = useTimers();
-  const left = remaining(t);
+  const { togglePause, addTime, removeTimer } = useTimers();
   const paused = t.pausedLeft != null;
-  const progress = t.total ? Math.min(1, Math.max(0, 1 - left / t.total)) : 0;
-  const fg = t.done ? th.c.onAccent : th.c.text;
+  const now = useSmoothNow(!paused && !t.done);
+  const remaining = paused ? (t.pausedLeft as number) : Math.max(0, t.endAt - now);
+  const props: FaceProps = { remaining, total: t.total || 60000, paused, done: t.done, size, now };
 
   return (
-    <Card style={[{ padding: 18, gap: 14 }, t.done && { backgroundColor: th.c.accent, borderColor: th.c.accent }]}>
-      <Pressable onPress={() => t.recipeId && router.push(`/recipe/${t.recipeId}`)} disabled={!t.recipeId}>
-        <Txt size={13} color={fg} style={{ opacity: 0.7 }} numberOfLines={1}>{t.recipeTitle || 'Quick timer'}</Txt>
-        <Txt weight="black" size={18} color={fg} numberOfLines={2}>{t.label}</Txt>
+    <View style={{ alignItems: 'center', gap: 18 }}>
+      <Pressable onPress={() => t.recipeId && router.push(`/recipe/${t.recipeId}`)} disabled={!t.recipeId} style={{ alignItems: 'center' }}>
+        {t.recipeTitle ? <Txt muted size={13} numberOfLines={1}>{t.recipeTitle}</Txt> : null}
+        <Txt weight="black" size={18} numberOfLines={1}>{t.label}</Txt>
       </Pressable>
 
-      <Txt kind="head" weight="bold" size={52} color={t.done ? fg : paused ? th.c.muted : th.c.accent} style={{ fontVariant: ['tabular-nums'], lineHeight: 60 }}>
-        {t.done ? "Time's up!" : clock(left)}
-      </Txt>
+      {styleKey === 'clock' ? <ClockFace {...props} /> : styleKey === 'sand' ? <SandFace {...props} /> : <RingFace {...props} />}
 
-      {!t.done && (
-        <View style={{ height: 6, borderRadius: 999, backgroundColor: th.c.soft, overflow: 'hidden' }}>
-          <View style={{ width: `${progress * 100}%`, height: '100%', borderRadius: 999, backgroundColor: paused ? th.c.muted : th.c.accent }} />
-        </View>
-      )}
-
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', alignSelf: 'stretch', paddingHorizontal: 8 }}>
+        <RoundButton label={t.done ? 'Stop' : 'Cancel'} onPress={() => removeTimer(t.id)} primary={t.done} />
+        <Pressable onPress={() => addTime(t.id, 1)} style={({ pressed }) => ({ paddingHorizontal: 18, height: 40, borderRadius: 999, justifyContent: 'center', backgroundColor: th.c.soft, opacity: pressed ? 0.7 : 1 })} accessibilityLabel="Add one minute">
+          <Txt weight="black" size={14}>+1 min</Txt>
+        </Pressable>
         {t.done ? (
-          <>
-            <Pill label="Stop" onPress={() => removeTimer(t.id)} solid />
-            <Pill label="+1 min" onPress={() => addTime(t.id, 1)} />
-            <Pill label="+5 min" onPress={() => addTime(t.id, 5)} />
-          </>
+          <RoundButton label="+5 min" onPress={() => addTime(t.id, 5)} />
         ) : (
-          <>
-            <IconBtn tinted name={paused ? 'play' : 'pause'} label={paused ? 'Resume' : 'Pause'} onPress={() => togglePause(t.id)} />
-            <Pill label="+1 min" onPress={() => addTime(t.id, 1)} />
-            <Pill label="+5 min" onPress={() => addTime(t.id, 5)} />
-            <View style={{ flex: 1 }} />
-            <IconBtn name="trash-outline" label="Cancel timer" color={th.c.muted} onPress={() => removeTimer(t.id)} />
-          </>
+          <RoundButton label={paused ? 'Resume' : 'Pause'} icon={paused ? 'play' : 'pause'} primary onPress={() => togglePause(t.id)} />
         )}
       </View>
-    </Card>
+    </View>
   );
 }
 
-function Pill({ label, onPress, solid }: { label: string; onPress: () => void; solid?: boolean }) {
+// Big round buttons like the iPhone Clock app.
+function RoundButton({ label, onPress, primary, disabled, icon }: { label: string; onPress: () => void; primary?: boolean; disabled?: boolean; icon?: IconName }) {
   const th = useTheme();
+  const bg = primary ? th.c.accent : th.c.soft;
+  const fg = primary ? th.c.onAccent : th.c.text;
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => ({ paddingHorizontal: 16, height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: solid ? th.c.onAccent : th.c.accentSoft, opacity: pressed ? 0.7 : 1 })}>
-      <Txt weight="black" size={14} color={th.c.accent}>{label}</Txt>
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      style={({ pressed }) => ({ width: 84, height: 84, borderRadius: 42, padding: 3, borderWidth: 2, borderColor: bg, opacity: disabled ? 0.4 : pressed ? 0.75 : 1 })}
+    >
+      <View style={{ flex: 1, borderRadius: 40, alignItems: 'center', justifyContent: 'center', backgroundColor: bg, gap: 2 }}>
+        {icon ? <Icon name={icon} size={22} color={fg} /> : null}
+        <Txt weight="black" size={icon ? 13 : 15} color={fg}>{label}</Txt>
+      </View>
+    </Pressable>
+  );
+}
+
+function MiniTimer({ t, active, onPress }: { t: KitchenTimer; active: boolean; onPress: () => void }) {
+  const th = useTheme();
+  const { remaining } = useTimers();
+  const paused = t.pausedLeft != null;
+  return (
+    <Pressable onPress={onPress} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, height: 40, borderRadius: 999, backgroundColor: active ? th.c.accent : t.done ? th.c.temp : th.c.surface, borderWidth: 1, borderColor: active ? th.c.accent : th.c.line }}>
+      <Icon name={t.done ? 'alarm' : paused ? 'pause' : 'timer-outline'} size={16} color={active || t.done ? th.c.onAccent : th.c.accent} />
+      <Txt weight="black" size={14} color={active || t.done ? th.c.onAccent : th.c.text} style={{ fontVariant: ['tabular-nums'] }}>
+        {t.done ? 'Done' : clock(remaining(t))}
+      </Txt>
+      <Txt size={13} color={active || t.done ? th.c.onAccent : th.c.muted} numberOfLines={1} style={{ maxWidth: 110 }}>{t.label}</Txt>
     </Pressable>
   );
 }

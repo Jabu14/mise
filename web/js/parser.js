@@ -1,5 +1,5 @@
 // Turns pasted recipe text into a structured recipe.
-// Understands the JSON format our Gemini prompt asks for, and falls back to
+// Understands the JSON format our recipe prompt asks for, and falls back to
 // reading ordinary markdown / plain-text recipes (headings, bullets, numbered steps).
 
 const FRACTION_CHARS = { '½': 1 / 2, '⅓': 1 / 3, '⅔': 2 / 3, '¼': 1 / 4, '¾': 3 / 4, '⅛': 1 / 8, '⅜': 3 / 8, '⅝': 5 / 8, '⅞': 7 / 8 };
@@ -14,8 +14,18 @@ const META = /^(prep(?:aration)?(?: time)?|active time|hands[- ]on time|cook(?:i
 
 // ---------- Public API ----------
 
+// Caps keep a giant paste from freezing the phone (all parsing is line-by-line).
+const MAX_INPUT = 100_000;
+const MAX_LINE = 4_000;
+
 export function parseRecipe(raw) {
-  const text = String(raw ?? '').replace(/\r\n?/g, '\n').trim();
+  const text = String(raw ?? '')
+    .slice(0, MAX_INPUT)
+    .replace(/\r\n?/g, '\n')
+    .split('\n')
+    .map(line => line.slice(0, MAX_LINE))
+    .join('\n')
+    .trim();
   if (!text) return null;
   const json = extractJson(text);
   const recipe = json ? fromJson(json) : fromText(text);

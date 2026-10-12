@@ -4,6 +4,7 @@ import * as Haptics from 'expo-haptics';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { guessEmoji } from '../shared/parser';
 import { cancelAlarm, scheduleAlarm } from './notifications';
+import { LIMITS, cleanHistory, cleanParsed, cleanRecipes, cleanSettings, cleanTimers } from './validate';
 
 export type Timer = { minutes: number; label: string; auto?: boolean };
 export type Step = { title: string; text: string; tip: string; timers: Timer[]; phase: string };
@@ -25,8 +26,10 @@ export type Recipe = {
   updatedAt: number;
   lastOpened?: number;
   lastCooked?: number;
+  cookCount?: number;
 };
-export type Parsed = Omit<Recipe, 'id' | 'source' | 'emoji' | 'progress' | 'createdAt' | 'updatedAt'> & { warnings?: string[] };
+export type Parsed = Omit<Recipe, 'id' | 'source' | 'emoji' | 'progress' | 'createdAt' | 'updatedAt' | 'lastOpened' | 'lastCooked' | 'cookCount'> & { warnings?: string[] };
+export type TimerHistoryItem = { minutes: number; label: string; at: number };
 
 export const DEFAULT_SETTINGS = {
   theme: 'sourdough',
@@ -39,7 +42,9 @@ export const DEFAULT_SETTINGS = {
   highlightTimes: true,
   keepAwake: true,
   haptics: true,
-  geminiPrompt: '',     // empty = the built-in prompt
+  timerStyle: 'ring',   // ring | clock | sand
+  name: '',
+  recipePrompt: '',     // empty = the built-in prompt
 };
 export type Settings = typeof DEFAULT_SETTINGS;
 
@@ -56,7 +61,7 @@ export type KitchenTimer = {
   notificationId: string | null;
 };
 
-const KEYS = { recipes: 'mise.recipes.v1', settings: 'mise.settings.v1', timers: 'mise.timers.v1' };
+const KEYS = { recipes: 'mise.recipes.v1', settings: 'mise.settings.v1', timers: 'mise.timers.v1', history: 'mise.timerHistory.v1' };
 const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 
 type AppValue = {
@@ -69,6 +74,7 @@ type AppValue = {
   saveParsed: (parsed: Parsed, source: string, existingId?: string) => string;
   patchRecipe: (id: string, patch: Partial<Recipe>) => void;
   setProgress: (id: string, patch: Partial<Recipe['progress']>) => void;
+  markCooked: (id: string) => void;
   deleteRecipe: (id: string) => void;
 };
 
@@ -80,6 +86,9 @@ type TimerValue = {
   togglePause: (id: string) => void;
   addTime: (id: string, minutes?: number) => void;
   removeTimer: (id: string) => void;
+  history: TimerHistoryItem[];
+  timersStarted: number;
+  clearHistory: () => void;
 };
 
 const AppContext = createContext<AppValue | null>(null);
@@ -88,12 +97,13 @@ const TimerContext = createContext<TimerValue | null>(null);
 export const useApp = () => useContext(AppContext)!;
 export const useTimers = () => useContext(TimerContext)!;
 
-async function load<T>(key: string, fallback: T): Promise<T> {
+// Raw stored JSON; always passed through a clean* function before use.
+async function load(key: string): Promise<unknown> {
   try {
     const raw = await AsyncStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
+    return raw ? JSON.parse(raw) : null;
   } catch {
-    return fallback;
+    return null;
   }
 }
 
@@ -106,13 +116,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [timers, setTimers] = useState<KitchenTimer[]>([]);
+  const [history, setHistory] = useState<{ items: TimerHistoryItem[]; started: number }>({ items: [], started: 0 });
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
-    Promise.all([load(KEYS.settings, {}), load<Recipe[]>(KEYS.recipes, []), load<KitchenTimer[]>(KEYS.timers, [])]).then(([s, r, t]) => {
-      setSettings({ ...DEFAULT_SETTINGS, ...s });
-      setRecipes(r);
-      setTimers(t);
+    Promise.all([load(KEYS.settings), load(KEYS.recipes), load(KEYS.timers), load(KEYS.history)]).then(([s, r, t, h]) => {
+      setSettings(cleanSettings(s, DEFAULT_SETTINGS));
+      setRecipes(cleanRecipes(r));
+      setTimers(cleanTimers(t));
+      setHistory(cleanHistory(h));
       setReady(true);
     });
   }, []);
@@ -120,15 +132,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => { if (ready) save(KEYS.settings, settings); }, [ready, settings]);
   useEffect(() => { if (ready) save(KEYS.recipes, recipes); }, [ready, recipes]);
   useEffect(() => { if (ready) save(KEYS.timers, timers); }, [ready, timers]);
+  useEffect(() => { if (ready) save(KEYS.history, history); }, [ready, history]);
 
   // ----- recipes & settings -----
 
-  const updateSettings = useCallback((patch: Partial<Settings>) => setSettings(s => ({ ...s, ...patch })), []);
-  const resetLook = useCallback(() => setSettings(s => ({ ...DEFAULT_SETTINGS, geminiPrompt: s.geminiPrompt })), []);
+  const updateSettings = useCallback((patch: Partial<Settings>) => setSettings(s => cleanSettings({ ...s, ...patch }, DEFAULT_SETTINGS)), []);
+  const resetLook = useCallback(() => setSettings(s => ({ ...DEFAULT_SETTINGS, recipePrompt: s.recipePrompt })), []);
   const getRecipe = useCallback((id: string | undefined) => recipes.find(r => r.id === id), [recipes]);
 
   const saveParsed = useCallback((parsed: Parsed, source: string, existingId?: string) => {
-    const { warnings, ...data } = parsed;
+    const data = cleanParsed(parsed);
     const id = existingId || newId();
     const time = Date.now();
     setRecipes(list => {
@@ -138,7 +151,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         equipment: data.equipment || [],
         notes: data.notes || [],
         id,
-        source,
+        source: source.slice(0, LIMITS.source),
         emoji: guessEmoji(data),
         progress: { step: 0, checked: [], scale: existing?.progress.scale || 1 },
         createdAt: existing?.createdAt || time,
@@ -156,6 +169,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const setProgress = useCallback((id: string, patch: Partial<Recipe['progress']>) => {
     setRecipes(list => list.map(r => (r.id === id ? { ...r, progress: { ...r.progress, ...patch } } : r)));
+  }, []);
+
+  const markCooked = useCallback((id: string) => {
+    setRecipes(list => list.map(r => (r.id === id ? { ...r, lastCooked: Date.now(), cookCount: (r.cookCount || 0) + 1 } : r)));
   }, []);
 
   const deleteRecipe = useCallback((id: string) => setRecipes(list => list.filter(r => r.id !== id)), []);
@@ -195,11 +212,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const startTimer = useCallback<TimerValue['startTimer']>(async ({ key, minutes, label, recipeId = '', recipeTitle = '' }) => {
-    const ms = Math.round(minutes * 60000);
+    const ms = Math.round(Math.min(Math.max(minutes, 1 / 60), LIMITS.maxMinutes) * 60000);
+    if (timersRef.current.length >= LIMITS.activeTimers) return;
     const id = newId();
     const timer: KitchenTimer = { id, key: key || `quick:${id}`, label, recipeId, recipeTitle, total: ms, endAt: Date.now() + ms, pausedLeft: null, done: false, notificationId: null };
     setTimers(list => [...list, timer]);
     setNow(Date.now());
+    setHistory(h => ({
+      started: h.started + 1,
+      items: [{ minutes, label, at: Date.now() }, ...h.items.filter(i => !(i.minutes === minutes && i.label === label))].slice(0, LIMITS.history),
+    }));
     const notificationId = await scheduleAlarm(label, recipeTitle, ms);
     setTimers(list => list.map(t => (t.id === timer.id ? { ...t, notificationId } : t)));
   }, []);
@@ -235,13 +257,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setTimers(list => list.filter(x => x.id !== id));
   }, []);
 
+  const clearHistory = useCallback(() => setHistory(h => ({ ...h, items: [] })), []);
+
   const appValue = useMemo<AppValue>(
-    () => ({ ready, settings, updateSettings, resetLook, recipes, getRecipe, saveParsed, patchRecipe, setProgress, deleteRecipe }),
-    [ready, settings, updateSettings, resetLook, recipes, getRecipe, saveParsed, patchRecipe, setProgress, deleteRecipe],
+    () => ({ ready, settings, updateSettings, resetLook, recipes, getRecipe, saveParsed, patchRecipe, setProgress, markCooked, deleteRecipe }),
+    [ready, settings, updateSettings, resetLook, recipes, getRecipe, saveParsed, patchRecipe, setProgress, markCooked, deleteRecipe],
   );
   const timerValue = useMemo<TimerValue>(
-    () => ({ timers, now, remaining, startTimer, togglePause, addTime, removeTimer }),
-    [timers, now, remaining, startTimer, togglePause, addTime, removeTimer],
+    () => ({ timers, now, remaining, startTimer, togglePause, addTime, removeTimer, history: history.items, timersStarted: history.started, clearHistory }),
+    [timers, now, remaining, startTimer, togglePause, addTime, removeTimer, history, clearHistory],
   );
 
   return (
