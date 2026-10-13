@@ -2,6 +2,20 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.2.0 (2026-10-12)
+
+### Added
+- **Greeting by time of day:** "Good morning / afternoon / evening, {name}" (or "Hi" late at night) with a matching nudge, instead of "Hi, I'm Sous".
+- **Smart chat names** made from the first message, like AI apps ("Buttermilk substitute", "Sticky bread dough fix"). A chat that starts with a voice message is "Voice chat" until something is typed. The open chat's name shows in the header.
+- **Search in chat history** across chat names and messages, with the matching words shown.
+- **Long-press a chat** for Rename, Pin / Unpin and Delete. Pinned chats sit in their own section.
+- **Swipe right** on the chat screen to open the history; swipe the history left to close it.
+
+### Changed
+- The history drawer is redesigned after AI-app sidebars: big title, round search button, Pinned and Recents, account button and a floating "New chat" pill.
+- The voice-mode button uses a sound-wave icon.
+- The Edit button in chat history is gone (long-press replaces it).
+
 ## 1.1.0 (2026-10-12)
 
 ### Added

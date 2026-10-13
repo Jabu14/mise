@@ -14,6 +14,7 @@ import { Alert, Image, Pressable, TextInput, View } from 'react-native';
 import type { ChatAttachment } from '../../lib/chat-store';
 import { useApp } from '../../lib/store';
 import { useTheme } from '../../lib/theme';
+import { VoiceWaveIcon } from '../icons';
 import { Icon, Txt, type IconName } from '../ui';
 import { formatSeconds } from './voice-message';
 
@@ -83,10 +84,12 @@ export function Composer({ attachment, onClearAttachment, onAttach, onSendText, 
   const level = Math.max(0, Math.min(1, ((rec.metering ?? -60) + 55) / 50));
   const t = rec.durationMillis / 160;
 
-  const round = (name: IconName, onPress: () => void, label: string, solid = false) => (
+  const round = (name: IconName | 'voice', onPress: () => void, label: string, solid = false) => (
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={label} hitSlop={6}
       style={({ pressed }) => ({ width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', backgroundColor: solid ? th.c.accent : 'transparent', opacity: pressed ? 0.7 : 1 })}>
-      <Icon name={name} size={solid ? 20 : 22} color={solid ? th.c.onAccent : th.c.text} />
+      {name === 'voice'
+        ? <VoiceWaveIcon size={20} color={solid ? th.c.onAccent : th.c.text} />
+        : <Icon name={name} size={solid ? 20 : 22} color={solid ? th.c.onAccent : th.c.text} />}
     </Pressable>
   );
 
@@ -135,7 +138,7 @@ export function Composer({ attachment, onClearAttachment, onAttach, onSendText, 
             ) : (
               <>
                 {round('mic-outline', startRecording, 'Record a voice message')}
-                {round('pulse', onVoiceMode, 'Talk to Sous', true)}
+                {round('voice', onVoiceMode, 'Talk to Sous', true)}
               </>
             )}
           </>

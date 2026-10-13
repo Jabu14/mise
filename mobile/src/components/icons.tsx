@@ -40,3 +40,12 @@ export function RecipeBookIcon({ size = 22, color, open }: { size?: number; colo
     </Animated.View>
   );
 }
+
+// Voice mode: sound-wave bars, the icon AI apps use for "talk to the assistant".
+export function VoiceWaveIcon({ size = 22, color }: { size?: number; color: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.2} strokeLinecap="round">
+      <Path d="M4 10v4M8 6.5v11M12 3.5v17M16 7.5v9M20 10.5v3" />
+    </Svg>
+  );
+}

@@ -188,7 +188,7 @@ export function cleanChats(v: unknown): Chat[] {
           } as ChatMessage;
         })
         .filter((m): m is ChatMessage => !!m);
-      return { id: c.id, title: str(c.title, 60) || 'New chat', createdAt: num(c.createdAt, 0, now + 1, now), updatedAt: num(c.updatedAt, 0, now + 1, now), messages };
+      return { id: c.id, title: str(c.title, 60) || 'New chat', autoTitle: c.autoTitle !== false, pinned: c.pinned === true, createdAt: num(c.createdAt, 0, now + 1, now), updatedAt: num(c.updatedAt, 0, now + 1, now), messages };
     })
     .filter((c): c is Chat => !!c);
 }

@@ -3,7 +3,7 @@
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { useRef, useState } from 'react';
-import { Alert, Image, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, View } from 'react-native';
+import { Alert, Animated, Image, KeyboardAvoidingView, Modal, PanResponder, Platform, Pressable, ScrollView, View } from 'react-native';
 import { Composer } from '../../components/chat/composer';
 import { HistoryDrawer } from '../../components/chat/history-drawer';
 import { VoiceMessage } from '../../components/chat/voice-message';
@@ -20,9 +20,20 @@ const SUGGESTIONS = [
   { icon: 'calendar-outline' as const, text: 'Plan three easy dinners for this week' },
 ];
 
+// "Good evening, Sam" and a matching nudge, by time of day.
+function greeting(hour: number, name: string) {
+  const first = name.trim().split(/s+/)[0];
+  const [hello, nudge] =
+    hour >= 5 && hour < 12 ? ['Good morning', 'What’s for breakfast?']
+    : hour >= 12 && hour < 17 ? ['Good afternoon', 'What are we cooking today?']
+    : hour >= 17 && hour < 22 ? ['Good evening', 'What’s for dinner tonight?']
+    : ['Hi', 'Craving a late-night snack?'];
+  return { title: first ? `${hello}, ${first}` : hello, nudge };
+}
+
 export default function ChatTab() {
   const th = useTheme();
-  const { recipes } = useApp();
+  const { recipes, settings } = useApp();
   const { getChat, send } = useChats();
   const [chatId, setChatId] = useState<string | null>(null);
   const [drawer, setDrawer] = useState(false);
@@ -30,6 +41,22 @@ export default function ChatTab() {
   const [pickingRecipe, setPickingRecipe] = useState(false);
   const scroll = useRef<ScrollView>(null);
   const chat = getChat(chatId);
+  const [hour, setHour] = useState(() => new Date().getHours());
+  const hi = greeting(hour, settings.name);
+
+  const newChat = () => { setChatId(null); setAttachment(null); setHour(new Date().getHours()); };
+
+  // Swipe right anywhere on the chat to open the history; the page nudges along with your finger.
+  const [nudge] = useState(() => new Animated.Value(0));
+  const [swipe] = useState(() => PanResponder.create({
+    onMoveShouldSetPanResponderCapture: (_, g) => g.dx > 14 && Math.abs(g.dx) > Math.abs(g.dy) * 1.8,
+    onPanResponderMove: (_, g) => nudge.setValue(Math.min(Math.max(g.dx, 0) * 0.3, 44)),
+    onPanResponderRelease: (_, g) => {
+      Animated.spring(nudge, { toValue: 0, friction: 8, useNativeDriver: true }).start();
+      if (g.dx > 70 || g.vx > 0.5) setDrawer(true);
+    },
+    onPanResponderTerminate: () => Animated.spring(nudge, { toValue: 0, useNativeDriver: true }).start(),
+  }));
 
   const sendText = (text: string) => {
     const id = send(chatId, { kind: 'text', text, ...(attachment ? { attachment } : {}) });
@@ -58,13 +85,14 @@ export default function ChatTab() {
 
   return (
     <Screen>
+      <Animated.View {...swipe.panHandlers} style={{ flex: 1, transform: [{ translateX: nudge }] }}>
       <TopBar>
         <IconBtn name="menu" label="Chat history" onPress={() => setDrawer(true)} />
-        <View style={{ flex: 1, alignItems: 'center' }}>
-          <Txt kind="head" weight="bold" size={20}>{AI_NAME}</Txt>
-          <Txt muted size={12} weight="bold">Your sous-chef · Preview</Txt>
+        <View style={{ flex: 1, alignItems: 'center', paddingHorizontal: 4 }}>
+          <Txt kind="head" weight="bold" size={chat ? 17 : 20} numberOfLines={1}>{chat ? chat.title : AI_NAME}</Txt>
+          <Txt muted size={12} weight="bold">{chat ? `${AI_NAME} · Preview` : 'Your sous-chef · Preview'}</Txt>
         </View>
-        <IconBtn name="create-outline" label="New chat" onPress={() => { setChatId(null); setAttachment(null); }} />
+        <IconBtn name="create-outline" label="New chat" onPress={newChat} />
       </TopBar>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -78,8 +106,8 @@ export default function ChatTab() {
                   <ChatSparkIcon size={32} color={th.c.onAccent} active />
                 </View>
               </View>
-              <Txt kind="head" weight="bold" size={26} style={{ textAlign: 'center' }}>{`Hi, I'm ${AI_NAME}`}</Txt>
-              <Txt muted style={{ textAlign: 'center', maxWidth: 300 }}>Your sous-chef. Ask about a recipe, a swap, or what to cook tonight. Talk or type.</Txt>
+              <Txt kind="head" weight="bold" size={30} style={{ textAlign: 'center' }}>{hi.title}</Txt>
+              <Txt muted size={17} style={{ textAlign: 'center', maxWidth: 300 }}>{hi.nudge}</Txt>
               <View style={{ alignSelf: 'stretch', gap: 8, marginTop: 10 }}>
                 {SUGGESTIONS.map(s => (
                   <Pressable key={s.text} onPress={() => sendText(s.text)} style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 16, backgroundColor: th.c.surface, borderWidth: 1, borderColor: th.c.line, opacity: pressed ? 0.7 : 1 })}>
@@ -100,8 +128,9 @@ export default function ChatTab() {
           onVoiceMode={() => router.push('/voice')}
         />
       </KeyboardAvoidingView>
+      </Animated.View>
 
-      <HistoryDrawer visible={drawer} currentId={chatId} onClose={() => setDrawer(false)} onSelect={setChatId} onNewChat={() => setChatId(null)} />
+      <HistoryDrawer visible={drawer} currentId={chatId} onClose={() => setDrawer(false)} onSelect={id => { setChatId(id); setAttachment(null); }} onNewChat={newChat} />
 
       <Modal visible={pickingRecipe} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setPickingRecipe(false)}>
         <View style={{ flex: 1, backgroundColor: th.c.bg }}>

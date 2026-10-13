@@ -9,10 +9,12 @@ import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
+  `${AI_NAME} greets you by name and time of day`,
+  'Chats get short, smart names, and you can search them',
+  'Long-press a chat to rename, pin or delete it',
+  'Swipe right on the chat to open your history, left to close it',
   `Meet ${AI_NAME}, your sous-chef: chat, voice messages and a talk mode (preview)`,
-  'Run several timers at once, iPhone Clock style, each with its own label',
-  'Choose your alarm tone: Chime, Bell or Beeps',
-  'Look, Settings, Feedback and About now have their own pages',
+  'Run several timers at once, iPhone Clock style',
 ];
 
 export default function AboutScreen() {
