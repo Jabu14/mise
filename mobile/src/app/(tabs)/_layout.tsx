@@ -1,10 +1,12 @@
 import { Tabs } from 'expo-router/js-tabs';
+import { ChatDrawerShell } from '../../components/chat/chat-drawer';
 import { TabBar } from '../../components/tab-bar';
 import { useTheme } from '../../lib/theme';
 
 export default function TabsLayout() {
   const th = useTheme();
   return (
+    <ChatDrawerShell>
     <Tabs tabBar={props => <TabBar {...props} />} screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: th.c.bg } }}>
       <Tabs.Screen name="index" />
       <Tabs.Screen name="chat" />
@@ -12,5 +14,6 @@ export default function TabsLayout() {
       <Tabs.Screen name="timers" />
       <Tabs.Screen name="account" />
     </Tabs>
+    </ChatDrawerShell>
   );
 }

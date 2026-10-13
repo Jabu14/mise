@@ -5,6 +5,7 @@ import { Stack, type ErrorBoundaryProps } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Pressable, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { TimerIslandHost } from '../components/timer-island';
 import { ChatProvider } from '../lib/chat-store';
 import { AppProvider, useApp } from '../lib/store';
 import { useTheme } from '../lib/theme';
@@ -44,11 +45,12 @@ function Shell({ fontsLoaded }: { fontsLoaded: boolean }) {
   return (
     <>
       <StatusBar style={th.dark ? 'light' : 'dark'} />
+      <TimerIslandHost>
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: th.c.bg } }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="recipe/[id]" />
         <Stack.Screen name="edit/[id]" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="look" />
+        <Stack.Screen name="appearance" />
         <Stack.Screen name="settings" />
         <Stack.Screen name="about" />
         <Stack.Screen name="feedback" />
@@ -57,6 +59,7 @@ function Shell({ fontsLoaded }: { fontsLoaded: boolean }) {
         <Stack.Screen name="voice" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
         <Stack.Screen name="cook/[id]" options={{ gestureEnabled: false, animation: 'fade_from_bottom' }} />
       </Stack>
+      </TimerIslandHost>
     </>
   );
 }

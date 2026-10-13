@@ -9,11 +9,11 @@ import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
+  'The running timer now sits at the top of the screen, like the Dynamic Island',
+  `Swipe right in ${AI_NAME} and the app slides over to show your chats, following your finger`,
   `${AI_NAME} greets you by name and time of day`,
   'Chats get short, smart names, and you can search them',
   'Long-press a chat to rename, pin or delete it',
-  'Swipe right on the chat to open your history, left to close it',
-  `Meet ${AI_NAME}, your sous-chef: chat, voice messages and a talk mode (preview)`,
   'Run several timers at once, iPhone Clock style',
 ];
 

@@ -2,6 +2,17 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.3.0 (2026-10-12)
+
+### Changed
+- **Running timer at the top.** The Dynamic Island-style pill now grows in at the top of the screen instead of sitting at the bottom. With several timers it shows the next one to ring and a "+N" for the rest (tap it to see them all). It hides on the Timers screens, which already list them.
+- **Chat history opens like the Claude app.** Swipe right on the Sous chat and the whole app, tab bar included, slides right with your finger to uncover your chats. Swipe left or tap the strip on the right to close.
+- "Look" is now called **Appearance**.
+- The Feedback card on Account uses a normal icon instead of an emoji.
+
+### Fixed
+- The greeting showed only part of some names (it split names on the letter "s").
+
 ## 1.2.0 (2026-10-12)
 
 ### Added

@@ -1,4 +1,4 @@
-// Building blocks shared by the Look and Settings pages: titled groups, segmented choices, switches,
+// Building blocks shared by the Appearance and Settings pages: titled groups, segmented choices, switches,
 // plus the tappable rows used on the Account page.
 import { Pressable, Switch, View } from 'react-native';
 import { useApp, type Settings } from '../lib/store';

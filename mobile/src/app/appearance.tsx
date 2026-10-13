@@ -1,4 +1,4 @@
-// Look: colours, light/dark, font, text size and card style, with a live cook-mode step on top.
+// Appearance: colours, light/dark, font, text size and card style, with a live cook-mode step on top.
 import { router } from 'expo-router';
 import { Pressable, ScrollView, View } from 'react-native';
 import { Group, Segmented } from '../components/settings-ui';
@@ -14,7 +14,7 @@ const SAMPLE_STEP = {
   timers: [],
 };
 
-export default function LookScreen() {
+export default function AppearanceScreen() {
   const th = useTheme();
   const { settings, updateSettings, resetLook } = useApp();
 
@@ -22,7 +22,7 @@ export default function LookScreen() {
     <Screen>
       <TopBar>
         <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
-        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>Look</Txt>
+        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>Appearance</Txt>
       </TopBar>
 
       <View style={{ paddingHorizontal: 16, paddingBottom: 12, backgroundColor: th.c.bg }}>
@@ -58,7 +58,7 @@ export default function LookScreen() {
           <Segmented label="Cards" k="cards" options={[['soft', 'Soft & rounded'], ['flat', 'Flat & crisp']]} />
         </Group>
 
-        <Btn title="Reset the look to default" icon="refresh" variant="ghost" size="small" onPress={resetLook} />
+        <Btn title="Reset appearance to default" icon="refresh" variant="ghost" size="small" onPress={resetLook} />
       </ScrollView>
     </Screen>
   );

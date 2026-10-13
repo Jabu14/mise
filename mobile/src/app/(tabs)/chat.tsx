@@ -3,9 +3,9 @@
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { useRef, useState } from 'react';
-import { Alert, Animated, Image, KeyboardAvoidingView, Modal, PanResponder, Platform, Pressable, ScrollView, View } from 'react-native';
+import { Alert, Image, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, View } from 'react-native';
 import { Composer } from '../../components/chat/composer';
-import { HistoryDrawer } from '../../components/chat/history-drawer';
+import { useChatDrawer } from '../../components/chat/chat-drawer';
 import { VoiceMessage } from '../../components/chat/voice-message';
 import { ChatSparkIcon } from '../../components/icons';
 import { Icon, IconBtn, Screen, TopBar, Txt } from '../../components/ui';
@@ -35,28 +35,17 @@ export default function ChatTab() {
   const th = useTheme();
   const { recipes, settings } = useApp();
   const { getChat, send } = useChats();
-  const [chatId, setChatId] = useState<string | null>(null);
-  const [drawer, setDrawer] = useState(false);
+  const drawer = useChatDrawer();
+  const { chatId, setChatId } = drawer;
   const [attachment, setAttachment] = useState<ChatAttachment | null>(null);
   const [pickingRecipe, setPickingRecipe] = useState(false);
   const scroll = useRef<ScrollView>(null);
   const chat = getChat(chatId);
-  const [hour, setHour] = useState(() => new Date().getHours());
-  const hi = greeting(hour, settings.name);
+  const hi = greeting(drawer.greetHour, settings.name);
 
-  const newChat = () => { setChatId(null); setAttachment(null); setHour(new Date().getHours()); };
-
-  // Swipe right anywhere on the chat to open the history; the page nudges along with your finger.
-  const [nudge] = useState(() => new Animated.Value(0));
-  const [swipe] = useState(() => PanResponder.create({
-    onMoveShouldSetPanResponderCapture: (_, g) => g.dx > 14 && Math.abs(g.dx) > Math.abs(g.dy) * 1.8,
-    onPanResponderMove: (_, g) => nudge.setValue(Math.min(Math.max(g.dx, 0) * 0.3, 44)),
-    onPanResponderRelease: (_, g) => {
-      Animated.spring(nudge, { toValue: 0, friction: 8, useNativeDriver: true }).start();
-      if (g.dx > 70 || g.vx > 0.5) setDrawer(true);
-    },
-    onPanResponderTerminate: () => Animated.spring(nudge, { toValue: 0, useNativeDriver: true }).start(),
-  }));
+  // A different chat (or a new one, from here or the history): drop the unsent attachment.
+  const [shownId, setShownId] = useState(chatId);
+  if (shownId !== chatId) { setShownId(chatId); setAttachment(null); }
 
   const sendText = (text: string) => {
     const id = send(chatId, { kind: 'text', text, ...(attachment ? { attachment } : {}) });
@@ -85,14 +74,14 @@ export default function ChatTab() {
 
   return (
     <Screen>
-      <Animated.View {...swipe.panHandlers} style={{ flex: 1, transform: [{ translateX: nudge }] }}>
+      <View {...drawer.openSwipe.panHandlers} style={{ flex: 1 }}>
       <TopBar>
-        <IconBtn name="menu" label="Chat history" onPress={() => setDrawer(true)} />
+        <IconBtn name="menu" label="Chat history" onPress={drawer.open} />
         <View style={{ flex: 1, alignItems: 'center', paddingHorizontal: 4 }}>
           <Txt kind="head" weight="bold" size={chat ? 17 : 20} numberOfLines={1}>{chat ? chat.title : AI_NAME}</Txt>
           <Txt muted size={12} weight="bold">{chat ? `${AI_NAME} · Preview` : 'Your sous-chef · Preview'}</Txt>
         </View>
-        <IconBtn name="create-outline" label="New chat" onPress={newChat} />
+        <IconBtn name="create-outline" label="New chat" onPress={drawer.newChat} />
       </TopBar>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -128,9 +117,7 @@ export default function ChatTab() {
           onVoiceMode={() => router.push('/voice')}
         />
       </KeyboardAvoidingView>
-      </Animated.View>
-
-      <HistoryDrawer visible={drawer} currentId={chatId} onClose={() => setDrawer(false)} onSelect={id => { setChatId(id); setAttachment(null); }} onNewChat={newChat} />
+      </View>
 
       <Modal visible={pickingRecipe} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setPickingRecipe(false)}>
         <View style={{ flex: 1, backgroundColor: th.c.bg }}>

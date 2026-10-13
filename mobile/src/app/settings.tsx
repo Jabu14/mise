@@ -1,5 +1,5 @@
 // Settings: how cook mode behaves, timers and their alarm, and the recipe prompt.
-// (Colours and fonts live on their own Look page.)
+// (Colours and fonts live on their own Appearance page.)
 import * as Clipboard from 'expo-clipboard';
 import { router } from 'expo-router';
 import { useState } from 'react';

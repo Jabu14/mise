@@ -1,4 +1,4 @@
-// Account tab: your profile and stats, then a section each for Look, Settings, Feedback and About.
+// Account tab: your profile and stats, then a section each for Appearance, Settings, Feedback and About.
 // Sign-in / cloud sync will live here once there is a backend; for now everything stays on this phone.
 import * as Clipboard from 'expo-clipboard';
 import Constants from 'expo-constants';
@@ -17,7 +17,7 @@ export default function AccountTab() {
   const { timersStarted } = useTimers();
   const cooked = recipes.reduce((n, r) => n + (r.cookCount || 0), 0);
   const initial = settings.name.trim().charAt(0).toUpperCase();
-  const lookSummary = [THEMES[settings.theme as keyof typeof THEMES]?.name, FONTS[settings.font as keyof typeof FONTS]?.name].filter(Boolean).join(' · ');
+  const appearanceSummary = [THEMES[settings.theme as keyof typeof THEMES]?.name, FONTS[settings.font as keyof typeof FONTS]?.name].filter(Boolean).join(' · ');
 
   const copyPrompt = async () => {
     await Clipboard.setStringAsync(settings.recipePrompt || RECIPE_PROMPT);
@@ -72,7 +72,7 @@ export default function AccountTab() {
         </Card>
 
         <Section title="Make it yours">
-          <Row icon="color-palette-outline" title="Look" subtitle="Colours, light or dark, font, text size" value={lookSummary} onPress={() => router.push('/look')} />
+          <Row icon="color-palette-outline" title="Appearance" subtitle="Colours, light or dark, font, text size" value={appearanceSummary} onPress={() => router.push('/appearance')} />
           <Row icon="settings-outline" title="Settings" subtitle="Cook mode, timers & alarm, recipe prompt" onPress={() => router.push('/settings')} last />
         </Section>
 
@@ -81,7 +81,9 @@ export default function AccountTab() {
         </Section>
 
         <Card style={{ padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <Txt size={30}>💬</Txt>
+          <View style={{ width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.accentSoft }}>
+            <Icon name="chatbox-ellipses-outline" size={23} color={th.c.accent} />
+          </View>
           <View style={{ flex: 1 }}>
             <Txt weight="black">Help shape Mise</Txt>
             <Txt muted size={13}>Ideas, bugs or love notes, we read every one.</Txt>

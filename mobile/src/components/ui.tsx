@@ -1,12 +1,12 @@
 // Shared building blocks: text, buttons, cards, step layout, rich text, bottom dock with timers.
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { router } from 'expo-router';
 import { BottomTabBarHeightContext } from 'expo-router/js-tabs';
 import { useContext, type ComponentProps, type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View, type StyleProp, type TextProps, type TextStyle, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTimers, type KitchenTimer, type Step } from '../lib/store';
-import { mix, useTheme, type Weight } from '../lib/theme';
+import { useIslandSpace } from '../lib/island';
+import type { Step } from '../lib/store';
+import { useTheme, type Weight } from '../lib/theme';
 
 export type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -118,8 +118,9 @@ export function Screen({ children }: { children: ReactNode }) {
 export function TopBar({ children }: { children: ReactNode }) {
   const th = useTheme();
   const insets = useSafeAreaInsets();
+  const island = useIslandSpace();
   return (
-    <View style={{ paddingTop: insets.top + 6, paddingHorizontal: 8, paddingBottom: 6, flexDirection: 'row', alignItems: 'center', gap: 2, backgroundColor: th.c.bg }}>
+    <View style={{ paddingTop: insets.top + 6 + island, paddingHorizontal: 8, paddingBottom: 6, flexDirection: 'row', alignItems: 'center', gap: 2, backgroundColor: th.c.bg }}>
       {children}
     </View>
   );
@@ -140,14 +141,13 @@ export function Chip({ children, icon, outlined }: { children: ReactNode; icon?:
   );
 }
 
-// Fixed bottom area: running timers above the screen's main buttons.
+// Fixed bottom area for a screen's main buttons. (Running timers show at the top, see timer-island.tsx.)
 // On tab screens it sits right above the tab bar, which already handles the phone's bottom edge.
-export function Dock({ children, onHeight, hideTimers }: { children?: ReactNode; onHeight?: (h: number) => void; hideTimers?: boolean }) {
+export function Dock({ children, onHeight }: { children?: ReactNode; onHeight?: (h: number) => void }) {
   const th = useTheme();
   const insets = useSafeAreaInsets();
   const inTabs = useContext(BottomTabBarHeightContext) != null;
-  const { timers } = useTimers();
-  const empty = !children && (hideTimers || !timers.length);
+  const empty = !children;
   return (
     <View
       onLayout={e => onHeight?.(empty ? 0 : e.nativeEvent.layout.height)}
@@ -157,7 +157,6 @@ export function Dock({ children, onHeight, hideTimers }: { children?: ReactNode;
         empty && { opacity: 0, paddingTop: 0, paddingBottom: 0 },
       ]}
     >
-      {!hideTimers && <TimerTray />}
       {children ? <View style={{ flexDirection: 'row', gap: 10, justifyContent: 'flex-end' }}>{children}</View> : null}
     </View>
   );
@@ -170,50 +169,6 @@ export function clock(ms: number) {
   const s = total % 60;
   const pad = (n: number) => String(n).padStart(2, '0');
   return h ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
-}
-
-function TimerTray() {
-  const { timers } = useTimers();
-  if (!timers.length) return null;
-  return <View style={{ gap: 8 }}>{timers.map(t => <TrayTimer key={t.id} t={t} />)}</View>;
-}
-
-// A running timer, styled like the iPhone's Dynamic Island timer: a black pill with a round pause
-// button and a close button on the left, and the label + countdown in the accent colour on the right.
-const ISLAND = '#0C0B0B';
-function TrayTimer({ t }: { t: KitchenTimer }) {
-  const th = useTheme();
-  const { remaining, togglePause, removeTimer } = useTimers();
-  const paused = t.pausedLeft != null;
-  const accent = th.dark ? th.c.accent : mix(th.c.accent, '#FFFFFF', 0.15);
-  return (
-    <Pressable
-      onPress={() => router.push(`/timer/${t.id}`)}
-      accessibilityRole="button"
-      accessibilityLabel={`${t.label}, ${t.done ? "time's up" : clock(remaining(t))}`}
-      style={({ pressed }) => [styles.island, { backgroundColor: ISLAND, transform: [{ scale: pressed ? 0.98 : 1 }] }]}
-    >
-      <Pressable
-        onPress={() => (t.done ? removeTimer(t.id) : togglePause(t.id))}
-        accessibilityRole="button"
-        accessibilityLabel={t.done ? 'Stop timer' : paused ? 'Resume timer' : 'Pause timer'}
-        style={[styles.islandBtn, { backgroundColor: mix(ISLAND, th.c.accent, 0.45) }]}
-      >
-        <Icon name={t.done ? 'stop' : paused ? 'play' : 'pause'} size={24} color={accent} />
-      </Pressable>
-      {!t.done && (
-        <Pressable onPress={() => removeTimer(t.id)} accessibilityRole="button" accessibilityLabel="Cancel timer" style={[styles.islandBtn, { backgroundColor: '#2C2B2A' }]}>
-          <Icon name="close" size={26} color="#FFFFFF" />
-        </Pressable>
-      )}
-      <View style={{ flex: 1, flexDirection: 'row', alignItems: 'baseline', justifyContent: 'flex-end', gap: 8 }}>
-        <Txt weight="bold" size={15} color={accent} numberOfLines={1} style={{ flexShrink: 1 }}>{t.done ? t.label : t.label.length > 14 ? 'Timer' : t.label}</Txt>
-        <Txt weight="bold" size={t.done ? 22 : 34} color={accent} style={{ fontVariant: ['tabular-nums'], opacity: paused ? 0.6 : 1, lineHeight: t.done ? 30 : 40 }}>
-          {t.done ? "Time's up!" : clock(remaining(t))}
-        </Txt>
-      </View>
-    </Pressable>
-  );
 }
 
 // ---------- Rich text (bold, bullets, highlighted times & temperatures) ----------
@@ -287,8 +242,6 @@ export function StepBody({ step, number, text, compact, children }: { step: Step
 const styles = StyleSheet.create({
   btn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 999 },
   chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 5, borderRadius: 999, borderWidth: 1 },
-  island: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingLeft: 8, paddingRight: 20, paddingVertical: 8, borderRadius: 40, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
-  islandBtn: { width: 50, height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center' },
   phase: { alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 999 },
   badge: { alignItems: 'center', justifyContent: 'center' },
   tip: { flexDirection: 'row', gap: 12, padding: 14 },
