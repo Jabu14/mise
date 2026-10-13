@@ -54,7 +54,7 @@ export function Toggle({ k, label, hint, last }: { k: keyof Settings; label: str
   );
 }
 
-export function Row({ icon, title, subtitle, value, onPress, last }: { icon: IconName; title: string; subtitle?: string; value?: string; onPress?: () => void; last?: boolean }) {
+export function Row({ icon, title, value, badge, onPress, last, danger }: { icon: IconName; title: string; value?: string; badge?: string; onPress?: () => void; last?: boolean; danger?: boolean }) {
   const th = useTheme();
   return (
     <Pressable
@@ -63,12 +63,12 @@ export function Row({ icon, title, subtitle, value, onPress, last }: { icon: Ico
       accessibilityRole={onPress ? 'button' : undefined}
       style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13, paddingHorizontal: 10, borderBottomWidth: last ? 0 : 1, borderBottomColor: th.c.line, opacity: pressed ? 0.6 : 1 })}
     >
-      <View style={{ width: 34, height: 34, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.accentSoft }}>
-        <Icon name={icon} size={19} color={th.c.accent} />
+      <View style={{ width: 28, alignItems: 'center' }}>
+        <Icon name={icon} size={22} color={danger ? th.c.temp : th.c.accent} />
       </View>
-      <View style={{ flex: 1 }}>
-        <Txt weight="bold">{title}</Txt>
-        {subtitle ? <Txt muted size={13}>{subtitle}</Txt> : null}
+      <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <Txt weight="bold" color={danger ? th.c.temp : undefined}>{title}</Txt>
+        {badge ? <View style={{ paddingHorizontal: 8, paddingVertical: 1, borderRadius: 999, backgroundColor: th.c.soft }}><Txt weight="black" size={11} muted>{badge}</Txt></View> : null}
       </View>
       {value ? <Txt muted size={14}>{value}</Txt> : null}
       {onPress ? <Icon name="chevron-forward" size={18} color={th.c.muted} /> : null}

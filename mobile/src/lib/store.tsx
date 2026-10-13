@@ -57,6 +57,7 @@ export const DEFAULT_SETTINGS = {
   aiNotes: '',          // allergies and dislikes, in the user's words
   aiUseRecipes: true,   // let Sous look at your saved recipes
   aiVoiceReplies: true, // read answers out loud in voice mode
+  aiVoice: 'basil',     // basil | saffron | juniper | clove (voice mode)
 };
 export type Settings = typeof DEFAULT_SETTINGS;
 

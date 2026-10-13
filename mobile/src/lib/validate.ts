@@ -118,6 +118,7 @@ const CHOICES: Partial<Record<keyof Settings, readonly string[]>> = {
   aiStyle: ['short', 'detailed'],
   aiUnits: ['metric', 'us', 'both'],
   aiSkill: ['beginner', 'home', 'confident'],
+  aiVoice: ['basil', 'saffron', 'juniper', 'clove'],
 };
 
 export function cleanSettings(v: unknown, defaults: Settings): Settings {

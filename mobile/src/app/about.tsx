@@ -9,10 +9,10 @@ import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
-  'Meet the cooks: three characters who act out every step',
-  'Swipe between tabs, and a Completed section for recipes you’ve made',
-  `Frosted-glass buttons in ${AI_NAME}, plus ${AI_NAME} settings for diet, units and more`,
-  'Rename a recipe by tapping its name, and three new fonts',
+  'Swipe between tabs: the page follows your finger and glides into the next',
+  'New Account section with Profile, Notifications and Usage',
+  `Pick ${AI_NAME}'s voice, and a new Light / Dark / System picker`,
+  'The cooks stand right at the counter now',
 ];
 
 export default function AboutScreen() {

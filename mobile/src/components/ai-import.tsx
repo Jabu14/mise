@@ -5,6 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, TextInput, View } from 'react-native';
 import { AiError, aiAvailable, importWithAi, preparePhoto, type AiRequest } from '../lib/ai';
+import { countAiImport } from '../lib/usage';
 import { useApp } from '../lib/store';
 import { useTheme } from '../lib/theme';
 import { Btn, Card, Icon, Txt, type IconName } from './ui';
@@ -38,6 +39,7 @@ export function AiImportCard({ pastedText, onResult }: { pastedText: string; onR
     setBusy(label);
     try {
       const { source } = await importWithAi(request);
+      countAiImport().catch(() => {});
       if (settings.haptics) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
       onResult(source);
       setUrl('');

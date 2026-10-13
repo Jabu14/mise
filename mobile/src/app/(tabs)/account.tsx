@@ -1,13 +1,14 @@
-// Account tab: your profile and stats, then Make it yours, Recipes, Support and About.
+// Account tab: your profile and stats, then Account, App, Recipes, Support and About, and Log out.
 // Sign-in / cloud sync will live here once there is a backend; for now everything stays on this phone.
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
-import { ScrollView, TextInput, View } from 'react-native';
+import { Alert, ScrollView, TextInput, View } from 'react-native';
 import { Row } from '../../components/settings-ui';
 import { Card, Icon, Label, Screen, TopBar, Txt, type IconName } from '../../components/ui';
 import { useApp, useTimers } from '../../lib/store';
 import { FONTS, THEMES, useTheme } from '../../lib/theme';
 import { LIMITS } from '../../lib/validate';
+import { VOICES } from '../../lib/voices';
 
 export default function AccountTab() {
   const th = useTheme();
@@ -50,22 +51,16 @@ export default function AccountTab() {
           <Stat value={timersStarted} label="Timers" icon="timer-outline" />
         </View>
 
-        <Card style={{ padding: 16, flexDirection: 'row', gap: 12, alignItems: 'center' }}>
-          <View style={{ width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.accentSoft }}>
-            <Icon name="cloud-outline" size={22} color={th.c.accent} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Txt weight="black">Sign in & sync</Txt>
-              <View style={{ paddingHorizontal: 8, paddingVertical: 1, borderRadius: 999, backgroundColor: th.c.soft }}>
-                <Txt weight="black" size={11} muted>SOON</Txt>
-              </View>
-            </View>
-          </View>
-        </Card>
+        <Section title="Account">
+          <Row icon="cloud-outline" title="Sign in & sync" badge="SOON" onPress={() => Alert.alert('Coming soon', 'Soon you’ll be able to sign in and keep your recipes and chats on all your devices.')} />
+          <Row icon="person-outline" title="Profile" onPress={() => router.push('/profile')} />
+          <Row icon="notifications-outline" title="Notifications" onPress={() => router.push('/notifications')} />
+          <Row icon="stats-chart-outline" title="Usage" onPress={() => router.push('/usage')} last />
+        </Section>
 
-        <Section title="Make it yours">
+        <Section title="App">
           <Row icon="color-palette-outline" title="Appearance" value={appearanceSummary} onPress={() => router.push('/appearance')} />
+          <Row icon="mic-outline" title="Voice" value={VOICES[settings.aiVoice]?.name} onPress={() => router.push('/voice-settings')} />
           <Row icon="settings-outline" title="Settings" onPress={() => router.push('/settings')} last />
         </Section>
 
@@ -82,6 +77,10 @@ export default function AccountTab() {
         <Section title="About">
           <Row icon="information-circle-outline" title="About" value={`v${Constants.expoConfig?.version ?? '1.0.0'}`} onPress={() => router.push('/about')} last />
         </Section>
+
+        <Card style={{ paddingHorizontal: 6 }}>
+          <Row icon="log-out-outline" title="Log out" danger last onPress={() => Alert.alert('You’re not signed in', 'There’s no account to log out of yet. Sign-in is coming soon, and everything is saved on this phone.')} />
+        </Card>
       </ScrollView>
     </Screen>
   );

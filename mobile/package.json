@@ -1,6 +1,6 @@
 {
   "name": "mise",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "main": "expo-router/entry",
   "dependencies": {
     "@expo-google-fonts/fraunces": "^0.4.1",
@@ -24,6 +24,7 @@
     "expo-linking": "~57.0.12",
     "expo-notifications": "~57.0.22",
     "expo-router": "~57.0.26",
+    "expo-speech": "~57.0.3",
     "expo-status-bar": "~57.0.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",

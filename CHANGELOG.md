@@ -2,6 +2,19 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.7.0 (2026-10-13)
+
+### Added
+- **Account section** on the Account tab: Sign in & sync (coming soon), Profile (name, cooking level, diet), Notifications (timer alert status with a way to turn it on), and Usage (Import with AI today out of 25, imports this month, messages and voice messages to Sous, chats, recipes, times cooked, timers).
+- **Voice** (under App): four voices for Sous's voice mode (Basil, Saffron, Juniper, Clove). Tap one to hear it.
+- **Log out** at the bottom of Account (there's nothing to log out of until sign-in arrives).
+- **Light / Dark / System** picker with little screen previews in Appearance.
+
+### Changed
+- Swiping between tabs now works like a pager: the page follows your finger and glides into the next one. Tapping a tab slides too.
+- The cooks stand right at the counter, so their arms reach naturally instead of stretching across the scene.
+- "Make it yours" is now "App". Icons in lists no longer have a background.
+
 ## 1.6.0 (2026-10-13)
 
 ### Added

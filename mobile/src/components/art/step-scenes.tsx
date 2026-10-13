@@ -55,43 +55,43 @@ type SceneProps = { who: Cook };
 
 function Mix({ who }: SceneProps) {
   const v = useLoop(600);
-  const cx = 80;
+  const cx = 104;
   return (
     <>
       <Counter />
-      <Layer><BowlBack x={186} /></Layer>
+      <Layer><BowlBack x={176} /></Layer>
       <Character who={who} cx={cx}
         back={<Layer><HipArm who={who} cx={cx} side="left" /></Layer>}
         front={
           <Layer origin={[cx + 16, 98]} style={{ transform: [{ rotate: turn(v, -7, 7) }] }}>
-            <Path d="M158 90 L188 106" fill="none" stroke={C.woodShade} strokeWidth={5} strokeLinecap="round" />
-            <Arm who={who} s={[cx + 16, 98]} c={[124, 84]} h={[158, 90]} />
+            <Path d="M150 90 L178 106" fill="none" stroke={C.woodShade} strokeWidth={5} strokeLinecap="round" />
+            <Arm who={who} s={[cx + 16, 98]} c={[136, 86]} h={[150, 90]} />
           </Layer>
         }
       />
-      <Layer><BowlFront x={186} /></Layer>
-      <Rising delay={200}><Circle cx={170} cy={80} r={3.5} fill={C.cream} /></Rising>
-      <Rising delay={1200}><Circle cx={204} cy={76} r={2.5} fill={C.cream} /></Rising>
+      <Layer><BowlFront x={176} /></Layer>
+      <Rising delay={200}><Circle cx={162} cy={80} r={3.5} fill={C.cream} /></Rising>
+      <Rising delay={1200}><Circle cx={194} cy={76} r={2.5} fill={C.cream} /></Rising>
     </>
   );
 }
 
 function Knead({ who }: SceneProps) {
   const v = useLoop(520);
-  const cx = 96;
+  const cx = 108;
   const press = { transform: [{ translateY: lerp(v, 0, 6) }] };
   return (
     <>
       <Counter />
       <Character who={who} cx={cx} eyes="happy" mouth="grin"
-        back={<Layer style={press}><Arm who={who} s={[cx - 16, 98]} c={[130, 78]} h={[166, 96]} /></Layer>}
+        back={<Layer style={press}><Arm who={who} s={[cx - 16, 98]} c={[128, 84]} h={[158, 96]} /></Layer>}
       />
-      <Layer origin={[176, 118]} style={{ transform: [{ scaleY: lerp(v, 1, 0.84) }, { scaleX: lerp(v, 1, 1.1) }] }}>
-        <Path d="M150 118 Q150 93 176 91 Q202 93 202 118 Z" fill={C.dough} />
-        <Path d="M158 114 Q160 102 170 97" fill="none" stroke={C.white} strokeOpacity={0.5} strokeWidth={3.5} strokeLinecap="round" />
-        <ClosedEyes cx={176} cy={104} gap={7} />
+      <Layer origin={[168, 118]} style={{ transform: [{ scaleY: lerp(v, 1, 0.84) }, { scaleX: lerp(v, 1, 1.1) }] }}>
+        <Path d="M142 118 Q142 93 168 91 Q194 93 194 118 Z" fill={C.dough} />
+        <Path d="M150 114 Q152 102 162 97" fill="none" stroke={C.white} strokeOpacity={0.5} strokeWidth={3.5} strokeLinecap="round" />
+        <ClosedEyes cx={168} cy={104} gap={7} />
       </Layer>
-      <Layer style={press}><Arm who={who} s={[cx + 16, 98]} c={[150, 104]} h={[186, 96]} /></Layer>
+      <Layer style={press}><Arm who={who} s={[cx + 16, 98]} c={[150, 104]} h={[176, 96]} /></Layer>
     </>
   );
 }
@@ -126,7 +126,7 @@ function Rise({ who }: SceneProps) {
 function Bake({ who }: SceneProps) {
   const glow = useLoop(900);
   const wave = useLoop(700);
-  const cx = 72;
+  const cx = 100;
   return (
     <>
       <Layer>
@@ -151,7 +151,7 @@ function Bake({ who }: SceneProps) {
         back={<Layer><HipArm who={who} cx={cx} side="left" /></Layer>}
         front={
           <Layer origin={[cx + 16, 98]} style={{ transform: [{ rotate: turn(wave, -6, 6) }] }}>
-            <Arm who={who} s={[cx + 16, 98]} c={[110, 70]} h={[128, 80]} hand={C.tomato} />
+            <Arm who={who} s={[cx + 16, 98]} c={[126, 82]} h={[140, 88]} hand={C.tomato} />
           </Layer>
         }
       />
@@ -162,30 +162,30 @@ function Bake({ who }: SceneProps) {
 function Boil({ who }: SceneProps) {
   const lid = useLoop(420);
   const bubble = useLoop(380);
-  const cx = 74;
+  const cx = 100;
   return (
     <>
       <Counter />
       <Layer>
-        <Rect x={146} y={94} width={14} height={7} rx={3.5} fill={C.potShade} />
-        <Rect x={212} y={94} width={14} height={7} rx={3.5} fill={C.potShade} />
-        <Path d="M158 88 H214 V108 Q214 118 204 118 H168 Q158 118 158 108 Z" fill={C.pot} />
-        <Path d="M166 94 V110" fill="none" stroke={C.white} strokeOpacity={0.4} strokeWidth={4} strokeLinecap="round" />
-        <Rect x={154} y={84} width={64} height={8} rx={4} fill={C.potShade} />
+        <Rect x={136} y={94} width={14} height={7} rx={3.5} fill={C.potShade} />
+        <Rect x={202} y={94} width={14} height={7} rx={3.5} fill={C.potShade} />
+        <Path d="M148 88 H204 V108 Q204 118 194 118 H158 Q148 118 148 108 Z" fill={C.pot} />
+        <Path d="M156 94 V110" fill="none" stroke={C.white} strokeOpacity={0.4} strokeWidth={4} strokeLinecap="round" />
+        <Rect x={144} y={84} width={64} height={8} rx={4} fill={C.potShade} />
       </Layer>
       <Layer style={{ transform: [{ translateY: lerp(bubble, 0, -4) }] }}>
-        <Circle cx={172} cy={80} r={5} fill={C.water} />
-        <Circle cx={196} cy={78} r={6} fill={C.water} />
-        <Circle cx={184} cy={74} r={3.5} fill={C.water} />
+        <Circle cx={162} cy={80} r={5} fill={C.water} />
+        <Circle cx={186} cy={78} r={6} fill={C.water} />
+        <Circle cx={174} cy={74} r={3.5} fill={C.water} />
       </Layer>
-      {[176, 198].map((x, i) => steam(x, 66, i))}
+      {[166, 188].map((x, i) => steam(x, 66, i))}
       <Character who={who} cx={cx} mouth="o"
         back={<Layer><HipArm who={who} cx={cx} side="left" /></Layer>}
         front={
           <Layer style={{ transform: [{ translateY: lerp(lid, 0, -6) }] }}>
-            <Ellipse cx={188} cy={62} rx={30} ry={5} fill={C.potShade} />
-            <Rect x={183} y={53} width={10} height={6} rx={3} fill={C.panShade} />
-            <Arm who={who} s={[cx + 16, 98]} c={[118, 74]} h={[158, 62]} />
+            <Ellipse cx={178} cy={62} rx={30} ry={5} fill={C.potShade} />
+            <Rect x={173} y={53} width={10} height={6} rx={3} fill={C.panShade} />
+            <Arm who={who} s={[cx + 16, 98]} c={[134, 80]} h={[148, 64]} />
           </Layer>
         }
       />
@@ -196,26 +196,26 @@ function Boil({ who }: SceneProps) {
 function Chop({ who }: SceneProps) {
   const knife = useLoop(240);
   const hop = useLoop(240, { delay: 120 });
-  const cx = 80;
+  const cx = 104;
   return (
     <>
       <Counter />
       <Layer>
-        <Rect x={144} y={109} width={90} height={7} rx={3.5} fill={C.woodShade} />
-        <Path d="M176 102 Q172 106 176 109 L222 109 Q228 104 222 100 Z" fill={C.carrot} />
-        <Path d="M223 102 l10 -7 M224 105 l12 -1" fill="none" stroke={C.leaf} strokeWidth={3.5} strokeLinecap="round" />
+        <Rect x={142} y={109} width={92} height={7} rx={3.5} fill={C.woodShade} />
+        <Path d="M184 102 Q180 106 184 109 L224 109 Q230 104 224 100 Z" fill={C.carrot} />
+        <Path d="M225 102 l8 -7 M226 105 l10 -1" fill="none" stroke={C.leaf} strokeWidth={3.5} strokeLinecap="round" />
       </Layer>
       <Layer style={{ transform: [{ translateY: lerp(hop, 0, -5) }] }}>
-        <Ellipse cx={154} cy={104} rx={5} ry={4} fill={C.carrot} />
-        <Ellipse cx={164} cy={105} rx={5} ry={4} fill={C.carrot} />
+        <Ellipse cx={160} cy={104} rx={5} ry={4} fill={C.carrot} />
+        <Ellipse cx={170} cy={105} rx={5} ry={4} fill={C.carrot} />
       </Layer>
       <Character who={who} cx={cx} look={[2, 1.5]}
         back={<Layer><HipArm who={who} cx={cx} side="left" /></Layer>}
         front={
           <Layer origin={[cx + 16, 98]} style={{ transform: [{ rotate: turn(knife, -5, 4) }] }}>
-            <Path d="M160 84 H190 Q188 98 164 98 Z" fill={C.steel} />
-            <Rect x={146} y={84} width={18} height={7} rx={3.5} fill={C.woodShade} />
-            <Arm who={who} s={[cx + 16, 98]} c={[122, 84]} h={[150, 88]} />
+            <Path d="M156 86 H186 Q184 100 160 100 Z" fill={C.steel} />
+            <Rect x={142} y={86} width={18} height={7} rx={3.5} fill={C.woodShade} />
+            <Arm who={who} s={[cx + 16, 98]} c={[132, 90]} h={[146, 90]} />
           </Layer>
         }
       />
@@ -227,28 +227,28 @@ function Fry({ who }: SceneProps) {
   const tilt = useLoop(700);
   const a = useLoop(520, { ease: 'out' });
   const b = useLoop(520, { ease: 'out', delay: 260 });
-  const cx = 76;
+  const cx = 100;
   return (
     <>
       <Counter />
-      <Layer><Ellipse cx={192} cy={117} rx={26} ry={4} fill={C.panShade} /></Layer>
-      <SmallFlames x={192} y={116} />
+      <Layer><Ellipse cx={184} cy={117} rx={26} ry={4} fill={C.panShade} /></Layer>
+      <SmallFlames x={184} y={116} />
       <Layer style={{ transform: [{ translateY: lerp(a, 0, -26) }] }}>
-        <Path d="M176 94 Q174 86 184 85 Q192 83 194 90 Q196 96 188 97 Q178 99 176 94 Z" fill={C.white} />
-        <Circle cx={185} cy={91} r={3.6} fill={C.flame} />
+        <Path d="M168 94 Q166 86 176 85 Q184 83 186 90 Q188 96 180 97 Q170 99 168 94 Z" fill={C.white} />
+        <Circle cx={177} cy={91} r={3.6} fill={C.flame} />
       </Layer>
       <Layer style={{ transform: [{ translateY: lerp(b, 0, -20) }] }}>
-        <Rect x={198} y={88} width={8} height={8} rx={2.5} fill={C.green} />
-        <Rect x={207} y={91} width={7} height={7} rx={2.5} fill={C.tomato} />
+        <Rect x={190} y={88} width={8} height={8} rx={2.5} fill={C.green} />
+        <Rect x={199} y={91} width={7} height={7} rx={2.5} fill={C.tomato} />
       </Layer>
       <Character who={who} cx={cx}
         back={<Layer><HipArm who={who} cx={cx} side="left" /></Layer>}
         front={
           <Layer origin={[cx + 16, 98]} style={{ transform: [{ rotate: turn(tilt, -4, 4) }] }}>
-            <Rect x={142} y={98} width={30} height={6} rx={3} fill={C.panShade} />
-            <Path d="M168 96 H216 Q214 108 202 110 H182 Q170 108 168 96 Z" fill={C.pan} />
-            <Rect x={166} y={94} width={52} height={5} rx={2.5} fill={C.panShade} />
-            <Arm who={who} s={[cx + 16, 98]} c={[116, 104]} h={[144, 101]} />
+            <Rect x={136} y={98} width={28} height={6} rx={3} fill={C.panShade} />
+            <Path d="M160 96 H208 Q206 108 194 110 H174 Q162 108 160 96 Z" fill={C.pan} />
+            <Rect x={158} y={94} width={52} height={5} rx={2.5} fill={C.panShade} />
+            <Arm who={who} s={[cx + 16, 98]} c={[128, 104]} h={[138, 101]} />
           </Layer>
         }
       />
@@ -287,26 +287,26 @@ function Whisk({ who }: SceneProps) {
 function Pour({ who }: SceneProps) {
   const tip = useLoop(900);
   const flow = useLoop(160);
-  const cx = 76;
+  const cx = 100;
   return (
     <>
       <Counter />
-      <Layer><BowlBack x={196} fill={C.water} /></Layer>
-      <Layer origin={[184, 70]} style={{ transform: [{ scaleY: lerp(flow, 0.95, 1.05) }] }}>
-        <Path d="M184 70 Q194 78 196 92" fill="none" stroke={C.water} strokeWidth={4.5} strokeLinecap="round" />
+      <Layer><BowlBack x={194} fill={C.water} /></Layer>
+      <Layer origin={[180, 72]} style={{ transform: [{ scaleY: lerp(flow, 0.95, 1.05) }] }}>
+        <Path d="M180 72 Q190 80 192 92" fill="none" stroke={C.water} strokeWidth={4.5} strokeLinecap="round" />
       </Layer>
-      <Layer><BowlFront x={196} /></Layer>
+      <Layer><BowlFront x={194} /></Layer>
       <Character who={who} cx={cx}
         back={<Layer><HipArm who={who} cx={cx} side="left" /></Layer>}
         front={
           <Layer origin={[cx + 16, 98]} style={{ transform: [{ rotate: turn(tip, -3, 3) }] }}>
-            <G transform="rotate(35 160 70)">
+            <G transform="translate(-4 2) rotate(35 160 70)">
               <Path d="M150 62 Q138 66 150 80" fill="none" stroke="#EAF6FF" strokeWidth={4} strokeLinecap="round" />
               <Rect x={150} y={56} width={24} height={30} rx={6} fill="#EAF6FF" />
               <Rect x={151} y={70} width={22} height={15} rx={5} fill={C.water} />
               <Path d="M172 57 L182 54 L175 64 Z" fill="#EAF6FF" />
             </G>
-            <Arm who={who} s={[cx + 16, 98]} c={[120, 76]} h={[148, 72]} />
+            <Arm who={who} s={[cx + 16, 98]} c={[132, 82]} h={[144, 74]} />
           </Layer>
         }
       />
@@ -316,28 +316,28 @@ function Pour({ who }: SceneProps) {
 
 function Season({ who }: SceneProps) {
   const shake = useLoop(170);
-  const cx = 80;
+  const cx = 104;
   return (
     <>
       <Counter />
-      <Layer><BowlBack x={192} fill={C.sauce} /></Layer>
+      <Layer><BowlBack x={180} fill={C.sauce} /></Layer>
       {[0, 350, 700].map((d, i) => (
         <Rising key={d} delay={d} ms={900} dy={18}>
-          <Circle cx={184 + i * 4} cy={72} r={1.8} fill={C.ink} />
-          <Circle cx={190 - i * 3} cy={76} r={1.6} fill={C.ink} />
+          <Circle cx={168 + i * 4} cy={74} r={1.8} fill={C.ink} />
+          <Circle cx={174 - i * 3} cy={78} r={1.6} fill={C.ink} />
         </Rising>
       ))}
-      <Layer><BowlFront x={192} /></Layer>
+      <Layer><BowlFront x={180} /></Layer>
       <Character who={who} cx={cx} look={[2, -1]}
         back={<Layer><HipArm who={who} cx={cx} side="left" /></Layer>}
         front={
           <>
-            <Layer origin={[178, 58]} style={{ transform: [{ rotate: turn(shake, -9, 9) }, { translateX: lerp(shake, -2, 2) }] }}>
-              <Rect x={172} y={38} width={16} height={24} rx={5} fill={C.white} />
-              <Rect x={170} y={60} width={20} height={7} rx={3} fill={C.steel} />
-              <Rect x={174} y={46} width={12} height={5} fill={C.bowl} />
+            <Layer origin={[164, 62]} style={{ transform: [{ rotate: turn(shake, -9, 9) }, { translateX: lerp(shake, -2, 2) }] }}>
+              <Rect x={158} y={42} width={16} height={24} rx={5} fill={C.white} />
+              <Rect x={156} y={64} width={20} height={7} rx={3} fill={C.steel} />
+              <Rect x={160} y={50} width={12} height={5} fill={C.bowl} />
             </Layer>
-            <Layer><Arm who={who} s={[cx + 16, 98]} c={[124, 62]} h={[168, 54]} /></Layer>
+            <Layer><Arm who={who} s={[cx + 16, 98]} c={[136, 80]} h={[154, 60]} /></Layer>
           </>
         }
       />
@@ -347,29 +347,29 @@ function Season({ who }: SceneProps) {
 
 function Cool({ who }: SceneProps) {
   const fan = useLoop(420);
-  const cx = 78;
+  const cx = 104;
   return (
     <>
       <Counter />
       <Layer>
-        <Path d="M158 112 V117 M216 112 V117" fill="none" stroke={C.steelShade} strokeWidth={3} strokeLinecap="round" />
-        <Path d="M152 111 H222" fill="none" stroke={C.steelShade} strokeWidth={3} strokeLinecap="round" />
-        <Path d="M162 110 Q162 86 188 84 Q214 86 214 110 Z" fill={C.crust} />
-        <Path d="M176 90 l5 7 M188 88 l5 7 M200 90 l5 7" fill="none" stroke={C.crustShade} strokeWidth={2.6} strokeLinecap="round" />
-        <ClosedEyes cx={188} cy={100} gap={7} />
+        <Path d="M164 112 V117 M222 112 V117" fill="none" stroke={C.steelShade} strokeWidth={3} strokeLinecap="round" />
+        <Path d="M158 111 H228" fill="none" stroke={C.steelShade} strokeWidth={3} strokeLinecap="round" />
+        <Path d="M168 110 Q168 86 194 84 Q220 86 220 110 Z" fill={C.crust} />
+        <Path d="M182 90 l5 7 M194 88 l5 7 M206 90 l5 7" fill="none" stroke={C.crustShade} strokeWidth={2.6} strokeLinecap="round" />
+        <ClosedEyes cx={194} cy={100} gap={7} />
       </Layer>
       {[0, 600, 1200].map((d, i) => (
         <Rising key={d} delay={d} ms={1400} dy={0}>
-          <Path d={`M150 ${74 + i * 10} h12 q5 0 5 -4`} fill="none" stroke={C.bowl} strokeWidth={2.6} strokeLinecap="round" />
+          <Path d={'M156 ' + (76 + i * 10) + ' h8 q4 0 4 -3'} fill="none" stroke={C.bowl} strokeWidth={2.6} strokeLinecap="round" />
         </Rising>
       ))}
       <Character who={who} cx={cx}
         back={<Layer><HipArm who={who} cx={cx} side="left" /></Layer>}
         front={
           <Layer origin={[cx + 16, 98]} style={{ transform: [{ rotate: turn(fan, -12, 12) }] }}>
-            <Path d="M138 76 L158 62 Q168 76 156 90 Z" fill={C.tomato} />
-            <Path d="M138 76 L161 69 M138 76 L162 79 M138 76 L158 87" fill="none" stroke={C.white} strokeWidth={1.8} strokeLinecap="round" />
-            <Arm who={who} s={[cx + 16, 98]} c={[116, 80]} h={[138, 76]} />
+            <Path d="M140 78 L156 66 Q164 78 154 90 Z" fill={C.tomato} />
+            <Path d="M140 78 L158 72 M140 78 L159 80 M140 78 L155 87" fill="none" stroke={C.white} strokeWidth={1.8} strokeLinecap="round" />
+            <Arm who={who} s={[cx + 16, 98]} c={[132, 86]} h={[140, 78]} />
           </Layer>
         }
       />
