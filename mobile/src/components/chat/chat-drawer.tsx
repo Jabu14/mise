@@ -1,7 +1,8 @@
 // Chat history, opened like the Claude app: the whole app (tab bar included) slides right and
 // follows your finger, uncovering the history underneath. Swipe right on the chat to open,
 // swipe left (or tap the strip on the right) to close.
-// The history has search, Pinned and Recents, and a long-press menu to Rename, Pin or Delete.
+// The history has search, Pinned and Recents, a long-press menu to Rename, Pin or Delete,
+// and at the bottom a voice-mode button next to New chat.
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
@@ -14,6 +15,7 @@ import { AI_NAME, useChats, type Chat } from '../../lib/chat-store';
 import { useIslandSpace } from '../../lib/island';
 import { useApp } from '../../lib/store';
 import { useTheme } from '../../lib/theme';
+import { VoiceWaveIcon } from '../icons';
 import { Icon, Txt, type IconName } from '../ui';
 
 const panelWidth = () => Math.min(Dimensions.get('window').width * 0.82, 340);
@@ -199,11 +201,9 @@ function ChatSidebar({ panel, closeSwipe }: { panel: number; closeSwipe: PanResp
       </ScrollView>
 
       <View pointerEvents="box-none" style={{ position: 'absolute', left: 0, right: 0, bottom: insets.bottom + 16, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 18, gap: 12 }}>
-        <Pressable onPress={() => go(() => router.navigate('/account'))} accessibilityLabel="Account"
-          style={{ width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.soft, borderWidth: 1, borderColor: th.c.line }}>
-          {settings.name.trim()
-            ? <Txt weight="black" size={19}>{settings.name.trim().charAt(0).toUpperCase()}</Txt>
-            : <Icon name="person" size={22} color={th.c.text} />}
+        <Pressable onPress={() => go(() => router.push('/voice'))} accessibilityRole="button" accessibilityLabel={`Talk to ${AI_NAME}`}
+          style={({ pressed }) => ({ width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.soft, borderWidth: 1, borderColor: th.c.line, opacity: pressed ? 0.7 : 1 })}>
+          <VoiceWaveIcon size={22} color={th.c.text} />
         </Pressable>
         <Pressable onPress={() => go(newChat)} accessibilityRole="button"
           style={({ pressed }) => ({ flex: 1, height: 52, borderRadius: 26, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: th.c.accent, opacity: pressed ? 0.85 : 1, shadowColor: '#000', shadowOpacity: 0.18, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } })}>
@@ -299,7 +299,7 @@ function ChatMenu({ menu, screenHeight, left, width, onClose, onRename, onPin, o
   );
 }
 
-function RenameDialog({ value, onChange, onCancel, onSave }: { value: { title: string } | null; onChange: (t: string) => void; onCancel: () => void; onSave: () => void }) {
+export function RenameDialog({ value, onChange, onCancel, onSave }: { value: { title: string } | null; onChange: (t: string) => void; onCancel: () => void; onSave: () => void }) {
   const th = useTheme();
   if (!value) return null;
   return (

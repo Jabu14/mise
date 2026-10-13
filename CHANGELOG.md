@@ -2,6 +2,22 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.4.0 (2026-10-12)
+
+### Added
+- **＋ sheet in Sous** (like Gemini and ChatGPT): big Camera, Photos and Recipes tiles, plus starters (Plan meals, Use what I have, Swap an ingredient, Rescue a dish) that drop a prompt into the message box. Drag down to close.
+- **••• menu in an open chat**: Share, Rename, Pin and Delete, with the chat's name on top.
+- **Recipe prompt page**: how to use it, the full prompt, Copy, Edit and Restore. (Editing moved here from Settings.)
+- **Help center** with searchable questions and answers.
+- **Report an issue** form.
+- **Terms of Use and Privacy Policy** under About (drafts to review before publishing).
+
+### Changed
+- Sous's answers are plain text across the page: no bubble, border or avatar.
+- Sous header: round ☰ on the left, a pill with a new compose icon and ••• on the right, and no chat name.
+- The history sidebar's account button is replaced by a voice-mode button.
+- Account: one icon size everywhere, no subtitles, a Support section (Help center, Report an issue, Send feedback), and "About Mise" is now "About". The Feedback button is a normal row.
+
 ## 1.3.0 (2026-10-12)
 
 ### Changed

@@ -49,3 +49,13 @@ export function VoiceWaveIcon({ size = 22, color }: { size?: number; color: stri
     </Svg>
   );
 }
+
+// New chat: an open rounded square with a pencil writing into it (the familiar "compose" mark).
+export function NewChatIcon({ size = 22, color }: { size?: number; color: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <Path d="M11 4H7.5A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5V13" />
+      <Path d="M17.6 3.6a2.05 2.05 0 0 1 2.9 2.9L12.9 14.1 9.5 15l.9-3.4 7.2-8Z" />
+    </Svg>
+  );
+}

@@ -1,4 +1,4 @@
-// About Mise: version, what's new, and where your data lives.
+// About: version, what's new, where your data lives, and the legal terms.
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { ScrollView, View } from 'react-native';
@@ -9,12 +9,11 @@ import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
-  'The running timer now sits at the top of the screen, like the Dynamic Island',
-  `Swipe right in ${AI_NAME} and the app slides over to show your chats, following your finger`,
-  `${AI_NAME} greets you by name and time of day`,
-  'Chats get short, smart names, and you can search them',
-  'Long-press a chat to rename, pin or delete it',
-  'Run several timers at once, iPhone Clock style',
+  `${AI_NAME}'s answers read like a page, with no bubbles`,
+  'New ＋ sheet for photos, recipes and quick starters',
+  'Share, rename, pin or delete a chat from the ••• menu',
+  'Help center, Report an issue, and a Recipe prompt page',
+  'The running timer sits at the top of the screen',
 ];
 
 export default function AboutScreen() {
@@ -25,7 +24,7 @@ export default function AboutScreen() {
     <Screen>
       <TopBar>
         <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
-        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>About Mise</Txt>
+        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>About</Txt>
       </TopBar>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 8, paddingBottom: 48, gap: 18 }}>
@@ -59,7 +58,8 @@ export default function AboutScreen() {
         </View>
 
         <Card style={{ paddingHorizontal: 6 }}>
-          <Row icon="chatbox-ellipses-outline" title="Send feedback" subtitle="Ideas, bugs, or what you love" onPress={() => router.push('/feedback')} last />
+          <Row icon="document-text-outline" title="Terms of Use" onPress={() => router.push('/legal?doc=terms')} />
+          <Row icon="shield-checkmark-outline" title="Privacy Policy" onPress={() => router.push('/legal?doc=privacy')} last />
         </Card>
       </ScrollView>
     </Screen>

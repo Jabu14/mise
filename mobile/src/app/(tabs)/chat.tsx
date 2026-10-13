@@ -3,13 +3,15 @@
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { useRef, useState } from 'react';
-import { Alert, Image, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, View } from 'react-native';
 import { Composer } from '../../components/chat/composer';
+import { AttachSheet, type AttachChoice } from '../../components/chat/attach-sheet';
+import { ChatActions } from '../../components/chat/chat-actions';
 import { useChatDrawer } from '../../components/chat/chat-drawer';
 import { VoiceMessage } from '../../components/chat/voice-message';
-import { ChatSparkIcon } from '../../components/icons';
+import { ChatSparkIcon, NewChatIcon } from '../../components/icons';
 import { Icon, IconBtn, Screen, TopBar, Txt } from '../../components/ui';
-import { AI_NAME, useChats, type ChatAttachment, type ChatMessage } from '../../lib/chat-store';
+import { useChats, type ChatAttachment, type ChatMessage } from '../../lib/chat-store';
 import { useApp } from '../../lib/store';
 import { useTheme } from '../../lib/theme';
 
@@ -39,6 +41,9 @@ export default function ChatTab() {
   const { chatId, setChatId } = drawer;
   const [attachment, setAttachment] = useState<ChatAttachment | null>(null);
   const [pickingRecipe, setPickingRecipe] = useState(false);
+  const [sheet, setSheet] = useState(false);
+  const [actions, setActions] = useState(false);
+  const [draft, setDraft] = useState<{ text: string; n: number } | undefined>();
   const scroll = useRef<ScrollView>(null);
   const chat = getChat(chatId);
   const hi = greeting(drawer.greetHour, settings.name);
@@ -64,24 +69,29 @@ export default function ChatTab() {
     if (!result.canceled && result.assets?.[0]) setAttachment({ type: 'photo', uri: result.assets[0].uri });
   };
 
-  const attach = () =>
-    Alert.alert('Add to your message', undefined, [
-      { text: 'Take a photo', onPress: () => pickPhoto(true) },
-      { text: 'Choose a photo', onPress: () => pickPhoto(false) },
-      ...(recipes.length ? [{ text: 'One of my recipes', onPress: () => setPickingRecipe(true) }] : []),
-      { text: 'Cancel', style: 'cancel' as const },
-    ]);
+  // From the ＋ sheet. The picker opens once the sheet has slid away.
+  const choose = (c: AttachChoice) => {
+    setSheet(false);
+    if (typeof c === 'object') setDraft(d => ({ text: c.draft, n: (d?.n ?? 0) + 1 }));
+    else setTimeout(() => (c === 'recipe' ? setPickingRecipe(true) : pickPhoto(c === 'camera')), 350);
+  };
 
   return (
     <Screen>
       <View {...drawer.openSwipe.panHandlers} style={{ flex: 1 }}>
       <TopBar>
-        <IconBtn name="menu" label="Chat history" onPress={drawer.open} />
-        <View style={{ flex: 1, alignItems: 'center', paddingHorizontal: 4 }}>
-          <Txt kind="head" weight="bold" size={chat ? 17 : 20} numberOfLines={1}>{chat ? chat.title : AI_NAME}</Txt>
-          <Txt muted size={12} weight="bold">{chat ? `${AI_NAME} · Preview` : 'Your sous-chef · Preview'}</Txt>
+        <HeaderBtn label="Chat history" onPress={drawer.open}><Icon name="menu" size={22} color={th.c.text} /></HeaderBtn>
+        <View style={{ flex: 1 }} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', height: 48, borderRadius: 24, backgroundColor: th.c.surface, borderWidth: 1, borderColor: th.c.line, marginRight: 8 }}>
+          <Pressable onPress={drawer.newChat} accessibilityRole="button" accessibilityLabel="New chat" hitSlop={4} style={({ pressed }) => ({ width: 52, height: 48, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1 })}>
+            <NewChatIcon size={22} color={th.c.text} />
+          </Pressable>
+          {chat ? (
+            <Pressable onPress={() => setActions(true)} accessibilityRole="button" accessibilityLabel="Chat options" hitSlop={4} style={({ pressed }) => ({ width: 48, height: 48, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1 })}>
+              <Icon name="ellipsis-horizontal" size={22} color={th.c.text} />
+            </Pressable>
+          ) : null}
         </View>
-        <IconBtn name="create-outline" label="New chat" onPress={drawer.newChat} />
       </TopBar>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -111,13 +121,17 @@ export default function ChatTab() {
         <Composer
           attachment={attachment}
           onClearAttachment={() => setAttachment(null)}
-          onAttach={attach}
+          onAttach={() => setSheet(true)}
           onSendText={sendText}
           onSendVoice={sendVoice}
           onVoiceMode={() => router.push('/voice')}
+          draft={draft}
         />
       </KeyboardAvoidingView>
       </View>
+
+      <AttachSheet visible={sheet} hasRecipes={recipes.length > 0} onClose={() => setSheet(false)} onChoose={choose} />
+      {chat ? <ChatActions chat={chat} visible={actions} onClose={() => setActions(false)} onDeleted={drawer.newChat} /> : null}
 
       <Modal visible={pickingRecipe} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setPickingRecipe(false)}>
         <View style={{ flex: 1, backgroundColor: th.c.bg }}>
@@ -140,28 +154,40 @@ export default function ChatTab() {
   );
 }
 
+// Round header button, like the AI apps' top bar.
+function HeaderBtn({ label, onPress, children }: { label: string; onPress: () => void; children: React.ReactNode }) {
+  const th = useTheme();
+  return (
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={label} hitSlop={4}
+      style={({ pressed }) => ({ marginLeft: 8, width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.surface, borderWidth: 1, borderColor: th.c.line, opacity: pressed ? 0.7 : 1 })}>
+      {children}
+    </Pressable>
+  );
+}
+
+// Your messages are bubbles; Sous's answers are plain text across the page, like Claude's.
 function Bubble({ m }: { m: ChatMessage }) {
   const th = useTheme();
   const mine = m.role === 'user';
-  return (
-    <View style={{ flexDirection: 'row', justifyContent: mine ? 'flex-end' : 'flex-start', alignItems: 'flex-end', gap: 8 }}>
-      {!mine && (
-        <View style={{ width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.accent }}>
-          <ChatSparkIcon size={16} color={th.c.onAccent} active />
-        </View>
+  const recipe = m.attachment?.type === 'recipe' ? m.attachment : null;
+  const content = (
+    <>
+      {m.attachment?.type === 'photo' && <Image source={{ uri: m.attachment.uri }} style={{ width: 200, height: 150, borderRadius: 12 }} />}
+      {recipe && (
+        <Pressable onPress={() => router.push(`/recipe/${recipe.recipeId}`)} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10, backgroundColor: mine ? 'rgba(255,255,255,0.2)' : th.c.accentSoft }}>
+          <Icon name="book-outline" size={15} color={mine ? th.c.onAccent : th.c.accent} />
+          <Txt weight="bold" size={13} color={mine ? th.c.onAccent : th.c.accent} numberOfLines={1}>{recipe.title}</Txt>
+        </Pressable>
       )}
-      <View style={{ maxWidth: '80%', gap: 6, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 20, borderBottomRightRadius: mine ? 6 : 20, borderBottomLeftRadius: mine ? 20 : 6, backgroundColor: mine ? th.c.accent : th.c.surface, borderWidth: mine ? 0 : 1, borderColor: th.c.line }}>
-        {m.attachment?.type === 'photo' && <Image source={{ uri: m.attachment.uri }} style={{ width: 200, height: 150, borderRadius: 12 }} />}
-        {m.attachment?.type === 'recipe' && (
-          <Pressable onPress={() => m.attachment?.type === 'recipe' && router.push(`/recipe/${m.attachment.recipeId}`)} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 10, backgroundColor: mine ? 'rgba(255,255,255,0.2)' : th.c.accentSoft }}>
-            <Icon name="book-outline" size={15} color={mine ? th.c.onAccent : th.c.accent} />
-            <Txt weight="bold" size={13} color={mine ? th.c.onAccent : th.c.accent} numberOfLines={1}>{m.attachment.title}</Txt>
-          </Pressable>
-        )}
-        {m.kind === 'voice' && m.audioUri
-          ? <VoiceMessage id={m.id} uri={m.audioUri} durationMs={m.durationMs ?? 0} mine={mine} />
-          : m.text ? <Txt color={mine ? th.c.onAccent : th.c.text}>{m.text}</Txt> : null}
-      </View>
+      {m.kind === 'voice' && m.audioUri
+        ? <VoiceMessage id={m.id} uri={m.audioUri} durationMs={m.durationMs ?? 0} mine={mine} />
+        : m.text ? <Txt size={mine ? 16 : 17} color={mine ? th.c.onAccent : th.c.text} style={mine ? undefined : { lineHeight: th.fs(17) * 1.5 }}>{m.text}</Txt> : null}
+    </>
+  );
+  if (!mine) return <View style={{ gap: 8, paddingHorizontal: 4, paddingVertical: 4 }}>{content}</View>;
+  return (
+    <View style={{ alignSelf: 'flex-end', maxWidth: '82%', gap: 6, paddingHorizontal: 16, paddingVertical: 11, borderRadius: 22, borderBottomRightRadius: 6, backgroundColor: th.c.accent }}>
+      {content}
     </View>
   );
 }

@@ -1,12 +1,10 @@
-// Account tab: your profile and stats, then a section each for Appearance, Settings, Feedback and About.
+// Account tab: your profile and stats, then Make it yours, Recipes, Support and About.
 // Sign-in / cloud sync will live here once there is a backend; for now everything stays on this phone.
-import * as Clipboard from 'expo-clipboard';
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
-import { Alert, ScrollView, TextInput, View } from 'react-native';
+import { ScrollView, TextInput, View } from 'react-native';
 import { Row } from '../../components/settings-ui';
-import { Btn, Card, Icon, Label, Screen, TopBar, Txt, type IconName } from '../../components/ui';
-import { RECIPE_PROMPT } from '../../shared/content';
+import { Card, Icon, Label, Screen, TopBar, Txt, type IconName } from '../../components/ui';
 import { useApp, useTimers } from '../../lib/store';
 import { FONTS, THEMES, useTheme } from '../../lib/theme';
 import { LIMITS } from '../../lib/validate';
@@ -19,10 +17,6 @@ export default function AccountTab() {
   const initial = settings.name.trim().charAt(0).toUpperCase();
   const appearanceSummary = [THEMES[settings.theme as keyof typeof THEMES]?.name, FONTS[settings.font as keyof typeof FONTS]?.name].filter(Boolean).join(' · ');
 
-  const copyPrompt = async () => {
-    await Clipboard.setStringAsync(settings.recipePrompt || RECIPE_PROMPT);
-    Alert.alert('Prompt copied', 'Paste it into your AI chat, right after the recipe.');
-  };
 
   return (
     <Screen>
@@ -72,27 +66,22 @@ export default function AccountTab() {
         </Card>
 
         <Section title="Make it yours">
-          <Row icon="color-palette-outline" title="Appearance" subtitle="Colours, light or dark, font, text size" value={appearanceSummary} onPress={() => router.push('/appearance')} />
-          <Row icon="settings-outline" title="Settings" subtitle="Cook mode, timers & alarm, recipe prompt" onPress={() => router.push('/settings')} last />
+          <Row icon="color-palette-outline" title="Appearance" value={appearanceSummary} onPress={() => router.push('/appearance')} />
+          <Row icon="settings-outline" title="Settings" onPress={() => router.push('/settings')} last />
         </Section>
 
         <Section title="Recipes">
-          <Row icon="copy-outline" title="Copy recipe prompt" subtitle="Ask any AI for a recipe in Mise format" onPress={copyPrompt} last />
+          <Row icon="document-text-outline" title="Recipe prompt" onPress={() => router.push('/recipe-prompt')} last />
         </Section>
 
-        <Card style={{ padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <View style={{ width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.accentSoft }}>
-            <Icon name="chatbox-ellipses-outline" size={23} color={th.c.accent} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Txt weight="black">Help shape Mise</Txt>
-            <Txt muted size={13}>Ideas, bugs or love notes, we read every one.</Txt>
-          </View>
-          <Btn title="Feedback" size="small" variant="secondary" onPress={() => router.push('/feedback')} />
-        </Card>
+        <Section title="Support">
+          <Row icon="help-circle-outline" title="Help center" onPress={() => router.push('/help')} />
+          <Row icon="bug-outline" title="Report an issue" onPress={() => router.push('/feedback?mode=issue')} />
+          <Row icon="chatbox-ellipses-outline" title="Send feedback" onPress={() => router.push('/feedback')} last />
+        </Section>
 
         <Section title="About">
-          <Row icon="information-circle-outline" title="About Mise" subtitle="What's new and your data" value={`v${Constants.expoConfig?.version ?? '1.0.0'}`} onPress={() => router.push('/about')} last />
+          <Row icon="information-circle-outline" title="About" value={`v${Constants.expoConfig?.version ?? '1.0.0'}`} onPress={() => router.push('/about')} last />
         </Section>
       </ScrollView>
     </Screen>

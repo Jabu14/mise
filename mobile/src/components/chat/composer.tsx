@@ -9,7 +9,7 @@ import {
 } from 'expo-audio';
 import { File } from 'expo-file-system';
 import * as Haptics from 'expo-haptics';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Alert, Image, Pressable, TextInput, View } from 'react-native';
 import type { ChatAttachment } from '../../lib/chat-store';
 import { useApp } from '../../lib/store';
@@ -27,12 +27,19 @@ type Props = {
   onSendText: (text: string) => void;
   onSendVoice: (uri: string, durationMs: number) => void;
   onVoiceMode: () => void;
+  // A starter from the ＋ sheet: replaces the text and focuses the box (n changes each time).
+  draft?: { text: string; n: number };
 };
 
-export function Composer({ attachment, onClearAttachment, onAttach, onSendText, onSendVoice, onVoiceMode }: Props) {
+export function Composer({ attachment, onClearAttachment, onAttach, onSendText, onSendVoice, onVoiceMode, draft }: Props) {
   const th = useTheme();
   const { settings } = useApp();
   const [text, setText] = useState('');
+  const input = useRef<TextInput>(null);
+  const [draftN, setDraftN] = useState(0);
+  if (draft && draft.n !== draftN) { setDraftN(draft.n); setText(draft.text); }
+  const draftKey = draft?.n;
+  useEffect(() => { if (draftKey) setTimeout(() => input.current?.focus(), 50); }, [draftKey]);
   const [recording, setRecording] = useState(false);
   const recorder = useAudioRecorder({ ...RecordingPresets.HIGH_QUALITY, isMeteringEnabled: true, directory: 'document' });
   const rec = useAudioRecorderState(recorder, 80);
@@ -125,6 +132,7 @@ export function Composer({ attachment, onClearAttachment, onAttach, onSendText, 
           <>
             {round('add', onAttach, 'Attach a photo or recipe')}
             <TextInput
+              ref={input}
               value={text}
               onChangeText={setText}
               placeholder="Ask Sous anything…"
