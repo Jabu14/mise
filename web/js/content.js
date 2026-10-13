@@ -39,7 +39,7 @@ export const SAMPLE_RECIPE = `Okay, here's a simple crusty bread you can make at
 
 ## Easy Crusty Bread
 
-A golden, crackly loaf with a soft, airy inside. Very little kneading — time does most of the work.
+A golden, crackly loaf with a soft, airy inside. Very little kneading, time does most of the work.
 
 **Yield:** 1 loaf
 **Prep time:** 20 minutes
@@ -58,7 +58,7 @@ A golden, crackly loaf with a soft, airy inside. Very little kneading — time d
 ### Instructions
 
 1. **Wake up the yeast:** Stir the yeast and sugar into the warm water. Leave it for 5–10 minutes until it looks foamy on top.
-2. **Mix the dough:** In a large bowl, combine the flour and salt. Pour in the yeast mixture and olive oil, then stir with a wooden spoon until no dry flour is left. The dough will be sticky — that's normal.
+2. **Mix the dough:** In a large bowl, combine the flour and salt. Pour in the yeast mixture and olive oil, then stir with a wooden spoon until no dry flour is left. The dough will be sticky, and that's normal.
 3. **Rest:** Cover the bowl and let the dough rest for 20 minutes so the flour can soak up the water.
 4. **Stretch and fold:** With wet hands, grab one side of the dough, stretch it up and fold it over the middle. Turn the bowl and repeat 4 times. Do a set every 30 minutes, 3 sets in total.
 5. **First rise:** Cover and leave in a warm spot for 1–2 hours, until doubled in size and bubbly.
@@ -68,7 +68,7 @@ A golden, crackly loaf with a soft, airy inside. Very little kneading — time d
 9. **Score:** Dust the top with flour and cut a 1 cm deep slash across the top with a sharp knife.
 10. **Bake covered:** Carefully lower the dough (on its paper) into the hot pot, put the lid on and bake for 30 minutes.
 11. **Bake uncovered:** Remove the lid and bake for another 10–15 minutes until deep golden brown. It should sound hollow when you tap the bottom.
-12. **Cool:** Let the bread cool on a wire rack for at least 1 hour before slicing — it's still cooking inside!
+12. **Cool:** Let the bread cool on a wire rack for at least 1 hour before slicing. It's still cooking inside!
 
 ### Tips
 

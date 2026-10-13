@@ -2,6 +2,27 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.5.0 (2026-10-13)
+
+### Added
+- **Animated step pictures.** A small cartoon scene at the top of each cooking step, chosen from what the step says (stirring, kneading, rising, baking, boiling, chopping, frying, whisking, pouring, seasoning, cooling, serving), with a chef's hat for anything else. They pause when off screen and respect the phone's Reduce Motion setting. You can switch them off in Settings → Step animations.
+- **Recipe pictures.** An animated dish (bread, cake, pasta, soup, salad, pizza, cookies, pancakes, or a covered plate) replaces the emoji at the top of a recipe.
+- **Type the amount** in "Makes": tap the amount and enter any number.
+- **All chats page** (opened from the search button in the history): every chat with "2 hours ago" times, search at the bottom, New chat on the right, long-press for Rename, Pin and Delete.
+- **Back-down button** in a chat when you scroll up.
+- **Mise icon set**: bolder, rounder icons across the app.
+
+### Changed
+- Ticked ingredients get a line through them.
+- The Sous message box looks like Claude, ChatGPT and Gemini: a rounded card with the text on top and the buttons underneath.
+- The ••• menu no longer shows the chat name, and it grows out of the button and shrinks back when closing.
+- The sidebar's New chat button sits on the right and is only as wide as it needs to be.
+- Removed: the text under Sign in & sync, the alarm notes in Settings and the tone picker, and "Test the alarm".
+- Em dashes removed from the app's text.
+
+### Fixed
+- The chat screen shifted slightly (and text re-wrapped) while the history slid open or closed.
+
 ## 1.4.0 (2026-10-12)
 
 ### Added

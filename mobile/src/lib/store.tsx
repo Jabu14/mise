@@ -40,6 +40,7 @@ export const DEFAULT_SETTINGS = {
   cards: 'soft',        // soft | flat
   cookLayout: 'cards',  // cards (one step at a time) | list
   stepIngredients: true,
+  stepArt: true,        // animated picture at the top of each step
   highlightTimes: true,
   keepAwake: true,
   haptics: true,

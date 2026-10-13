@@ -4,6 +4,7 @@ import { BottomTabBarHeightContext } from 'expo-router/js-tabs';
 import { useContext, type ComponentProps, type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View, type StyleProp, type TextProps, type TextStyle, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { GLYPHS, Glyph } from './glyphs';
 import { useIslandSpace } from '../lib/island';
 import type { Step } from '../lib/store';
 import { useTheme, type Weight } from '../lib/theme';
@@ -40,8 +41,10 @@ export function Label({ children, color }: { children: ReactNode; color?: string
   );
 }
 
+// Mise's own icons where we have them (glyphs.tsx), stock Ionicons for the rest.
 export function Icon({ name, size = 22, color }: { name: IconName; size?: number; color?: string }) {
   const th = useTheme();
+  if (GLYPHS[name]) return <Glyph name={name} size={size} color={color || th.c.text} />;
   return <Ionicons name={name} size={size} color={color || th.c.text} />;
 }
 
@@ -175,7 +178,7 @@ export function clock(ms: number) {
 
 const TOKEN_RE = /(\*\*.+?\*\*)|(\b\d+(?:[.,]\d+)?(?:\s*(?:-|–|to)\s*\d+(?:[.,]\d+)?)?\s*(?:hours?|hrs?|minutes?|mins?|seconds?|secs?)\b)|(\b\d{2,3}\s*°\s*[CF]\b)/gi;
 
-function InlineText({ text, highlight, size, color }: { text: string; highlight: boolean; size: number; color?: string }) {
+function InlineText({ text, highlight, size, color, strike }: { text: string; highlight: boolean; size: number; color?: string; strike?: boolean }) {
   const th = useTheme();
   const parts: ReactNode[] = [];
   let last = 0;
@@ -188,21 +191,22 @@ function InlineText({ text, highlight, size, color }: { text: string; highlight:
     last = i + m[0].length;
   }
   if (last < text.length) parts.push(text.slice(last));
-  return <Txt size={size} color={color}>{parts}</Txt>;
+  return <Txt size={size} color={color} style={strike ? { textDecorationLine: 'line-through', textDecorationColor: color || th.c.text } : undefined}>{parts}</Txt>;
 }
 
-export function RichText({ text, size = 16, highlight = false, color }: { text: string; size?: number; highlight?: boolean; color?: string }) {
+// strike: crossed out (a ticked-off ingredient).
+export function RichText({ text, size = 16, highlight = false, color, strike }: { text: string; size?: number; highlight?: boolean; color?: string; strike?: boolean }) {
   const th = useTheme();
   const lines = String(text || '').split('\n').map(l => l.trim()).filter(Boolean);
   return (
     <View style={{ gap: 10 }}>
       {lines.map((line, i) => {
         const bullet = line.match(/^(?:[•\-*]|\d+[.)])\s+(.*)$/);
-        if (!bullet) return <InlineText key={i} text={line} highlight={highlight} size={size} color={color} />;
+        if (!bullet) return <InlineText key={i} text={line} highlight={highlight} size={size} color={color} strike={strike} />;
         return (
           <View key={i} style={{ flexDirection: 'row', gap: 10, paddingLeft: 4 }}>
             <Txt size={size} color={th.c.accent} weight="black">•</Txt>
-            <View style={{ flex: 1 }}><InlineText text={bullet[1]} highlight={highlight} size={size} color={color} /></View>
+            <View style={{ flex: 1 }}><InlineText text={bullet[1]} highlight={highlight} size={size} color={color} strike={strike} /></View>
           </View>
         );
       })}

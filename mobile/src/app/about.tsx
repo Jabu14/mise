@@ -9,11 +9,10 @@ import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
-  `${AI_NAME}'s answers read like a page, with no bubbles`,
-  'New ＋ sheet for photos, recipes and quick starters',
-  'Share, rename, pin or delete a chat from the ••• menu',
-  'Help center, Report an issue, and a Recipe prompt page',
-  'The running timer sits at the top of the screen',
+  'Animated pictures for every cooking step, and for each recipe',
+  'Type how much you want to make, and tick off ingredients with a line through them',
+  `A new message box for ${AI_NAME}, a page with all your chats, and a button to jump back down`,
+  'Bolder, cleaner icons throughout the app',
 ];
 
 export default function AboutScreen() {

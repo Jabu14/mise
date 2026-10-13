@@ -101,7 +101,7 @@ function ring(t) {
 
 async function notify(t) {
   if (!('Notification' in window) || Notification.permission !== 'granted' || document.visibilityState === 'visible') return;
-  const title = `⏰ ${t.label} — time's up!`;
+  const title = `⏰ ${t.label}: time's up!`;
   try {
     const reg = await navigator.serviceWorker?.getRegistration();
     if (reg) reg.showNotification(title, { body: t.recipeTitle || '', tag: t.id, renotify: true, vibrate: [400, 200, 400] });

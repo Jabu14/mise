@@ -1,5 +1,6 @@
-// The message bar under the chat: ＋ to attach, text, a mic to record a voice message,
-// and a button for full voice mode. While recording it turns into a live level meter.
+// The message box under the chat, laid out like Claude / ChatGPT / Gemini: a rounded card with the
+// text on top and the buttons underneath (＋ on the left; mic and voice mode, or send, on the right).
+// While recording, the text area turns into a live level meter.
 import {
   RecordingPresets,
   requestRecordingPermissionsAsync,
@@ -11,7 +12,7 @@ import { File } from 'expo-file-system';
 import * as Haptics from 'expo-haptics';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Image, Pressable, TextInput, View } from 'react-native';
-import type { ChatAttachment } from '../../lib/chat-store';
+import { AI_NAME, type ChatAttachment } from '../../lib/chat-store';
 import { useApp } from '../../lib/store';
 import { useTheme } from '../../lib/theme';
 import { VoiceWaveIcon } from '../icons';
@@ -100,57 +101,66 @@ export function Composer({ attachment, onClearAttachment, onAttach, onSendText, 
     </Pressable>
   );
 
-  return (
-    <View style={{ paddingHorizontal: 12, paddingTop: 6, paddingBottom: 10, gap: 8 }}>
-      {attachment && !recording ? (
-        <View style={{ flexDirection: 'row', alignSelf: 'flex-start', alignItems: 'center', gap: 8, paddingLeft: attachment.type === 'photo' ? 4 : 12, paddingRight: 6, paddingVertical: 4, borderRadius: 999, backgroundColor: th.c.accentSoft }}>
-          {attachment.type === 'photo'
-            ? <Image source={{ uri: attachment.uri }} style={{ width: 32, height: 32, borderRadius: 16 }} />
-            : <Icon name="book-outline" size={16} color={th.c.accent} />}
-          <Txt weight="bold" size={13} color={th.c.accent} numberOfLines={1} style={{ maxWidth: 220 }}>{attachment.type === 'photo' ? 'Photo' : attachment.title}</Txt>
-          <Pressable onPress={onClearAttachment} hitSlop={8} accessibilityLabel="Remove attachment"><Icon name="close-circle" size={18} color={th.c.accent} /></Pressable>
-        </View>
-      ) : null}
+  const meter = (
+    <View style={{ height: 44, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 6 }}>
+      <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: th.c.temp }} />
+      <Txt weight="black" size={15} style={{ fontVariant: ['tabular-nums'], width: 44 }}>{formatSeconds(rec.durationMillis)}</Txt>
+      <View style={{ flex: 1, height: 30, flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+        {Array.from({ length: 28 }, (_, i) => {
+          const wobble = 0.45 + 0.55 * Math.abs(Math.sin(t + i * 0.9));
+          return <View key={i} style={{ flex: 1, height: `${(0.15 + 0.85 * level * wobble) * 100}%`, borderRadius: 2, backgroundColor: th.c.accent }} />;
+        })}
+      </View>
+    </View>
+  );
 
-      <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 4, padding: 6, borderRadius: 24, backgroundColor: th.c.surface, borderWidth: 1, borderColor: th.c.line }}>
-        {recording ? (
-          <>
-            {round('trash-outline', () => finishRecording(false), 'Cancel recording')}
-            <View style={{ flex: 1, height: 38, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 4 }}>
-              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: th.c.temp }} />
-              <Txt weight="black" size={14} style={{ fontVariant: ['tabular-nums'], width: 40 }}>{formatSeconds(rec.durationMillis)}</Txt>
-              <View style={{ flex: 1, height: 28, flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-                {Array.from({ length: 24 }, (_, i) => {
-                  const wobble = 0.45 + 0.55 * Math.abs(Math.sin(t + i * 0.9));
-                  return <View key={i} style={{ flex: 1, height: `${(0.15 + 0.85 * level * wobble) * 100}%`, borderRadius: 2, backgroundColor: th.c.accent }} />;
-                })}
-              </View>
-            </View>
-            {round('arrow-up', () => finishRecording(true), 'Send voice message', true)}
-          </>
-        ) : (
-          <>
-            {round('add', onAttach, 'Attach a photo or recipe')}
-            <TextInput
-              ref={input}
-              value={text}
-              onChangeText={setText}
-              placeholder="Ask Sous anything…"
-              placeholderTextColor={th.c.muted}
-              multiline
-              maxLength={4000}
-              style={[{ flex: 1, minHeight: 38, maxHeight: 140, paddingHorizontal: 6, paddingTop: 9, paddingBottom: 9, color: th.c.text, fontSize: th.fs(16) }, th.f('body')]}
-            />
-            {text.trim() || attachment ? (
-              round('arrow-up', send, 'Send message', true)
-            ) : (
-              <>
-                {round('mic-outline', startRecording, 'Record a voice message')}
-                {round('voice', onVoiceMode, 'Talk to Sous', true)}
-              </>
-            )}
-          </>
+  return (
+    <View style={{ paddingHorizontal: 12, paddingTop: 4, paddingBottom: 10 }}>
+      <View style={{ borderRadius: 26, paddingHorizontal: 8, paddingTop: 8, paddingBottom: 8, gap: 2, backgroundColor: th.c.surface, borderWidth: 1, borderColor: th.c.line, shadowColor: '#000', shadowOpacity: th.dark ? 0 : 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+        {attachment && !recording ? (
+          <View style={{ flexDirection: 'row', alignSelf: 'flex-start', alignItems: 'center', gap: 8, marginLeft: 4, marginTop: 2, paddingLeft: attachment.type === 'photo' ? 4 : 12, paddingRight: 6, paddingVertical: 4, borderRadius: 14, backgroundColor: th.c.soft }}>
+            {attachment.type === 'photo'
+              ? <Image source={{ uri: attachment.uri }} style={{ width: 40, height: 40, borderRadius: 10 }} />
+              : <Icon name="book-outline" size={16} color={th.c.accent} />}
+            <Txt weight="bold" size={13} numberOfLines={1} style={{ maxWidth: 200 }}>{attachment.type === 'photo' ? 'Photo' : attachment.title}</Txt>
+            <Pressable onPress={onClearAttachment} hitSlop={8} accessibilityLabel="Remove attachment"><Icon name="close-circle" size={18} color={th.c.muted} /></Pressable>
+          </View>
+        ) : null}
+
+        {recording ? meter : (
+          <TextInput
+            ref={input}
+            value={text}
+            onChangeText={setText}
+            placeholder={`Ask ${AI_NAME} anything`}
+            placeholderTextColor={th.c.muted}
+            multiline
+            maxLength={4000}
+            style={[{ minHeight: 44, maxHeight: 150, paddingHorizontal: 8, paddingTop: 10, paddingBottom: 6, color: th.c.text, fontSize: th.fs(16) }, th.f('body')]}
+          />
         )}
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          {recording
+            ? round('trash-outline', () => finishRecording(false), 'Cancel recording')
+            : (
+              <Pressable onPress={onAttach} accessibilityRole="button" accessibilityLabel="Attach a photo or recipe" hitSlop={6}
+                style={({ pressed }) => ({ width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: th.c.line, opacity: pressed ? 0.6 : 1 })}>
+                <Icon name="add" size={21} color={th.c.text} />
+              </Pressable>
+            )}
+          <View style={{ flex: 1 }} />
+          {recording
+            ? round('arrow-up', () => finishRecording(true), 'Send voice message', true)
+            : text.trim() || attachment
+              ? round('arrow-up', send, 'Send message', true)
+              : (
+                <>
+                  {round('mic-outline', startRecording, 'Record a voice message')}
+                  {round('voice', onVoiceMode, `Talk to ${AI_NAME}`, true)}
+                </>
+              )}
+        </View>
       </View>
     </View>
   );

@@ -50,7 +50,6 @@ export function ToneSheet({ visible, onClose }: { visible: boolean; onClose: () 
               </Pressable>
             ))}
           </View>
-          <Txt muted size={13} style={{ marginTop: 10, paddingHorizontal: 4 }}>Plays while Mise is open, even on silent. When your phone is locked, the timer notification uses your phone’s sound.</Txt>
         </ScrollView>
       </View>
     </Modal>

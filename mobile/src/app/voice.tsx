@@ -1,5 +1,5 @@
 // Voice mode: talk to Sous hands-free. A glowing orb follows your voice.
-// Preview only for now — Sous can't reply out loud until the AI is connected.
+// Preview only for now. Sous can't reply out loud until the AI is connected.
 import { RecordingPresets, requestRecordingPermissionsAsync, setAudioModeAsync, useAudioRecorder, useAudioRecorderState } from 'expo-audio';
 import { File } from 'expo-file-system';
 import { useKeepAwake } from 'expo-keep-awake';

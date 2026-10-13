@@ -1,9 +1,9 @@
 // Sous, the in-app cooking assistant: chat, voice messages, voice mode and chat history.
-// Not connected to the AI yet — Sous replies with a short placeholder for now.
+// Not connected to the AI yet: Sous replies with a short placeholder for now.
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
-import { useRef, useState } from 'react';
-import { Image, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, Image, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { Composer } from '../../components/chat/composer';
 import { AttachSheet, type AttachChoice } from '../../components/chat/attach-sheet';
 import { ChatActions } from '../../components/chat/chat-actions';
@@ -45,6 +45,17 @@ export default function ChatTab() {
   const [actions, setActions] = useState(false);
   const [draft, setDraft] = useState<{ text: string; n: number } | undefined>();
   const scroll = useRef<ScrollView>(null);
+  // Scrolled up away from the newest message: show the round "back down" button.
+  const [awayFromEnd, setAwayFromEnd] = useState(false);
+  const [downBtn] = useState(() => new Animated.Value(0));
+  useEffect(() => {
+    Animated.spring(downBtn, { toValue: awayFromEnd ? 1 : 0, friction: 8, tension: 120, useNativeDriver: true }).start();
+  }, [awayFromEnd, downBtn]);
+  const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent;
+    const away = contentSize.height - (contentOffset.y + layoutMeasurement.height) > 160;
+    if (away !== awayFromEnd) setAwayFromEnd(away);
+  };
   const chat = getChat(chatId);
   const hi = greeting(drawer.greetHour, settings.name);
 
@@ -95,7 +106,9 @@ export default function ChatTab() {
       </TopBar>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView ref={scroll} contentContainerStyle={{ flexGrow: 1, padding: 16, gap: 12 }} keyboardShouldPersistTaps="handled" onContentSizeChange={() => scroll.current?.scrollToEnd({ animated: true })}>
+        <View style={{ flex: 1 }}>
+        <ScrollView ref={scroll} contentContainerStyle={{ flexGrow: 1, padding: 16, gap: 12 }} keyboardShouldPersistTaps="handled" onScroll={onScroll} scrollEventThrottle={64}
+          onContentSizeChange={() => { if (!awayFromEnd) scroll.current?.scrollToEnd({ animated: true }); }}>
           {chat?.messages.length ? (
             chat.messages.map(m => <Bubble key={m.id} m={m} />)
           ) : (
@@ -118,6 +131,13 @@ export default function ChatTab() {
             </View>
           )}
         </ScrollView>
+        <Animated.View pointerEvents={awayFromEnd ? 'auto' : 'none'} style={{ position: 'absolute', bottom: 10, alignSelf: 'center', opacity: downBtn, transform: [{ scale: downBtn.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }] }}>
+          <Pressable onPress={() => scroll.current?.scrollToEnd({ animated: true })} accessibilityRole="button" accessibilityLabel="Scroll to the newest message"
+            style={({ pressed }) => ({ width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.surface, borderWidth: 1, borderColor: th.c.line, opacity: pressed ? 0.7 : 1, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } })}>
+            <Icon name="arrow-down" size={20} color={th.c.text} />
+          </Pressable>
+        </Animated.View>
+        </View>
         <Composer
           attachment={attachment}
           onClearAttachment={() => setAttachment(null)}

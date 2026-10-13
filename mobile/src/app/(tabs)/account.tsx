@@ -61,7 +61,6 @@ export default function AccountTab() {
                 <Txt weight="black" size={11} muted>SOON</Txt>
               </View>
             </View>
-            <Txt muted size={13}>Back up your recipes and use them on any device.</Txt>
           </View>
         </Card>
 

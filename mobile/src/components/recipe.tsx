@@ -1,9 +1,10 @@
 // Recipe-specific pieces shared by the recipe page and cook mode.
-import { Pressable, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, TextInput, View } from 'react-native';
 import { scaleText } from '../shared/parser';
 import { useApp, type Recipe } from '../lib/store';
 import { useTheme } from '../lib/theme';
-import { Icon, Label, RichText } from './ui';
+import { Icon, Label, RichText, Txt } from './ui';
 
 export function ingCountText(r: Recipe) {
   const total = r.ingredients.reduce((n, g) => n + g.items.length, 0);
@@ -45,6 +46,52 @@ export function scaleBy(r: Recipe, dir: number) {
   return n / count;
 }
 
+// "1 loaf" on the recipe page: tap it to type an amount (e.g. 3 loaves, or ×1.5 when the recipe
+// doesn't say how much it makes). The ingredients rescale to match.
+export function MakesValue({ recipe: r }: { recipe: Recipe }) {
+  const th = useTheme();
+  const { setProgress } = useApp();
+  const [draft, setDraft] = useState<string | null>(null);
+  const count = r.servings?.count;
+  const scale = r.progress.scale || 1;
+  const current = count ? +(count * scale).toFixed(2) : +scale.toFixed(2);
+  const label = servingsLabel(r);
+  const unit = count ? label.replace(String(current), '').trim() : '× the recipe';
+
+  const commit = () => {
+    const v = parseFloat((draft ?? '').replace(',', '.'));
+    if (v > 0) setProgress(r.id, { scale: Math.min(50, Math.max(0.25, count ? v / count : v)) });
+    setDraft(null);
+  };
+
+  if (draft !== null) {
+    return (
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <TextInput
+          value={draft}
+          onChangeText={t => setDraft(t.replace(/[^0-9.,]/g, '').slice(0, 5))}
+          keyboardType="decimal-pad"
+          autoFocus
+          selectTextOnFocus
+          onBlur={commit}
+          onSubmitEditing={commit}
+          returnKeyType="done"
+          accessibilityLabel="How much to make"
+          style={[{ minWidth: 56, height: 36, paddingHorizontal: 10, borderRadius: 10, borderWidth: 2, borderColor: th.c.accent, backgroundColor: th.c.bg, color: th.c.text, fontSize: th.fs(18), textAlign: 'center' }, th.f('body', 'black')]}
+        />
+        <Txt weight="black" size={18}>{unit}</Txt>
+      </View>
+    );
+  }
+  return (
+    <Pressable onPress={() => setDraft(String(current))} accessibilityRole="button" accessibilityLabel={`Makes ${label}. Tap to type an amount`} hitSlop={6}
+      style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+      <Txt weight="black" size={18} style={{ textDecorationLine: 'underline', textDecorationStyle: 'dotted', textDecorationColor: th.c.muted }}>{label}</Txt>
+      <Icon name="pencil-outline" size={14} color={th.c.muted} />
+    </Pressable>
+  );
+}
+
 export function IngredientList({ recipe: r }: { recipe: Recipe }) {
   const th = useTheme();
   const { setProgress } = useApp();
@@ -75,7 +122,7 @@ export function IngredientList({ recipe: r }: { recipe: Recipe }) {
                   {on ? <Icon name="checkmark" size={16} color={th.c.onAccent} /> : null}
                 </View>
                 <View style={{ flex: 1, opacity: on ? 0.5 : 1 }}>
-                  <RichText text={scaleText(item, r.progress.scale || 1)} />
+                  <RichText text={scaleText(item, r.progress.scale || 1)} strike={on} />
                 </View>
               </Pressable>
             );

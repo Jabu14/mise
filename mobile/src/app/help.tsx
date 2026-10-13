@@ -10,7 +10,7 @@ const FAQ: { q: string; a: string }[] = [
   { q: 'How do I add a recipe?', a: 'Tap ＋ in the middle of the tab bar. Paste a recipe, or use Import with AI to bring one in from a link, a photo or text. Mise splits it into steps with timers.' },
   { q: 'What is the recipe prompt?', a: 'A short instruction you paste into any AI chat after asking for a recipe. The AI then answers in a format Mise reads perfectly. Find it in Account → Recipe prompt.' },
   { q: 'Will my timer ring if I leave the app?', a: 'Yes. Mise sends a notification when a timer ends, even with the phone locked. Allow notifications for Mise when asked, or turn them on in your phone’s Settings.' },
-  { q: 'Why don’t I hear the alarm?', a: 'Inside the app the alarm plays even on silent. Outside the app, your phone’s notification sound and Focus settings decide. You can choose the tone in Settings → When Timer Ends, and test it there.' },
+  { q: 'Why don’t I hear the alarm?', a: 'Make sure notifications are allowed for Mise, and check your volume and Focus settings. You can choose the tone in Settings → When Timer Ends.' },
   { q: 'Can I run more than one timer?', a: 'Yes. On the Timers tab, tap ＋ to add another while others keep running. The next one to ring shows at the top of the screen.' },
   { q: 'Where are my recipes saved?', a: 'On this phone only. Sign-in and sync across devices are coming later. Deleting the app deletes your recipes, so keep a copy of the ones you love.' },
   { q: `Is ${AI_NAME} connected yet?`, a: `Not yet. ${AI_NAME} is a preview: you can try chat, voice messages and voice mode, and real answers are coming soon.` },

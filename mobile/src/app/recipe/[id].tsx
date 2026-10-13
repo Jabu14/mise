@@ -2,7 +2,8 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, View } from 'react-native';
-import { IngredientList, ingCountText, servingsLabel, scaleBy } from '../../components/recipe';
+import { DishArt } from '../../components/art/dish-art';
+import { IngredientList, MakesValue, ingCountText, scaleBy } from '../../components/recipe';
 import { Btn, Card, Chip, Dock, Icon, IconBtn, Label, RichText, Screen, TopBar, Txt } from '../../components/ui';
 import { formatDuration, plainText } from '../../shared/parser';
 import { useApp } from '../../lib/store';
@@ -39,8 +40,8 @@ export default function RecipeScreen() {
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 0, paddingBottom: dockH + 24 }}>
         <View style={{ alignItems: 'center', gap: 10 }}>
-          <View style={{ width: 96, height: 96, borderRadius: 30, backgroundColor: artColor(r.title, th.dark), alignItems: 'center', justifyContent: 'center' }}>
-            <Txt size={50} style={{ lineHeight: 62 }}>{r.emoji}</Txt>
+          <View style={{ borderRadius: 32, paddingHorizontal: 8, backgroundColor: artColor(r.title, th.dark) }}>
+            <DishArt title={`${r.title} ${r.description}`} width={220} />
           </View>
           <Txt kind="head" weight="bold" size={32} style={{ textAlign: 'center' }}>{r.title}</Txt>
           {r.description ? <Txt muted style={{ textAlign: 'center' }}>{plainText(r.description)}</Txt> : null}
@@ -58,7 +59,7 @@ export default function RecipeScreen() {
         <Card style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 18, paddingVertical: 10, paddingLeft: 18, paddingRight: 10 }}>
           <View>
             <Label color={th.c.muted}>{r.servings?.count ? 'Makes' : 'Recipe size'}</Label>
-            <Txt weight="black" size={18}>{servingsLabel(r)}</Txt>
+            <MakesValue recipe={r} />
           </View>
           <View style={{ flexDirection: 'row', gap: 6 }}>
             <IconBtn tinted name="remove" label="Make less" onPress={() => setProgress(r.id, { scale: scaleBy(r, -1) })} />
