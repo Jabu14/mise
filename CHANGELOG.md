@@ -2,6 +2,30 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.6.0 (2026-10-13)
+
+### Added
+- **The cooks.** Step pictures are now acted out by three characters (flat, big-head style), taking turns from step to step: stirring at the counter, kneading, waiting sleepily for dough to rise, pointing at the oven in an oven mitt, lifting the pot lid, chopping, flipping the pan, whisking, pouring, shaking salt, fanning the bread, serving, or waving hello.
+- **Swipe between tabs** (Recipes, Sous, Add, Timers, Account). Swiping doesn't start from Sous, where a right swipe opens the chat history.
+- **Completed** section on Recipes for dishes you've cooked, with how many times and when. Recipe cards show the dish picture.
+- **Rename a recipe** by tapping its name.
+- **Sous settings** (from the sidebar): answer length, units, cooking level, diet, allergies, and delete all chats. They are saved now and used once Sous is connected.
+- **Three new fonts**: Playful, Elegant and Clean.
+
+### Changed
+- Sous's header buttons, the ••• menu, the message box and the back-down button are frosted glass, and the chat scrolls underneath them.
+- New default look: Plum, Light, Modern font, small text.
+- The Add recipe button shows its label for 1.5 s and then shrinks smoothly, finished by 3 s. Its + is smaller and slightly further left.
+- All pictures use a flat style without outlines.
+
+### Removed
+- The "Cards" option in Appearance.
+- The underline under the "Makes" amount.
+
+### Fixed
+- Sending a message while the keyboard was still finishing a word (autocorrect or predictive text) could leave part of it behind. Send now waits for the last word.
+- Em dashes in recipes (including ones already saved) become commas, and the AI is asked not to use them.
+
 ## 1.5.0 (2026-10-13)
 
 ### Added

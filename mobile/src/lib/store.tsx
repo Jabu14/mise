@@ -33,10 +33,10 @@ export type Parsed = Omit<Recipe, 'id' | 'source' | 'emoji' | 'progress' | 'crea
 export type TimerHistoryItem = { minutes: number; label: string; at: number };
 
 export const DEFAULT_SETTINGS = {
-  theme: 'sourdough',
-  mode: 'auto',         // auto | light | dark
-  font: 'classic',      // classic | modern | rounded | cookbook
-  textSize: 'm',        // s | m | l | xl
+  theme: 'plum',
+  mode: 'light',        // auto | light | dark
+  font: 'modern',       // classic | modern | rounded | cookbook | playful | elegant | clean
+  textSize: 's',        // s | m | l | xl
   cards: 'soft',        // soft | flat
   cookLayout: 'cards',  // cards (one step at a time) | list
   stepIngredients: true,
@@ -49,6 +49,14 @@ export const DEFAULT_SETTINGS = {
   timerStyle: 'ring',   // ring | clock | sand
   name: '',
   recipePrompt: '',     // empty = the built-in prompt
+  // Sous (AI) preferences, used once the assistant is connected.
+  aiStyle: 'short',     // short | detailed
+  aiUnits: 'both',      // metric | us | both
+  aiSkill: 'home',      // beginner | home | confident
+  aiDiet: '',           // comma-separated: vegetarian,vegan,...
+  aiNotes: '',          // allergies and dislikes, in the user's words
+  aiUseRecipes: true,   // let Sous look at your saved recipes
+  aiVoiceReplies: true, // read answers out loud in voice mode
 };
 export type Settings = typeof DEFAULT_SETTINGS;
 

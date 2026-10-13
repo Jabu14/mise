@@ -1,7 +1,7 @@
 // Floating "+ Add recipe" button for the Recipes page. It starts wide with its label,
 // then shrinks into a round "+" after a moment so it stays out of the way.
 import { useEffect, useState } from 'react';
-import { Animated, Pressable } from 'react-native';
+import { Animated, Easing, Pressable } from 'react-native';
 import { useTheme } from '../lib/theme';
 import { Icon, Txt } from './ui';
 
@@ -14,7 +14,8 @@ export function AddFab({ onPress }: { onPress: () => void }) {
   const [expand] = useState(() => new Animated.Value(1));
 
   useEffect(() => {
-    const t = setTimeout(() => Animated.spring(expand, { toValue: 0, friction: 9, tension: 45, useNativeDriver: false }).start(), 2600);
+    // Label for 1.5 s, then a 1.5 s shrink: round by the 3-second mark.
+    const t = setTimeout(() => Animated.timing(expand, { toValue: 0, duration: 1500, easing: Easing.inOut(Easing.cubic), useNativeDriver: false }).start(), 1500);
     return () => clearTimeout(t);
   }, [expand]);
 
@@ -33,7 +34,9 @@ export function AddFab({ onPress }: { onPress: () => void }) {
           ...(th.dark ? {} : { shadowColor: th.c.accent, shadowOpacity: 0.4, shadowRadius: 14, shadowOffset: { width: 0, height: 6 }, elevation: 6 }),
         }}
       >
-        <Icon name="add" size={30} color={th.c.onAccent} />
+        <Animated.View style={{ transform: [{ translateX: -1.5 }] }}>
+          <Icon name="add" size={25} color={th.c.onAccent} />
+        </Animated.View>
         {/* The label's width and spacing animate to zero, so the "+" ends up perfectly centred. */}
         <Animated.View
           style={{

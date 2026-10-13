@@ -3,7 +3,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, View } from 'react-native';
 import { DishArt } from '../../components/art/dish-art';
-import { IngredientList, MakesValue, ingCountText, scaleBy } from '../../components/recipe';
+import { EditableTitle, IngredientList, MakesValue, ingCountText, scaleBy } from '../../components/recipe';
 import { Btn, Card, Chip, Dock, Icon, IconBtn, Label, RichText, Screen, TopBar, Txt } from '../../components/ui';
 import { formatDuration, plainText } from '../../shared/parser';
 import { useApp } from '../../lib/store';
@@ -43,7 +43,7 @@ export default function RecipeScreen() {
           <View style={{ borderRadius: 32, paddingHorizontal: 8, backgroundColor: artColor(r.title, th.dark) }}>
             <DishArt title={`${r.title} ${r.description}`} width={220} />
           </View>
-          <Txt kind="head" weight="bold" size={32} style={{ textAlign: 'center' }}>{r.title}</Txt>
+          <EditableTitle recipe={r} />
           {r.description ? <Txt muted style={{ textAlign: 'center' }}>{plainText(r.description)}</Txt> : null}
           {r.times.length ? (
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 6 }}>

@@ -19,6 +19,9 @@ export type Weight = 'regular' | 'bold' | 'black';
 type FontSet = { name: string; head: Record<Weight, string> | null; body: Record<Weight, string> | null };
 const FRAUNCES = { regular: 'Fraunces_500Medium', bold: 'Fraunces_700Bold', black: 'Fraunces_800ExtraBold' };
 const NUNITO = { regular: 'Nunito_500Medium', bold: 'Nunito_700Bold', black: 'Nunito_800ExtraBold' };
+const FREDOKA = { regular: 'Fredoka_500Medium', bold: 'Fredoka_600SemiBold', black: 'Fredoka_700Bold' };
+const PLAYFAIR = { regular: 'PlayfairDisplay_600SemiBold', bold: 'PlayfairDisplay_700Bold', black: 'PlayfairDisplay_800ExtraBold' };
+const POPPINS = { regular: 'Poppins_500Medium', bold: 'Poppins_600SemiBold', black: 'Poppins_700Bold' };
 
 // null = the phone's own system font
 export const FONTS: Record<string, FontSet> = {
@@ -26,6 +29,9 @@ export const FONTS: Record<string, FontSet> = {
   modern: { name: 'Modern', head: null, body: null },
   rounded: { name: 'Rounded', head: NUNITO, body: NUNITO },
   cookbook: { name: 'Cookbook', head: FRAUNCES, body: FRAUNCES },
+  playful: { name: 'Playful', head: FREDOKA, body: FREDOKA },
+  elegant: { name: 'Elegant', head: PLAYFAIR, body: NUNITO },
+  clean: { name: 'Clean', head: POPPINS, body: POPPINS },
 };
 
 export const TEXT_SIZES: Record<string, number> = { s: 0.92, m: 1, l: 1.12, xl: 1.26 };

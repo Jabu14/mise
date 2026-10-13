@@ -1,10 +1,11 @@
 // Shared bits for chat lists: the long-press menu (Rename / Pin / Delete), the rename dialog,
-// search snippets and "10 hours ago" style times.
+// and search snippets.
 import { useEffect, useState } from 'react';
 import { Animated, Pressable, TextInput, View } from 'react-native';
 import type { Chat } from '../../lib/chat-store';
 import { useTheme } from '../../lib/theme';
 import { Icon, Txt, type IconName } from '../ui';
+export { timeAgo } from '../../lib/time';
 
 export type Menu = { chat: Chat; y: number };
 
@@ -15,22 +16,6 @@ export function snippet(text: string, q: string) {
   if (i < 0) return flat;
   const start = Math.max(0, i - 24);
   return (start > 0 ? '…' : '') + flat.slice(start, i + q.length + 60);
-}
-
-// "just now", "5 minutes ago", "10 hours ago", "yesterday", "3 days ago", "last week", "2 weeks ago"…
-export function timeAgo(time: number, now: number) {
-  const s = Math.max(0, (now - time) / 1000);
-  const m = s / 60, h = m / 60, d = h / 24;
-  const n = (v: number, unit: string) => `${Math.floor(v)} ${unit}${Math.floor(v) === 1 ? '' : 's'} ago`;
-  if (m < 1) return 'just now';
-  if (h < 1) return n(m, 'minute');
-  if (d < 1) return n(h, 'hour');
-  if (d < 2) return 'yesterday';
-  if (d < 7) return n(d, 'day');
-  if (d < 14) return 'last week';
-  if (d < 31) return n(d / 7, 'week');
-  if (d < 62) return 'last month';
-  return new Date(time).toLocaleDateString([], { month: 'short', day: 'numeric', year: d > 330 ? 'numeric' : undefined });
 }
 
 // The long-press menu: the chat, lifted, with Rename / Pin / Delete under it (iOS context-menu style).

@@ -17,6 +17,7 @@ import { useApp } from '../../lib/store';
 import { useTheme } from '../../lib/theme';
 import { VoiceWaveIcon } from '../icons';
 import { Icon, Txt, type IconName } from '../ui';
+import { Glass } from '../glass';
 import { formatSeconds } from './voice-message';
 
 const MAX_RECORDING_MS = 5 * 60 * 1000;
@@ -37,8 +38,12 @@ export function Composer({ attachment, onClearAttachment, onAttach, onSendText, 
   const { settings } = useApp();
   const [text, setText] = useState('');
   const input = useRef<TextInput>(null);
+  // The newest text from the keyboard (kept outside state so a send always reads the very latest).
+  const latest = useRef('');
+  const sending = useRef(false);
   const [draftN, setDraftN] = useState(0);
   if (draft && draft.n !== draftN) { setDraftN(draft.n); setText(draft.text); }
+  const changeText = (t: string) => { latest.current = t; setText(t); };
   const draftKey = draft?.n;
   useEffect(() => { if (draftKey) setTimeout(() => input.current?.focus(), 50); }, [draftKey]);
   const [recording, setRecording] = useState(false);
@@ -80,26 +85,26 @@ export function Composer({ attachment, onClearAttachment, onAttach, onSendText, 
     }
   }
 
+  // When you tap send, iOS may still be finishing the last word (autocorrect / predictive text) and
+  // delivers it a moment later. Wait for it, then send everything and clear the box.
   const send = () => {
-    const t = text.trim();
-    if (!t && !attachment) return;
-    haptic();
-    onSendText(t);
-    setText('');
+    if (sending.current) return;
+    sending.current = true;
+    setTimeout(() => {
+      sending.current = false;
+      const t = (latest.current || text).trim();
+      if (!t && !attachment) return;
+      haptic();
+      onSendText(t);
+      latest.current = '';
+      setText('');
+      input.current?.clear();
+    }, 120);
   };
 
   // Live level: 0 (silence) to 1 (loud), from the mic's decibel reading.
   const level = Math.max(0, Math.min(1, ((rec.metering ?? -60) + 55) / 50));
   const t = rec.durationMillis / 160;
-
-  const round = (name: IconName | 'voice', onPress: () => void, label: string, solid = false) => (
-    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={label} hitSlop={6}
-      style={({ pressed }) => ({ width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', backgroundColor: solid ? th.c.accent : 'transparent', opacity: pressed ? 0.7 : 1 })}>
-      {name === 'voice'
-        ? <VoiceWaveIcon size={20} color={solid ? th.c.onAccent : th.c.text} />
-        : <Icon name={name} size={solid ? 20 : 22} color={solid ? th.c.onAccent : th.c.text} />}
-    </Pressable>
-  );
 
   const meter = (
     <View style={{ height: 44, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 6 }}>
@@ -116,7 +121,7 @@ export function Composer({ attachment, onClearAttachment, onAttach, onSendText, 
 
   return (
     <View style={{ paddingHorizontal: 12, paddingTop: 4, paddingBottom: 10 }}>
-      <View style={{ borderRadius: 26, paddingHorizontal: 8, paddingTop: 8, paddingBottom: 8, gap: 2, backgroundColor: th.c.surface, borderWidth: 1, borderColor: th.c.line, shadowColor: '#000', shadowOpacity: th.dark ? 0 : 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 2 } }}>
+      <Glass tint={0.72} style={{ borderRadius: 26, paddingHorizontal: 8, paddingTop: 8, paddingBottom: 8, gap: 2 }}>
         {attachment && !recording ? (
           <View style={{ flexDirection: 'row', alignSelf: 'flex-start', alignItems: 'center', gap: 8, marginLeft: 4, marginTop: 2, paddingLeft: attachment.type === 'photo' ? 4 : 12, paddingRight: 6, paddingVertical: 4, borderRadius: 14, backgroundColor: th.c.soft }}>
             {attachment.type === 'photo'
@@ -131,7 +136,7 @@ export function Composer({ attachment, onClearAttachment, onAttach, onSendText, 
           <TextInput
             ref={input}
             value={text}
-            onChangeText={setText}
+            onChangeText={changeText}
             placeholder={`Ask ${AI_NAME} anything`}
             placeholderTextColor={th.c.muted}
             multiline
@@ -142,7 +147,7 @@ export function Composer({ attachment, onClearAttachment, onAttach, onSendText, 
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
           {recording
-            ? round('trash-outline', () => finishRecording(false), 'Cancel recording')
+            ? <RoundBtn name="trash-outline" onPress={() => finishRecording(false)} label="Cancel recording" />
             : (
               <Pressable onPress={onAttach} accessibilityRole="button" accessibilityLabel="Attach a photo or recipe" hitSlop={6}
                 style={({ pressed }) => ({ width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: th.c.line, opacity: pressed ? 0.6 : 1 })}>
@@ -151,17 +156,29 @@ export function Composer({ attachment, onClearAttachment, onAttach, onSendText, 
             )}
           <View style={{ flex: 1 }} />
           {recording
-            ? round('arrow-up', () => finishRecording(true), 'Send voice message', true)
+            ? <RoundBtn name="arrow-up" onPress={() => finishRecording(true)} label="Send voice message" solid />
             : text.trim() || attachment
-              ? round('arrow-up', send, 'Send message', true)
+              ? <RoundBtn name="arrow-up" onPress={send} label="Send message" solid />
               : (
                 <>
-                  {round('mic-outline', startRecording, 'Record a voice message')}
-                  {round('voice', onVoiceMode, `Talk to ${AI_NAME}`, true)}
+                  <RoundBtn name="mic-outline" onPress={startRecording} label="Record a voice message" />
+                  <RoundBtn name="voice" onPress={onVoiceMode} label={`Talk to ${AI_NAME}`} solid />
                 </>
               )}
         </View>
-      </View>
+      </Glass>
     </View>
+  );
+}
+
+function RoundBtn({ name, onPress, label, solid = false }: { name: IconName | 'voice'; onPress: () => void; label: string; solid?: boolean }) {
+  const th = useTheme();
+  return (
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={label} hitSlop={6}
+      style={({ pressed }) => ({ width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', backgroundColor: solid ? th.c.accent : 'transparent', opacity: pressed ? 0.7 : 1 })}>
+      {name === 'voice'
+        ? <VoiceWaveIcon size={20} color={solid ? th.c.onAccent : th.c.text} />
+        : <Icon name={name} size={solid ? 20 : 22} color={solid ? th.c.onAccent : th.c.text} />}
+    </Pressable>
   );
 }

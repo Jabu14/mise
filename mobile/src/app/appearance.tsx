@@ -55,7 +55,6 @@ export default function AppearanceScreen() {
           <Segmented label="Light or dark" k="mode" options={[['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']]} />
           <Segmented label="Font" k="font" columns={2} options={Object.entries(FONTS).map(([k, f]) => [k, f.name])} fontFor={k => FONTS[k].head?.bold} />
           <Segmented label="Text size" k="textSize" options={[['s', 'S'], ['m', 'M'], ['l', 'L'], ['xl', 'XL']]} />
-          <Segmented label="Cards" k="cards" options={[['soft', 'Soft & rounded'], ['flat', 'Flat & crisp']]} />
         </Group>
 
         <Btn title="Reset appearance to default" icon="refresh" variant="ghost" size="small" onPress={resetLook} />

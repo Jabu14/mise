@@ -7,6 +7,7 @@ import { AI_NAME, useChats, type Chat } from '../../lib/chat-store';
 import { useIslandSpace } from '../../lib/island';
 import { useTheme } from '../../lib/theme';
 import { Icon, Txt, type IconName } from '../ui';
+import { Glass } from '../glass';
 import { RenameDialog } from './chat-menus';
 
 function transcript(chat: Chat) {
@@ -53,18 +54,19 @@ export function ChatActions({ chat, visible, onClose, onDeleted }: { chat: Chat;
         <Pressable style={{ flex: 1 }} onPress={onClose} accessibilityLabel="Close menu" />
         <Animated.View
           style={{
-            position: 'absolute', top: insets.top + island + 4, right: 12, width: 270, paddingVertical: 8, borderRadius: 26,
-            backgroundColor: th.c.surface, borderWidth: 1, borderColor: th.c.line,
+            position: 'absolute', top: insets.top + island + 4, right: 12, width: 270, borderRadius: 26,
             shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 12,
             opacity: pop, transformOrigin: 'top right',
             transform: [{ scale: pop.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }, { translateY: pop.interpolate({ inputRange: [0, 1], outputRange: [-8, 0] }) }],
           }}
         >
+          <Glass tint={0.6} strength={60} style={{ borderRadius: 26, paddingVertical: 8 }}>
           {item('Share', 'share-outline', () => after(() => { Share.share({ title: chat.title, message: transcript(chat) }).catch(() => {}); }))}
           {item('Rename', 'pencil-outline', () => after(() => setRenaming({ title: chat.title })))}
           {item(chat.pinned ? 'Unpin' : 'Pin', chat.pinned ? 'pin' : 'pin-outline', () => { togglePin(chat.id); onClose(); })}
           <View style={{ height: 1, marginVertical: 4, marginHorizontal: 20, backgroundColor: th.c.line }} />
           {item('Delete', 'trash-outline', confirmDelete, true)}
+          </Glass>
         </Animated.View>
       </Modal>
 

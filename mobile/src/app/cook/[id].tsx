@@ -124,7 +124,7 @@ export default function Cook() {
             <ScrollView style={{ width }} contentContainerStyle={{ padding: 20, paddingTop: settings.stepArt ? 16 : 28, paddingBottom: dockH + 28, gap: 18 }}>
               {settings.stepArt ? (
                 <View style={{ alignItems: 'center', borderRadius: 28, backgroundColor: th.c.soft, paddingVertical: 6 }}>
-                  <StepScene step={r.steps[i]} width={Math.min(width - 56, 340)} active={i === index} />
+                  <StepScene step={r.steps[i]} index={i} width={Math.min(width - 56, 340)} active={i === index} />
                 </View>
               ) : null}
               <CookStep recipe={r} index={i} />

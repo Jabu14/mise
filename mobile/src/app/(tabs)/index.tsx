@@ -1,13 +1,15 @@
-// Library: all saved recipes.
+// Library: recipes still to cook, then the ones you've already made (Completed).
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, TextInput, View } from 'react-native';
 import { AddFab } from '../../components/add-fab';
+import { DishArt } from '../../components/art/dish-art';
 import { Btn, Card, Dock, Icon, IconBtn, Screen, TopBar, Txt } from '../../components/ui';
 import { SAMPLE_RECIPE } from '../../shared/content';
 import { parseRecipe } from '../../shared/parser';
 import { useApp, type Recipe } from '../../lib/store';
 import { artColor, useTheme } from '../../lib/theme';
+import { timeAgo } from '../../lib/time';
 
 export default function Library() {
   const th = useTheme();
@@ -20,6 +22,11 @@ export default function Library() {
     [recipes],
   );
   const shown = sorted.filter(r => r.title.toLowerCase().includes(query.trim().toLowerCase()));
+  // Cooked at least once (and not halfway through another go) = completed, newest first.
+  const isDone = (r: Recipe) => (r.cookCount || 0) > 0 && !(r.progress.step > 0 && r.progress.step < r.steps.length);
+  const toCook = shown.filter(r => !isDone(r));
+  const completed = shown.filter(isDone).sort((a, b) => (b.lastCooked || 0) - (a.lastCooked || 0));
+  const [now] = useState(() => Date.now());
 
   const addSample = () => {
     const id = saveParsed(parseRecipe(SAMPLE_RECIPE)!, SAMPLE_RECIPE);
@@ -45,12 +52,24 @@ export default function Library() {
               <TextInput value={query} onChangeText={setQuery} placeholder="Search recipes" placeholderTextColor={th.c.muted} style={[{ flex: 1, color: th.c.text, fontSize: th.fs(16) }, th.f('body')]} />
             </View>
           )}
-          {shown.map(r => <RecipeCard key={r.id} recipe={r} />)}
+          {toCook.map(r => <RecipeCard key={r.id} recipe={r} />)}
+          {!toCook.length && !query.trim() ? <Txt muted style={{ paddingHorizontal: 4 }}>Everything here is cooked. Time for something new!</Txt> : null}
+          {completed.length ? (
+            <>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 18, marginBottom: 2 }}>
+                <Txt kind="head" weight="bold" size={24}>Completed</Txt>
+                <View style={{ paddingHorizontal: 9, paddingVertical: 1, borderRadius: 999, backgroundColor: th.c.accentSoft }}>
+                  <Txt weight="black" size={13} color={th.c.accent}>{completed.length}</Txt>
+                </View>
+              </View>
+              {completed.map(r => <RecipeCard key={r.id} recipe={r} done={`Cooked ${r.cookCount === 1 ? 'once' : `${r.cookCount} times`}${r.lastCooked ? ` · ${timeAgo(r.lastCooked, now)}` : ''}`} />)}
+            </>
+          ) : null}
         </ScrollView>
       ) : (
         <ScrollView contentContainerStyle={{ alignItems: 'center', gap: 14, padding: 24, paddingTop: 70 }}>
           <View style={{ width: 120, height: 120, borderRadius: 60, backgroundColor: th.c.accentSoft, alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
-            <Txt size={64} style={{ lineHeight: 80 }}>🍞</Txt>
+            <DishArt title="bread" width={110} />
           </View>
           <Txt kind="head" weight="bold" size={30} style={{ textAlign: 'center', maxWidth: 280 }}>Cook without scrolling back</Txt>
           <Txt muted style={{ textAlign: 'center', maxWidth: 300 }}>
@@ -68,7 +87,7 @@ export default function Library() {
   );
 }
 
-function RecipeCard({ recipe: r }: { recipe: Recipe }) {
+function RecipeCard({ recipe: r, done }: { recipe: Recipe; done?: string }) {
   const th = useTheme();
   const total = (r.times.find(t => t.label === 'Total') || r.times[0])?.value;
   const meta = [`${r.steps.length} steps`, total].filter(Boolean).join(' · ');
@@ -76,19 +95,23 @@ function RecipeCard({ recipe: r }: { recipe: Recipe }) {
   return (
     <Pressable onPress={() => router.push(`/recipe/${r.id}`)} style={({ pressed }) => ({ transform: [{ scale: pressed ? 0.98 : 1 }] })}>
       <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 14, padding: 12 }}>
-        <View style={{ width: 64, height: 64, borderRadius: th.radius - 6, backgroundColor: artColor(r.title, th.dark), alignItems: 'center', justifyContent: 'center' }}>
-          <Txt size={32} style={{ lineHeight: 42 }}>{r.emoji}</Txt>
+        <View style={{ width: 64, height: 64, borderRadius: th.radius - 6, backgroundColor: artColor(r.title, th.dark), alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+          <DishArt title={`${r.title} ${r.description}`} width={60} still />
         </View>
         <View style={{ flex: 1, gap: 2 }}>
           <Txt kind="head" weight="bold" size={18} numberOfLines={2}>{r.title}</Txt>
-          <Txt muted size={14}>{meta}</Txt>
+          <Txt muted size={14}>{done ?? meta}</Txt>
           {inProgress && (
             <View style={{ alignSelf: 'flex-start', marginTop: 4, paddingHorizontal: 10, paddingVertical: 2, borderRadius: 999, backgroundColor: th.c.accentSoft }}>
               <Txt weight="black" size={12} color={th.c.accent}>On step {r.progress.step + 1} of {r.steps.length}</Txt>
             </View>
           )}
         </View>
-        <Icon name="chevron-forward" size={20} color={th.c.muted} />
+        {done ? (
+          <View style={{ width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.accent }}>
+            <Icon name="checkmark" size={16} color={th.c.onAccent} />
+          </View>
+        ) : <Icon name="chevron-forward" size={20} color={th.c.muted} />}
       </Card>
     </Pressable>
   );

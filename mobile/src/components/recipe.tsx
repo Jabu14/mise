@@ -48,6 +48,43 @@ export function scaleBy(r: Recipe, dir: number) {
 
 // "1 loaf" on the recipe page: tap it to type an amount (e.g. 3 loaves, or ×1.5 when the recipe
 // doesn't say how much it makes). The ingredients rescale to match.
+// The recipe's name at the top of its page: tap it to rename.
+export function EditableTitle({ recipe: r }: { recipe: Recipe }) {
+  const th = useTheme();
+  const { patchRecipe } = useApp();
+  const [draft, setDraft] = useState<string | null>(null);
+  const save = () => {
+    const t = (draft ?? '').replace(/\s+/g, ' ').trim().slice(0, 120);
+    if (t && t !== r.title) patchRecipe(r.id, { title: t });
+    setDraft(null);
+  };
+  if (draft !== null) {
+    return (
+      <TextInput
+        value={draft}
+        onChangeText={setDraft}
+        autoFocus
+        selectTextOnFocus
+        multiline
+        blurOnSubmit
+        maxLength={120}
+        returnKeyType="done"
+        onBlur={save}
+        onSubmitEditing={save}
+        accessibilityLabel="Recipe name"
+        style={[{ alignSelf: 'stretch', textAlign: 'center', color: th.c.text, fontSize: th.fs(30), paddingVertical: 6, paddingHorizontal: 10, borderRadius: 14, borderWidth: 2, borderColor: th.c.accent, backgroundColor: th.c.surface }, th.f('head', 'bold')]}
+      />
+    );
+  }
+  return (
+    <Pressable onPress={() => setDraft(r.title)} accessibilityRole="button" accessibilityHint="Tap to rename the recipe" hitSlop={6}>
+      <Txt kind="head" weight="bold" size={32} style={{ textAlign: 'center' }}>
+        {r.title}{'  '}<Icon name="pencil-outline" size={18} color={th.c.muted} />
+      </Txt>
+    </Pressable>
+  );
+}
+
 export function MakesValue({ recipe: r }: { recipe: Recipe }) {
   const th = useTheme();
   const { setProgress } = useApp();
@@ -86,7 +123,7 @@ export function MakesValue({ recipe: r }: { recipe: Recipe }) {
   return (
     <Pressable onPress={() => setDraft(String(current))} accessibilityRole="button" accessibilityLabel={`Makes ${label}. Tap to type an amount`} hitSlop={6}
       style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-      <Txt weight="black" size={18} style={{ textDecorationLine: 'underline', textDecorationStyle: 'dotted', textDecorationColor: th.c.muted }}>{label}</Txt>
+      <Txt weight="black" size={18}>{label}</Txt>
       <Icon name="pencil-outline" size={14} color={th.c.muted} />
     </Pressable>
   );

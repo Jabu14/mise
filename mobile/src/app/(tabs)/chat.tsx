@@ -5,13 +5,16 @@ import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Image, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { Composer } from '../../components/chat/composer';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AttachSheet, type AttachChoice } from '../../components/chat/attach-sheet';
 import { ChatActions } from '../../components/chat/chat-actions';
 import { useChatDrawer } from '../../components/chat/chat-drawer';
 import { VoiceMessage } from '../../components/chat/voice-message';
+import { Glass } from '../../components/glass';
 import { ChatSparkIcon, NewChatIcon } from '../../components/icons';
-import { Icon, IconBtn, Screen, TopBar, Txt } from '../../components/ui';
+import { Icon, IconBtn, Screen, Txt } from '../../components/ui';
 import { useChats, type ChatAttachment, type ChatMessage } from '../../lib/chat-store';
+import { useIslandSpace } from '../../lib/island';
 import { useApp } from '../../lib/store';
 import { useTheme } from '../../lib/theme';
 
@@ -45,6 +48,11 @@ export default function ChatTab() {
   const [actions, setActions] = useState(false);
   const [draft, setDraft] = useState<{ text: string; n: number } | undefined>();
   const scroll = useRef<ScrollView>(null);
+  const insets = useSafeAreaInsets();
+  const island = useIslandSpace();
+  // The header and message box float over the chat; leave room for them at the ends.
+  const [headerH, setHeaderH] = useState(0);
+  const [composerH, setComposerH] = useState(0);
   // Scrolled up away from the newest message: show the round "back down" button.
   const [awayFromEnd, setAwayFromEnd] = useState(false);
   const [downBtn] = useState(() => new Animated.Value(0));
@@ -90,24 +98,10 @@ export default function ChatTab() {
   return (
     <Screen>
       <View {...drawer.openSwipe.panHandlers} style={{ flex: 1 }}>
-      <TopBar>
-        <HeaderBtn label="Chat history" onPress={drawer.open}><Icon name="menu" size={22} color={th.c.text} /></HeaderBtn>
-        <View style={{ flex: 1 }} />
-        <View style={{ flexDirection: 'row', alignItems: 'center', height: 48, borderRadius: 24, backgroundColor: th.c.surface, borderWidth: 1, borderColor: th.c.line, marginRight: 8 }}>
-          <Pressable onPress={drawer.newChat} accessibilityRole="button" accessibilityLabel="New chat" hitSlop={4} style={({ pressed }) => ({ width: 52, height: 48, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1 })}>
-            <NewChatIcon size={22} color={th.c.text} />
-          </Pressable>
-          {chat ? (
-            <Pressable onPress={() => setActions(true)} accessibilityRole="button" accessibilityLabel="Chat options" hitSlop={4} style={({ pressed }) => ({ width: 48, height: 48, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1 })}>
-              <Icon name="ellipsis-horizontal" size={22} color={th.c.text} />
-            </Pressable>
-          ) : null}
-        </View>
-      </TopBar>
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={{ flex: 1 }}>
-        <ScrollView ref={scroll} contentContainerStyle={{ flexGrow: 1, padding: 16, gap: 12 }} keyboardShouldPersistTaps="handled" onScroll={onScroll} scrollEventThrottle={64}
+        <ScrollView ref={scroll} contentContainerStyle={{ flexGrow: 1, padding: 16, paddingTop: headerH + 8, paddingBottom: composerH + 16, gap: 12 }} keyboardShouldPersistTaps="handled" onScroll={onScroll} scrollEventThrottle={64}
           onContentSizeChange={() => { if (!awayFromEnd) scroll.current?.scrollToEnd({ animated: true }); }}>
           {chat?.messages.length ? (
             chat.messages.map(m => <Bubble key={m.id} m={m} />)
@@ -131,13 +125,15 @@ export default function ChatTab() {
             </View>
           )}
         </ScrollView>
-        <Animated.View pointerEvents={awayFromEnd ? 'auto' : 'none'} style={{ position: 'absolute', bottom: 10, alignSelf: 'center', opacity: downBtn, transform: [{ scale: downBtn.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }] }}>
+        <Animated.View pointerEvents={awayFromEnd ? 'auto' : 'none'} style={{ position: 'absolute', bottom: composerH + 10, alignSelf: 'center', opacity: downBtn, transform: [{ scale: downBtn.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }] }}>
           <Pressable onPress={() => scroll.current?.scrollToEnd({ animated: true })} accessibilityRole="button" accessibilityLabel="Scroll to the newest message"
-            style={({ pressed }) => ({ width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.surface, borderWidth: 1, borderColor: th.c.line, opacity: pressed ? 0.7 : 1, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } })}>
-            <Icon name="arrow-down" size={20} color={th.c.text} />
+            style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
+            <Glass style={{ width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="arrow-down" size={20} color={th.c.text} />
+            </Glass>
           </Pressable>
         </Animated.View>
-        </View>
+        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }} onLayout={e => setComposerH(e.nativeEvent.layout.height)}>
         <Composer
           attachment={attachment}
           onClearAttachment={() => setAttachment(null)}
@@ -147,7 +143,25 @@ export default function ChatTab() {
           onVoiceMode={() => router.push('/voice')}
           draft={draft}
         />
+        </View>
+        </View>
       </KeyboardAvoidingView>
+      {/* Floating header: the chat scrolls underneath, seen through the frosted buttons. */}
+      <View pointerEvents="box-none" onLayout={e => setHeaderH(e.nativeEvent.layout.height)}
+        style={{ position: 'absolute', top: 0, left: 0, right: 0, paddingTop: insets.top + island + 6, paddingBottom: 6, paddingHorizontal: 8, flexDirection: 'row', alignItems: 'center' }}>
+        <HeaderBtn label="Chat history" onPress={drawer.open}><Icon name="menu" size={22} color={th.c.text} /></HeaderBtn>
+        <View style={{ flex: 1 }} />
+        <Glass style={{ flexDirection: 'row', alignItems: 'center', height: 48, borderRadius: 24, marginRight: 8 }}>
+          <Pressable onPress={drawer.newChat} accessibilityRole="button" accessibilityLabel="New chat" hitSlop={4} style={({ pressed }) => ({ width: 52, height: 48, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1 })}>
+            <NewChatIcon size={22} color={th.c.text} />
+          </Pressable>
+          {chat ? (
+            <Pressable onPress={() => setActions(true)} accessibilityRole="button" accessibilityLabel="Chat options" hitSlop={4} style={({ pressed }) => ({ width: 48, height: 48, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1 })}>
+              <Icon name="ellipsis-horizontal" size={22} color={th.c.text} />
+            </Pressable>
+          ) : null}
+        </Glass>
+      </View>
       </View>
 
       <AttachSheet visible={sheet} hasRecipes={recipes.length > 0} onClose={() => setSheet(false)} onChoose={choose} />
@@ -176,11 +190,9 @@ export default function ChatTab() {
 
 // Round header button, like the AI apps' top bar.
 function HeaderBtn({ label, onPress, children }: { label: string; onPress: () => void; children: React.ReactNode }) {
-  const th = useTheme();
   return (
-    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={label} hitSlop={4}
-      style={({ pressed }) => ({ marginLeft: 8, width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.surface, borderWidth: 1, borderColor: th.c.line, opacity: pressed ? 0.7 : 1 })}>
-      {children}
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={label} hitSlop={4} style={({ pressed }) => ({ marginLeft: 8, opacity: pressed ? 0.7 : 1 })}>
+      <Glass style={{ width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' }}>{children}</Glass>
     </Pressable>
   );
 }

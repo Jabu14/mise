@@ -2,7 +2,7 @@
 // name (bread, cake, pasta, soup, salad, pizza, cookies, pancakes), or a covered plate otherwise.
 import type { ReactNode } from 'react';
 import { Animated } from 'react-native';
-import { Circle, Ellipse, Path, Rect } from 'react-native-svg';
+import { Circle, Ellipse, G, Path, Rect } from 'react-native-svg';
 import { C, Eyes, Layer, Scene, Shadow, Smile, lerp, sparkle, squiggle, useLoop } from './kit';
 
 // The dish gently floats; its shadow breathes with it.
@@ -126,7 +126,12 @@ const Cookie = () => (
 const Pancakes = () => (
   <Float eyes={[120, 92]}>
     <Ellipse cx={120} cy={136} rx={74} ry={13} fill={C.white} />
-    {[124, 112, 100].map(y => <Ellipse key={y} cx={120} cy={y} rx={60} ry={13} fill={C.crust} />)}
+    {[124, 112, 100].map(y => (
+      <G key={y}>
+        <Ellipse cx={120} cy={y + 3} rx={60} ry={13} fill={C.crustShade} />
+        <Ellipse cx={120} cy={y} rx={60} ry={12} fill={C.crust} />
+      </G>
+    ))}
     <Path d="M70 98 Q60 112 74 116 M168 98 Q178 112 164 118" fill="none" stroke={C.crustShade} strokeWidth={4} />
     <Path d="M80 96 Q120 80 160 96 Q150 114 120 112 Q90 114 80 96 Z" fill={C.crustShade} strokeWidth={3} />
     <Rect x={108} y={72} width={24} height={14} rx={4} fill={C.flame} />
@@ -174,11 +179,12 @@ function draw(key: DishKey) {
   }
 }
 
-export function DishArt({ title, width }: { title: string; width: number }) {
+// still: no animation (small thumbnails in lists).
+export function DishArt({ title, width, still }: { title: string; width: number; still?: boolean }) {
   const t = title.toLowerCase();
   const key = DISHES.find(([re]) => re.test(t))?.[1] ?? 'cloche';
   return (
-    <Scene width={width}>
+    <Scene width={width} active={!still}>
       {draw(key)}
     </Scene>
   );

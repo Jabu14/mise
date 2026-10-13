@@ -1,4 +1,5 @@
-// Drawing kit for Mise's animated illustrations: flat, chunky-outlined, friendly (Duolingo-style).
+// Drawing kit for Mise's animated illustrations: flat colours, no outlines, big friendly faces
+// (in the spirit of Duolingo's characters).
 // A scene is drawn on a 240 × 170 canvas and scaled to any width. It is built from <Layer>s: each
 // layer is its own small SVG whose shapes use canvas coordinates, inside an Animated.View, so parts
 // can bob, spin and squash smoothly on the native thread.
@@ -38,6 +39,11 @@ export const C = {
   cheek: '#FF9DA0',
   skin: '#FFD9B3',
   sauce: '#E9B44C',
+  mouth: '#7B2F3A',
+  tongue: '#F07C8C',
+  counterTop: '#F2D3AE',
+  counter: '#D9A877',
+  counterShade: '#C48F5C',
 };
 
 export const STROKE = 3.5;
@@ -104,14 +110,14 @@ export const turn = (v: Animated.Value, from: number, to: number) => v.interpola
 
 // One animated part of a scene. Shapes inside use canvas coordinates; `origin` is the canvas point
 // it spins or scales around.
-export function Layer({ x = 0, y = 0, w = W, h = H, origin, style, children }: {
-  x?: number; y?: number; w?: number; h?: number; origin?: [number, number];
+export function Layer({ x = 0, y = 0, w = W, h = H, origin, style, outline = false, children }: {
+  x?: number; y?: number; w?: number; h?: number; origin?: [number, number]; outline?: boolean;
   style?: Animated.WithAnimatedValue<StyleProp<ViewStyle>>; children: ReactNode;
 }) {
   return (
     <Animated.View pointerEvents="none" style={[{ position: 'absolute', left: x, top: y, width: w, height: h }, origin ? { transformOrigin: `${origin[0] - x}px ${origin[1] - y}px` } : null, style]}>
       <Svg width={w} height={h} viewBox={`${x} ${y} ${w} ${h}`}>
-        <G stroke={C.ink} strokeWidth={STROKE} strokeLinecap="round" strokeLinejoin="round">{children}</G>
+        <G stroke={outline ? C.ink : 'none'} strokeWidth={STROKE} strokeLinecap="round" strokeLinejoin="round">{children}</G>
       </Svg>
     </Animated.View>
   );
@@ -143,8 +149,8 @@ export function Smile({ cx, cy, open = false, size = 1 }: { cx: number; cy: numb
       <Ellipse cx={cx - 21 * k} cy={cy + 2 * k} rx={5.5 * k} ry={3.2 * k} fill={C.cheek} opacity={0.75} stroke="none" />
       <Ellipse cx={cx + 21 * k} cy={cy + 2 * k} rx={5.5 * k} ry={3.2 * k} fill={C.cheek} opacity={0.75} stroke="none" />
       {open
-        ? <Path d={`M${cx - 6 * k} ${cy} Q${cx} ${cy + 10 * k} ${cx + 6 * k} ${cy} Z`} fill={C.potShade} strokeWidth={2.6} />
-        : <Path d={`M${cx - 6 * k} ${cy} Q${cx} ${cy + 7 * k} ${cx + 6 * k} ${cy}`} fill="none" strokeWidth={3} />}
+        ? <Path d={`M${cx - 6 * k} ${cy} Q${cx} ${cy + 10 * k} ${cx + 6 * k} ${cy} Z`} fill={C.mouth} />
+        : <Path d={`M${cx - 6 * k} ${cy} Q${cx} ${cy + 7 * k} ${cx + 6 * k} ${cy}`} fill="none" stroke={C.ink} strokeWidth={3} />}
     </>
   );
 }
@@ -167,7 +173,7 @@ export function Eyes({ cx, cy, gap = 12, size = 1, every }: { cx: number; cy: nu
 // Happy closed eyes (^ ^) or sleepy ones (︶ ︶), drawn into whatever layer they're in.
 export function ClosedEyes({ cx, cy, gap = 12, sleepy = false }: { cx: number; cy: number; gap?: number; sleepy?: boolean }) {
   const arc = (x: number) => (sleepy ? `M${x - 5} ${cy} Q${x} ${cy + 5} ${x + 5} ${cy}` : `M${x - 5} ${cy + 2} Q${x} ${cy - 5} ${x + 5} ${cy + 2}`);
-  return <Path d={`${arc(cx - gap)} ${arc(cx + gap)}`} fill="none" strokeWidth={3} />;
+  return <Path d={`${arc(cx - gap)} ${arc(cx + gap)}`} fill="none" stroke={C.ink} strokeWidth={3} />;
 }
 
 // A four-point twinkle.

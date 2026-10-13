@@ -2,7 +2,7 @@
 // follows your finger, uncovering the history underneath. Swipe right on the chat to open,
 // swipe left (or tap the strip on the right) to close.
 // The history has Pinned and Recents, a long-press menu to Rename, Pin or Delete, a search button
-// that opens every chat on its own page, and at the bottom voice mode and New chat.
+// that opens every chat on its own page, and at the bottom Sous settings and New chat.
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
@@ -15,7 +15,6 @@ import { AI_NAME, useChats, type Chat } from '../../lib/chat-store';
 import { useIslandSpace } from '../../lib/island';
 import { useApp } from '../../lib/store';
 import { useTheme } from '../../lib/theme';
-import { VoiceWaveIcon } from '../icons';
 import { Icon, Txt, type IconName } from '../ui';
 import { ChatMenu, RenameDialog, type Menu } from './chat-menus';
 import { ChatSearch } from './chat-search';
@@ -197,9 +196,9 @@ function ChatSidebar({ panel, closeSwipe }: { panel: number; closeSwipe: PanResp
       </ScrollView>
 
       <View pointerEvents="box-none" style={{ position: 'absolute', left: 0, right: 0, bottom: insets.bottom + 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 18 }}>
-        <Pressable onPress={() => go(() => router.push('/voice'))} accessibilityRole="button" accessibilityLabel={`Talk to ${AI_NAME}`}
+        <Pressable onPress={() => go(() => router.push('/sous-settings'))} accessibilityRole="button" accessibilityLabel={`${AI_NAME} settings`}
           style={({ pressed }) => ({ width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.soft, borderWidth: 1, borderColor: th.c.line, opacity: pressed ? 0.7 : 1 })}>
-          <VoiceWaveIcon size={22} color={th.c.text} />
+          <Icon name="settings-outline" size={22} color={th.c.text} />
         </Pressable>
         <Pressable onPress={() => go(newChat)} accessibilityRole="button"
           style={({ pressed }) => ({ height: 52, paddingHorizontal: 22, borderRadius: 26, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: th.c.accent, opacity: pressed ? 0.85 : 1, shadowColor: '#000', shadowOpacity: 0.18, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } })}>

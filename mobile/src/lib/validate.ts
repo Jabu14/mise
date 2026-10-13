@@ -29,6 +29,12 @@ const list = (v: unknown, max: number): unknown[] => (Array.isArray(v) ? v.slice
 const obj = (v: unknown): Record<string, unknown> => (v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : {});
 const strings = (v: unknown, max: number) => list(v, max).map(x => str(x)).filter(Boolean);
 
+// Recipe text reads better without em dashes (AI answers love them): "kneading — time does" becomes
+// "kneading, time does", and "5—10" becomes "5-10".
+const undash = (s: string) => s.replace(/(\d)\s*—\s*(\d)/g, '$1-$2').replace(/\s*—\s*/g, ', ').replace(/,\s*([,.;:!?)])/g, '$1').replace(/^,\s*/, '').replace(/[ \t]+,/g, ',').replace(/ {2,}/g, ' ');
+const rstr = (v: unknown, max?: number) => undash(str(v, max));
+const rstrings = (v: unknown, max: number) => list(v, max).map(x => rstr(x)).filter(Boolean);
+
 export const isId = (v: unknown): v is string => typeof v === 'string' && ID_RE.test(v);
 
 function cleanTimer(v: unknown): Timer | null {
@@ -41,10 +47,10 @@ function cleanTimer(v: unknown): Timer | null {
 function cleanStep(v: unknown): Step {
   const s = obj(v);
   return {
-    title: str(s.title, LIMITS.title),
-    text: str(s.text),
-    tip: str(s.tip),
-    phase: str(s.phase, 80),
+    title: rstr(s.title, LIMITS.title),
+    text: rstr(s.text),
+    tip: rstr(s.tip),
+    phase: rstr(s.phase, 80),
     timers: list(s.timers, LIMITS.timersPerStep).map(cleanTimer).filter((t): t is Timer => !!t),
   };
 }
@@ -53,16 +59,16 @@ export function cleanParsed(v: unknown): Parsed {
   const p = obj(v);
   const servings = obj(p.servings);
   return {
-    title: str(p.title, LIMITS.title).trim() || 'Untitled recipe',
-    description: str(p.description),
-    servings: p.servings ? { count: typeof servings.count === 'number' && servings.count > 0 && servings.count < 10_000 ? servings.count : null, label: str(servings.label, 120) } : null,
-    times: list(p.times, 8).map(x => ({ label: str(obj(x).label, 20), value: str(obj(x).value, 60) })).filter(t => t.label && t.value),
-    equipment: strings(p.equipment, 50),
+    title: rstr(p.title, LIMITS.title).trim() || 'Untitled recipe',
+    description: rstr(p.description),
+    servings: p.servings ? { count: typeof servings.count === 'number' && servings.count > 0 && servings.count < 10_000 ? servings.count : null, label: rstr(servings.label, 120) } : null,
+    times: list(p.times, 8).map(x => ({ label: rstr(obj(x).label, 20), value: rstr(obj(x).value, 60) })).filter(t => t.label && t.value),
+    equipment: rstrings(p.equipment, 50),
     ingredients: list(p.ingredients, LIMITS.groups)
-      .map(g => ({ name: str(obj(g).name, 80), items: strings(obj(g).items, LIMITS.items) }))
+      .map(g => ({ name: rstr(obj(g).name, 80), items: rstrings(obj(g).items, LIMITS.items) }))
       .filter(g => g.items.length),
     steps: list(p.steps, LIMITS.steps).map(cleanStep).filter(s => s.title || s.text),
-    notes: strings(p.notes, LIMITS.notes),
+    notes: rstrings(p.notes, LIMITS.notes),
   };
 }
 
@@ -103,12 +109,15 @@ export function cleanRecipes(v: unknown): Recipe[] {
 const CHOICES: Partial<Record<keyof Settings, readonly string[]>> = {
   theme: ['sourdough', 'sage', 'tomato', 'blueberry', 'plum', 'teal', 'honey', 'charcoal'],
   mode: ['auto', 'light', 'dark'],
-  font: ['classic', 'modern', 'rounded', 'cookbook'],
+  font: ['classic', 'modern', 'rounded', 'cookbook', 'playful', 'elegant', 'clean'],
   textSize: ['s', 'm', 'l', 'xl'],
   cards: ['soft', 'flat'],
   cookLayout: ['cards', 'list'],
   timerStyle: ['ring', 'clock', 'sand'],
   alarmTone: ['chime', 'bell', 'beeps'],
+  aiStyle: ['short', 'detailed'],
+  aiUnits: ['metric', 'us', 'both'],
+  aiSkill: ['beginner', 'home', 'confident'],
 };
 
 export function cleanSettings(v: unknown, defaults: Settings): Settings {

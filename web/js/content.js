@@ -32,6 +32,7 @@ Rules:
 - Start every ingredient with its quantity and unit, e.g. "7 g (2¼ tsp) instant yeast".
 - Whenever a step involves waiting, resting, rising, baking or cooking, add a timer in minutes. For a range like 30–35 minutes use the shorter time and put the range in the label.
 - Give oven temperatures in °C and °F.
+- Write plain, friendly sentences. Don't use em dashes; use commas or full stops instead.
 - Use "phase" to group steps into stages (e.g. "Mixing", "First rise", "Shaping", "Baking").
 - Group ingredients only if the recipe has parts (e.g. "Starter", "Dough", "Topping"); otherwise use one group with "group": "".`;
 

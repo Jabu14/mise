@@ -1,5 +1,8 @@
 import { Fraunces_500Medium, Fraunces_700Bold, Fraunces_800ExtraBold } from '@expo-google-fonts/fraunces';
+import { Fredoka_500Medium, Fredoka_600SemiBold, Fredoka_700Bold } from '@expo-google-fonts/fredoka';
 import { Nunito_500Medium, Nunito_700Bold, Nunito_800ExtraBold } from '@expo-google-fonts/nunito';
+import { PlayfairDisplay_600SemiBold, PlayfairDisplay_700Bold, PlayfairDisplay_800ExtraBold } from '@expo-google-fonts/playfair-display';
+import { Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
 import { useFonts } from 'expo-font';
 import { Stack, type ErrorBoundaryProps } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -26,7 +29,11 @@ export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
 }
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({ Fraunces_500Medium, Fraunces_700Bold, Fraunces_800ExtraBold, Nunito_500Medium, Nunito_700Bold, Nunito_800ExtraBold });
+  const [fontsLoaded] = useFonts({
+    Fraunces_500Medium, Fraunces_700Bold, Fraunces_800ExtraBold, Nunito_500Medium, Nunito_700Bold, Nunito_800ExtraBold,
+    Fredoka_500Medium, Fredoka_600SemiBold, Fredoka_700Bold, PlayfairDisplay_600SemiBold, PlayfairDisplay_700Bold, PlayfairDisplay_800ExtraBold,
+    Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold,
+  });
   return (
     <SafeAreaProvider>
       <AppProvider>
@@ -57,6 +64,7 @@ function Shell({ fontsLoaded }: { fontsLoaded: boolean }) {
         <Stack.Screen name="recipe-prompt" />
         <Stack.Screen name="help" />
         <Stack.Screen name="legal" />
+        <Stack.Screen name="sous-settings" />
         <Stack.Screen name="timer/[id]" />
         <Stack.Screen name="timer-new" options={{ presentation: 'modal' }} />
         <Stack.Screen name="voice" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />

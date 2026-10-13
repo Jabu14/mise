@@ -9,10 +9,10 @@ import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
-  'Animated pictures for every cooking step, and for each recipe',
-  'Type how much you want to make, and tick off ingredients with a line through them',
-  `A new message box for ${AI_NAME}, a page with all your chats, and a button to jump back down`,
-  'Bolder, cleaner icons throughout the app',
+  'Meet the cooks: three characters who act out every step',
+  'Swipe between tabs, and a Completed section for recipes you’ve made',
+  `Frosted-glass buttons in ${AI_NAME}, plus ${AI_NAME} settings for diet, units and more`,
+  'Rename a recipe by tapping its name, and three new fonts',
 ];
 
 export default function AboutScreen() {
