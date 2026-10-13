@@ -6,7 +6,7 @@ import { useContext, type ComponentProps, type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View, type StyleProp, type TextProps, type TextStyle, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTimers, type KitchenTimer, type Step } from '../lib/store';
-import { useTheme, type Weight } from '../lib/theme';
+import { mix, useTheme, type Weight } from '../lib/theme';
 
 export type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -178,35 +178,41 @@ function TimerTray() {
   return <View style={{ gap: 8 }}>{timers.map(t => <TrayTimer key={t.id} t={t} />)}</View>;
 }
 
+// A running timer, styled like the iPhone's Dynamic Island timer: a black pill with a round pause
+// button and a close button on the left, and the label + countdown in the accent colour on the right.
+const ISLAND = '#0C0B0B';
 function TrayTimer({ t }: { t: KitchenTimer }) {
   const th = useTheme();
-  const { remaining, togglePause, addTime, removeTimer } = useTimers();
+  const { remaining, togglePause, removeTimer } = useTimers();
   const paused = t.pausedLeft != null;
-  const bg = t.done ? th.c.accent : th.c.tray;
-  const fg = t.done ? th.c.onAccent : th.c.onTray;
+  const accent = th.dark ? th.c.accent : mix(th.c.accent, '#FFFFFF', 0.15);
   return (
-    <View style={[styles.tray, { backgroundColor: bg }]}>
-      <Pressable style={{ flex: 1 }} onPress={() => (t.recipeId ? router.push(`/recipe/${t.recipeId}`) : router.navigate('/timers'))}>
-        <Txt size={12} color={fg} numberOfLines={1} style={{ opacity: 0.7 }}>{t.recipeTitle || 'Quick timer'}</Txt>
-        <Txt weight="bold" size={15} color={fg} numberOfLines={1}>{t.label}</Txt>
+    <Pressable
+      onPress={() => router.push(`/timer/${t.id}`)}
+      accessibilityRole="button"
+      accessibilityLabel={`${t.label}, ${t.done ? "time's up" : clock(remaining(t))}`}
+      style={({ pressed }) => [styles.island, { backgroundColor: ISLAND, transform: [{ scale: pressed ? 0.98 : 1 }] }]}
+    >
+      <Pressable
+        onPress={() => (t.done ? removeTimer(t.id) : togglePause(t.id))}
+        accessibilityRole="button"
+        accessibilityLabel={t.done ? 'Stop timer' : paused ? 'Resume timer' : 'Pause timer'}
+        style={[styles.islandBtn, { backgroundColor: mix(ISLAND, th.c.accent, 0.45) }]}
+      >
+        <Icon name={t.done ? 'stop' : paused ? 'play' : 'pause'} size={24} color={accent} />
       </Pressable>
-      <Txt weight="black" size={19} color={fg} style={{ fontVariant: ['tabular-nums'], opacity: paused ? 0.55 : 1, paddingHorizontal: 4 }}>
-        {t.done ? "Time's up!" : clock(remaining(t))}
-      </Txt>
-      {t.done ? (
-        <Pressable onPress={() => removeTimer(t.id)} style={[styles.stop, { backgroundColor: th.c.onAccent }]} accessibilityLabel="Stop timer">
-          <Txt weight="black" size={14} color={th.c.accent}>Stop</Txt>
+      {!t.done && (
+        <Pressable onPress={() => removeTimer(t.id)} accessibilityRole="button" accessibilityLabel="Cancel timer" style={[styles.islandBtn, { backgroundColor: '#2C2B2A' }]}>
+          <Icon name="close" size={26} color="#FFFFFF" />
         </Pressable>
-      ) : (
-        <>
-          <IconBtn size={38} name={paused ? 'play' : 'pause'} color={fg} label={paused ? 'Resume timer' : 'Pause timer'} onPress={() => togglePause(t.id)} />
-          <Pressable onPress={() => addTime(t.id, 1)} style={styles.plusOne} accessibilityLabel="Add one minute">
-            <Txt weight="black" size={14} color={fg}>+1</Txt>
-          </Pressable>
-          <IconBtn size={38} name="close" color={fg} label="Cancel timer" onPress={() => removeTimer(t.id)} />
-        </>
       )}
-    </View>
+      <View style={{ flex: 1, flexDirection: 'row', alignItems: 'baseline', justifyContent: 'flex-end', gap: 8 }}>
+        <Txt weight="bold" size={15} color={accent} numberOfLines={1} style={{ flexShrink: 1 }}>{t.done ? t.label : t.label.length > 14 ? 'Timer' : t.label}</Txt>
+        <Txt weight="bold" size={t.done ? 22 : 34} color={accent} style={{ fontVariant: ['tabular-nums'], opacity: paused ? 0.6 : 1, lineHeight: t.done ? 30 : 40 }}>
+          {t.done ? "Time's up!" : clock(remaining(t))}
+        </Txt>
+      </View>
+    </Pressable>
   );
 }
 
@@ -281,9 +287,8 @@ export function StepBody({ step, number, text, compact, children }: { step: Step
 const styles = StyleSheet.create({
   btn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 999 },
   chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 5, borderRadius: 999, borderWidth: 1 },
-  tray: { flexDirection: 'row', alignItems: 'center', gap: 2, paddingLeft: 18, paddingRight: 6, paddingVertical: 6, borderRadius: 999 },
-  stop: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 999 },
-  plusOne: { width: 38, height: 38, alignItems: 'center', justifyContent: 'center' },
+  island: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingLeft: 8, paddingRight: 20, paddingVertical: 8, borderRadius: 40, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
+  islandBtn: { width: 50, height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center' },
   phase: { alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 999 },
   badge: { alignItems: 'center', justifyContent: 'center' },
   tip: { flexDirection: 'row', gap: 12, padding: 14 },

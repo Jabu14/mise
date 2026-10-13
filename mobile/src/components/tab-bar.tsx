@@ -1,18 +1,14 @@
-// Bottom navigation bar, styled with the app's theme.
+// Bottom navigation: Recipes · Sous (AI chat) · Add · Timers · Account.
 import * as Haptics from 'expo-haptics';
 import type { BottomTabBarProps } from 'expo-router/js-tabs';
+import type { ReactNode } from 'react';
 import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AI_NAME } from '../lib/chat-store';
 import { useApp, useTimers } from '../lib/store';
 import { useTheme } from '../lib/theme';
-import { Icon, Txt, type IconName } from './ui';
-
-const TABS: Record<string, { label: string; icon: IconName; iconActive: IconName }> = {
-  index: { label: 'Recipes', icon: 'book-outline', iconActive: 'book' },
-  add: { label: 'Add recipe', icon: 'add', iconActive: 'add' },
-  timers: { label: 'Timers', icon: 'timer-outline', iconActive: 'timer' },
-  account: { label: 'Account', icon: 'person-circle-outline', iconActive: 'person-circle' },
-};
+import { ChatSparkIcon, RecipeBookIcon } from './icons';
+import { Icon, Txt } from './ui';
 
 export function TabBar({ state, navigation }: BottomTabBarProps) {
   const th = useTheme();
@@ -20,56 +16,15 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
   const { settings } = useApp();
   const { timers } = useTimers();
 
-  return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 8, paddingBottom: Math.max(insets.bottom, 10), paddingHorizontal: 8, backgroundColor: th.c.surface, borderTopWidth: 1, borderTopColor: th.c.line }}>
-      {state.routes.map((route, i) => {
-        const tab = TABS[route.name];
-        if (!tab) return null;
-        const focused = state.index === i;
-        const color = focused ? th.c.accent : th.c.muted;
-
-        const onPress = () => {
-          const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
-          if (!focused && !event.defaultPrevented) {
-            if (settings.haptics) Haptics.selectionAsync().catch(() => {});
-            navigation.navigate(route.name, route.params);
-          }
-        };
-
-        if (route.name === 'add') {
-          return (
-            <View key={route.key} style={{ width: 76, alignItems: 'center' }}>
-              <Pressable onPress={onPress} accessibilityRole="tab" accessibilityState={{ selected: focused }} accessibilityLabel="Add recipe" style={({ pressed }) => ({ transform: [{ scale: pressed ? 0.92 : 1 }] })}>
-                <View style={{ width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.accent, ...(th.dark ? {} : { shadowColor: th.c.accent, shadowOpacity: 0.35, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 }) }}>
-                  <Icon name="add" size={30} color={th.c.onAccent} />
-                </View>
-              </Pressable>
-            </View>
-          );
-        }
-
-        return (
-          <Pressable
-            key={route.key}
-            onPress={onPress}
-            accessibilityRole="tab"
-            accessibilityState={{ selected: focused }}
-            accessibilityLabel={tab.label}
-            style={({ pressed }) => ({ flex: 1, alignItems: 'center', gap: 3, transform: [{ scale: pressed ? 0.94 : 1 }] })}
-          >
-            <View style={[{ width: 58, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }, focused && { backgroundColor: th.c.accentSoft }]}>
-              <Icon name={focused ? tab.iconActive : tab.icon} size={22} color={color} />
-              {route.name === 'timers' && renderTimerBadge()}
-            </View>
-            <Txt weight={focused ? 'black' : 'bold'} size={12} color={color}>{tab.label}</Txt>
-          </Pressable>
-        );
-      })}
-    </View>
-  );
+  const TABS: Record<string, { label: string; icon: (on: boolean, color: string) => ReactNode }> = {
+    index: { label: 'Recipes', icon: (on, color) => <RecipeBookIcon open={on} color={color} /> },
+    chat: { label: AI_NAME, icon: (on, color) => <ChatSparkIcon active={on} color={color} /> },
+    timers: { label: 'Timers', icon: (on, color) => <Icon name={on ? 'timer' : 'timer-outline'} size={22} color={color} /> },
+    account: { label: 'Account', icon: (on, color) => <Icon name={on ? 'person-circle' : 'person-circle-outline'} size={22} color={color} /> },
+  };
 
   // Count of timers; red when one is ringing; a pause sign when every timer is paused.
-  function renderTimerBadge() {
+  const renderTimerBadge = () => {
     if (!timers.length) return null;
     const ringing = timers.some(t => t.done);
     const allPaused = !ringing && timers.every(t => t.pausedLeft != null);
@@ -81,5 +36,52 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
         {allPaused ? <Icon name="pause" size={10} color={th.c.surface} /> : <Txt weight="black" size={10} color={th.c.onAccent} style={{ lineHeight: 12 }}>{timers.length}</Txt>}
       </View>
     );
-  }
+  };
+
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 8, paddingBottom: Math.max(insets.bottom, 10), paddingHorizontal: 4, backgroundColor: th.c.surface, borderTopWidth: 1, borderTopColor: th.c.line }}>
+      {state.routes.map((route, i) => {
+        const focused = state.index === i;
+        const onPress = () => {
+          const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+          if (!focused && !event.defaultPrevented) {
+            if (settings.haptics) Haptics.selectionAsync().catch(() => {});
+            navigation.navigate(route.name, route.params);
+          }
+        };
+
+        if (route.name === 'add') {
+          return (
+            <View key={route.key} style={{ width: 68, alignItems: 'center' }}>
+              <Pressable onPress={onPress} accessibilityRole="tab" accessibilityState={{ selected: focused }} accessibilityLabel="Add recipe" style={({ pressed }) => ({ transform: [{ scale: pressed ? 0.92 : 1 }] })}>
+                <View style={{ width: 50, height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.accent, ...(th.dark ? {} : { shadowColor: th.c.accent, shadowOpacity: 0.35, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 }) }}>
+                  <Icon name="add" size={30} color={th.c.onAccent} />
+                </View>
+              </Pressable>
+            </View>
+          );
+        }
+
+        const tab = TABS[route.name];
+        if (!tab) return null;
+        const color = focused ? th.c.accent : th.c.muted;
+        return (
+          <Pressable
+            key={route.key}
+            onPress={onPress}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: focused }}
+            accessibilityLabel={tab.label}
+            style={({ pressed }) => ({ flex: 1, alignItems: 'center', gap: 3, transform: [{ scale: pressed ? 0.94 : 1 }] })}
+          >
+            <View style={[{ width: 54, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }, focused && { backgroundColor: th.c.accentSoft }]}>
+              {tab.icon(focused, color)}
+              {route.name === 'timers' && renderTimerBadge()}
+            </View>
+            <Txt weight={focused ? 'black' : 'bold'} size={12} color={color}>{tab.label}</Txt>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
 }

@@ -33,7 +33,7 @@ export default function Library() {
           <Icon name="restaurant-outline" size={24} color={th.c.accent} />
           <Txt kind="head" weight="bold" size={24}>Mise</Txt>
         </View>
-        <IconBtn name="settings-outline" label="Look and settings" onPress={() => router.push('/settings')} />
+        <IconBtn name="settings-outline" label="Settings" onPress={() => router.push('/settings')} />
       </TopBar>
 
       {recipes.length ? (

@@ -1,48 +1,57 @@
-// iPhone-style swipe to delete: swipe left to reveal a red delete button, tap it to delete,
+// iPhone-style swipe to delete: swipe left to reveal a round red trash button, tap it to delete,
 // or keep swiping all the way across to delete in one go. Swipe right (or tap the row) to close.
+// `revealed` lets an Edit mode open the row from outside (tapping its red minus).
 import * as Haptics from 'expo-haptics';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Animated, PanResponder, Pressable, View, useWindowDimensions } from 'react-native';
 import { useTheme } from '../lib/theme';
-import { Icon, Txt } from './ui';
+import { Icon } from './ui';
 
-const BUTTON = 88;
+const OPEN_AT = 84;
 
-export function SwipeRow({ children, onDelete, enabled = true, haptics = true }: { children: ReactNode; onDelete: () => void; enabled?: boolean; haptics?: boolean }) {
+type Props = {
+  children: ReactNode;
+  onDelete: () => void;
+  enabled?: boolean;
+  haptics?: boolean;
+  revealed?: boolean;
+  onRevealChange?: (open: boolean) => void;
+};
+
+export function SwipeRow({ children, onDelete, enabled = true, haptics = true, revealed, onRevealChange }: Props) {
   const th = useTheme();
   const { width } = useWindowDimensions();
   const [x] = useState(() => new Animated.Value(0));
-  const [open, setOpen] = useState(false);
+  const [open, setOpenState] = useState(false);
 
   // The gesture handler is created once, so it reads the latest values from this holder.
-  const [latest] = useState(() => ({ onDelete, enabled, haptics, open, width }));
+  const [latest] = useState(() => ({ onDelete, enabled, haptics, open, width, onRevealChange }));
   useEffect(() => {
-    Object.assign(latest, { onDelete, enabled, haptics, open, width });
-  }, [latest, onDelete, enabled, haptics, open, width]);
+    Object.assign(latest, { onDelete, enabled, haptics, open, width, onRevealChange });
+  }, [latest, onDelete, enabled, haptics, open, width, onRevealChange]);
 
-  const [responder] = useState(() => {
-    let start = 0;
-    let armed = false;
-    const fullAt = () => latest.width * 0.55;
-    const to = (value: number, after?: () => void) =>
-      Animated.spring(x, { toValue: value, friction: 8, tension: 70, useNativeDriver: false }).start(after);
+  const [api] = useState(() => {
+    const to = (value: number) => Animated.spring(x, { toValue: value, friction: 8, tension: 70, useNativeDriver: false }).start();
+    const setOpen = (value: boolean) => {
+      setOpenState(value);
+      latest.onRevealChange?.(value);
+      to(value ? -OPEN_AT : 0);
+    };
     const remove = () => {
       if (latest.haptics) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
       Animated.timing(x, { toValue: -latest.width, duration: 200, useNativeDriver: false }).start(() => latest.onDelete());
     };
-    return PanResponder.create({
-      // Only clearly horizontal drags; leftwards to open, either way once open.
+    let start = 0;
+    let armed = false;
+    const responder = PanResponder.create({
       onMoveShouldSetPanResponder: (_, g) =>
         latest.enabled && Math.abs(g.dx) > 10 && Math.abs(g.dx) > Math.abs(g.dy) * 1.6 && (g.dx < 0 || latest.open),
-      onPanResponderGrant: () => {
-        start = latest.open ? -BUTTON : 0;
-        armed = false;
-      },
+      onPanResponderGrant: () => { start = latest.open ? -OPEN_AT : 0; armed = false; },
       onPanResponderTerminationRequest: () => false,
       onPanResponderMove: (_, g) => {
         const next = Math.min(0, start + g.dx);
         x.setValue(next);
-        const past = -next > fullAt();
+        const past = -next > latest.width * 0.55;
         if (past !== armed) {
           armed = past;
           if (latest.haptics) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
@@ -50,49 +59,42 @@ export function SwipeRow({ children, onDelete, enabled = true, haptics = true }:
       },
       onPanResponderRelease: (_, g) => {
         const pos = Math.min(0, start + g.dx);
-        if (-pos > fullAt() || (g.vx < -1.6 && latest.open)) return remove();
-        if (-pos > BUTTON / 2 && g.vx < 0.5) {
-          setOpen(true);
-          to(-BUTTON);
-        } else {
-          setOpen(false);
-          to(0);
-        }
+        if (-pos > latest.width * 0.55 || (g.vx < -1.6 && latest.open)) return remove();
+        setOpen(-pos > OPEN_AT / 2 && g.vx < 0.5);
       },
-      onPanResponderTerminate: () => {
-        setOpen(false);
-        to(0);
-      },
+      onPanResponderTerminate: () => setOpen(false),
     });
+    return { responder, setOpen, remove };
   });
 
-  const close = () => {
-    setOpen(false);
-    Animated.spring(x, { toValue: 0, friction: 8, useNativeDriver: false }).start();
-  };
-  const deleteNow = () => {
-    if (haptics) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-    Animated.timing(x, { toValue: -width, duration: 200, useNativeDriver: false }).start(() => onDelete());
-  };
+  // Follow an outside request (Edit mode) to open or close.
+  useEffect(() => {
+    if (revealed !== undefined && revealed !== latest.open) api.setOpen(revealed);
+  }, [revealed, api, latest]);
 
-  // The red area grows with the swipe; the button sits at its right edge.
-  const redWidth = x.interpolate({ inputRange: [-width, 0], outputRange: [width, 0], extrapolate: 'clamp' });
+  const buttonScale = x.interpolate({ inputRange: [-OPEN_AT, -24, 0], outputRange: [1, 0.4, 0.4], extrapolate: 'clamp' });
+  const buttonOpacity = x.interpolate({ inputRange: [-OPEN_AT, -24, 0], outputRange: [1, 0, 0], extrapolate: 'clamp' });
 
   return (
     <View style={{ overflow: 'hidden' }}>
-      <Animated.View style={{ position: 'absolute', top: 0, bottom: 0, right: 0, width: redWidth, backgroundColor: th.c.temp, alignItems: 'flex-end', justifyContent: 'center' }}>
-        <Pressable onPress={deleteNow} accessibilityRole="button" accessibilityLabel="Delete" style={{ width: BUTTON, height: '100%', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
-          <Icon name="close-circle" size={24} color="#fff" />
-          <Txt weight="black" size={12} color="#fff">Delete</Txt>
+      <Animated.View pointerEvents={open ? 'auto' : 'none'} style={{ position: 'absolute', top: 0, bottom: 0, right: 14, justifyContent: 'center', opacity: buttonOpacity, transform: [{ scale: buttonScale }] }}>
+        <Pressable onPress={api.remove} accessibilityRole="button" accessibilityLabel="Delete" style={{ width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.temp }}>
+          <Icon name="trash-outline" size={24} color="#fff" />
         </Pressable>
       </Animated.View>
-      <Animated.View {...responder.panHandlers} style={{ transform: [{ translateX: x }], backgroundColor: th.c.surface }}>
-        {open ? (
-          <Pressable onPress={close} accessibilityLabel="Close">{children}</Pressable>
-        ) : (
-          children
-        )}
+      <Animated.View {...api.responder.panHandlers} style={{ transform: [{ translateX: x }], backgroundColor: th.c.bg }}>
+        {open ? <Pressable onPress={() => api.setOpen(false)} accessibilityLabel="Close">{children}</Pressable> : children}
       </Animated.View>
     </View>
+  );
+}
+
+// The red minus circle shown in Edit mode; tapping it opens the row's delete button.
+export function EditMinus({ onPress }: { onPress: () => void }) {
+  const th = useTheme();
+  return (
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel="Show delete" hitSlop={10} style={{ width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.temp }}>
+      <View style={{ width: 11, height: 2.5, borderRadius: 2, backgroundColor: '#fff' }} />
+    </Pressable>
   );
 }

@@ -6,7 +6,8 @@ import { mix, useTheme } from '../lib/theme';
 import { formatDuration } from '../shared/parser';
 import { Txt, clock } from './ui';
 
-export type FaceProps = { remaining: number; total: number; paused: boolean; done: boolean; size: number; now: number };
+// `mini` draws a small version for list rows: no numbers or big time, strokes scaled to size.
+export type FaceProps = { remaining: number; total: number; paused: boolean; done: boolean; size: number; now: number; mini?: boolean };
 
 // Current time, refreshed ~30 times a second while `active` (for smooth hands and sand).
 export function useSmoothNow(active: boolean) {
@@ -45,9 +46,10 @@ export function BigTime({ ms, done, paused, size = 54 }: { ms: number; done: boo
 
 // ---------- Ring: 60 ticks that switch off as time runs out ----------
 
-export function RingFace({ remaining, total, paused, done, size }: FaceProps) {
+export function RingFace({ remaining, total, paused, done, size, mini }: FaceProps) {
   const th = useTheme();
   const c = size / 2;
+  const k = size / 300;
   const left = done ? 0 : Math.max(0, Math.min(1, remaining / total));
   const lit = left * 60;
   return (
@@ -56,8 +58,8 @@ export function RingFace({ remaining, total, paused, done, size }: FaceProps) {
         {Array.from({ length: 60 }, (_, i) => {
           const angle = (i / 60) * Math.PI * 2 - Math.PI / 2;
           const major = i % 5 === 0;
-          const outer = c - 4;
-          const inner = outer - (major ? 18 : 12);
+          const outer = c - Math.max(1.5, 4 * k);
+          const inner = outer - (major ? 18 : 12) * Math.max(k, 0.28);
           // Lit ticks get brighter towards the moving edge; the edge tick fades out smoothly.
           const on = Math.min(1, Math.max(0, lit - i));
           const strength = (0.45 + 0.55 * (i / Math.max(lit, 1))) * on;
@@ -70,14 +72,14 @@ export function RingFace({ remaining, total, paused, done, size }: FaceProps) {
               y2={c + outer * Math.sin(angle)}
               stroke={on > 0 ? (paused ? th.c.muted : th.c.accent) : th.c.line}
               strokeOpacity={on > 0 ? Math.min(1, strength) : 1}
-              strokeWidth={major ? 4 : 3}
+              strokeWidth={Math.max(1.4, (major ? 4 : 3) * k)}
               strokeLinecap="round"
             />
           );
         })}
       </Svg>
-      <BigTime ms={remaining} done={done} paused={paused} size={size * 0.17} />
-      <Txt muted size={14} weight="bold">Total {formatDuration(total / 60000)}</Txt>
+      {!mini && <BigTime ms={remaining} done={done} paused={paused} size={size * 0.17} />}
+      {!mini && <Txt muted size={14} weight="bold">Total {formatDuration(total / 60000)}</Txt>}
     </View>
   );
 }
@@ -97,10 +99,11 @@ function wedgePath(cx: number, cy: number, r: number, fraction: number) {
 const handX = (c: number, deg: number, length: number) => c + length * Math.sin((deg * Math.PI) / 180);
 const handY = (c: number, deg: number, length: number) => c - length * Math.cos((deg * Math.PI) / 180);
 
-export function ClockFace({ remaining, total, paused, done, size, now }: FaceProps) {
+export function ClockFace({ remaining, total, paused, done, size, now, mini }: FaceProps) {
   const th = useTheme();
   const c = size / 2;
-  const r = c - 6;
+  const k = size / 280;
+  const r = c - Math.max(2, 6 * k);
   const minutesLeft = done ? 0 : remaining / 60000;
   const dial = total > 60 * 60000 ? Math.ceil(total / 3600000) * 60 : 60; // minutes shown on the dial
   const fraction = Math.min(1, minutesLeft / dial);
@@ -109,7 +112,7 @@ export function ClockFace({ remaining, total, paused, done, size, now }: FacePro
   const labelStep = dial / 12;
 
   return (
-    <View style={{ alignItems: 'center', gap: 14 }}>
+    <View style={{ alignItems: 'center', gap: mini ? 0 : 14 }}>
       <Svg width={size} height={size}>
         <Defs>
           <LinearGradient id="wedge" x1="0" y1="0" x2="0" y2="1">
@@ -117,30 +120,31 @@ export function ClockFace({ remaining, total, paused, done, size, now }: FacePro
             <Stop offset="1" stopColor={mix(th.c.accent, '#000000', 0.15)} stopOpacity={0.95} />
           </LinearGradient>
         </Defs>
-        <Circle cx={c} cy={c} r={r} fill={th.c.surface} stroke={th.c.line} strokeWidth={3} />
+        <Circle cx={c} cy={c} r={r} fill={th.c.surface} stroke={th.c.line} strokeWidth={Math.max(1.5, 3 * k)} />
         <Path d={wedgePath(c, c, r * 0.78, fraction)} fill={paused ? th.c.muted : 'url(#wedge)'} />
         {Array.from({ length: 60 }, (_, i) => {
           const a = (i / 60) * Math.PI * 2 - Math.PI / 2;
           const major = i % 5 === 0;
-          const o = r - 6;
-          const inn = o - (major ? 12 : 6);
-          return <Line key={i} x1={c + inn * Math.cos(a)} y1={c + inn * Math.sin(a)} x2={c + o * Math.cos(a)} y2={c + o * Math.sin(a)} stroke={major ? th.c.text : th.c.muted} strokeWidth={major ? 2.5 : 1.2} strokeLinecap="round" />;
+          if (mini && !major) return null;
+          const o = r - 6 * k;
+          const inn = o - (major ? 12 : 6) * Math.max(k, 0.3);
+          return <Line key={i} x1={c + inn * Math.cos(a)} y1={c + inn * Math.sin(a)} x2={c + o * Math.cos(a)} y2={c + o * Math.sin(a)} stroke={major ? th.c.text : th.c.muted} strokeWidth={Math.max(1, (major ? 2.5 : 1.2) * k)} strokeLinecap="round" />;
         })}
         {Array.from({ length: 12 }, (_, i) => {
           const a = (i / 12) * Math.PI * 2 - Math.PI / 2;
           const d = r - 30;
           const value = i * labelStep;
           const label = dial > 60 ? (value % 60 === 0 ? `${value / 60}h` : '') : String(value);
-          return label ? (
+          return label && !mini ? (
             <SvgText key={i} x={c + d * Math.cos(a)} y={c + d * Math.sin(a) + 5} fill={th.c.text} fontSize={size * 0.055} fontWeight="700" textAnchor="middle">{label}</SvgText>
           ) : null;
         })}
-        <Line x1={c} y1={c} x2={handX(c, handAngle, r * 0.72)} y2={handY(c, handAngle, r * 0.72)} stroke={th.c.text} strokeWidth={6} strokeLinecap="round" />
-        <Line x1={handX(c, secAngle, -14)} y1={handY(c, secAngle, -14)} x2={handX(c, secAngle, r * 0.86)} y2={handY(c, secAngle, r * 0.86)} stroke={th.c.temp} strokeWidth={2} strokeLinecap="round" />
-        <Circle cx={c} cy={c} r={9} fill={th.c.text} />
-        <Circle cx={c} cy={c} r={3.5} fill={th.c.temp} />
+        <Line x1={c} y1={c} x2={handX(c, handAngle, r * 0.72)} y2={handY(c, handAngle, r * 0.72)} stroke={th.c.text} strokeWidth={Math.max(2, 6 * k)} strokeLinecap="round" />
+        <Line x1={handX(c, secAngle, -14 * k)} y1={handY(c, secAngle, -14 * k)} x2={handX(c, secAngle, r * 0.86)} y2={handY(c, secAngle, r * 0.86)} stroke={th.c.temp} strokeWidth={Math.max(1, 2 * k)} strokeLinecap="round" />
+        <Circle cx={c} cy={c} r={Math.max(3, 9 * k)} fill={th.c.text} />
+        <Circle cx={c} cy={c} r={Math.max(1.2, 3.5 * k)} fill={th.c.temp} />
       </Svg>
-      <BigTime ms={remaining} done={done} paused={paused} size={size * 0.15} />
+      {!mini && <BigTime ms={remaining} done={done} paused={paused} size={size * 0.15} />}
     </View>
   );
 }
@@ -150,10 +154,10 @@ export function ClockFace({ remaining, total, paused, done, size, now }: FacePro
 const TOP_BULB = 'M 44 42 L 156 42 C 156 92 112 118 104 146 L 96 146 C 88 118 44 92 44 42 Z';
 const BOTTOM_BULB = 'M 96 154 L 104 154 C 112 182 156 208 156 258 L 44 258 C 44 208 88 182 96 154 Z';
 
-export function SandFace({ remaining, total, paused, done, size, now }: FaceProps) {
+export function SandFace({ remaining, total, paused, done, size, now, mini }: FaceProps) {
   const th = useTheme();
   const progress = done ? 1 : 1 - Math.max(0, Math.min(1, remaining / total));
-  const width = size * 0.66;
+  const width = size * (mini ? 0.6 : 0.66);
   const height = width * 1.5;
   const sand = paused ? th.c.muted : th.c.accent;
   const sandDark = mix(sand, '#000000', 0.18);
@@ -166,7 +170,7 @@ export function SandFace({ remaining, total, paused, done, size, now }: FaceProp
   const dashOffset = -((now / 12) % 24);
 
   return (
-    <View style={{ alignItems: 'center', gap: 14 }}>
+    <View style={{ alignItems: 'center', gap: mini ? 0 : 14 }}>
       <Svg width={width} height={height} viewBox="0 0 200 300">
         <Defs>
           <ClipPath id="topBulb"><Path d={TOP_BULB} /></ClipPath>
@@ -215,7 +219,7 @@ export function SandFace({ remaining, total, paused, done, size, now }: FaceProp
         <Rect x={22} y={256} width={156} height={22} rx={11} fill="url(#cap)" />
         <Rect x={34} y={26} width={132} height={5} rx={2.5} fill="#ffffff" opacity={0.35} />
       </Svg>
-      <BigTime ms={remaining} done={done} paused={paused} size={size * 0.15} />
+      {!mini && <BigTime ms={remaining} done={done} paused={paused} size={size * 0.15} />}
     </View>
   );
 }

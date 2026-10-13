@@ -1,6 +1,7 @@
 // Everything read from storage or pasted by the user goes through here before the app uses it.
 // Unknown keys are dropped, wrong types are replaced with safe defaults, and sizes are capped,
 // so corrupted or tampered data can't crash the app or bloat it.
+import type { Chat, ChatAttachment, ChatMessage } from './chat-store';
 import type { KitchenTimer, Parsed, Recipe, Settings, Step, Timer, TimerHistoryItem } from './store';
 
 export const LIMITS = {
@@ -107,6 +108,7 @@ const CHOICES: Partial<Record<keyof Settings, readonly string[]>> = {
   cards: ['soft', 'flat'],
   cookLayout: ['cards', 'list'],
   timerStyle: ['ring', 'clock', 'sand'],
+  alarmTone: ['chime', 'bell', 'beeps'],
 };
 
 export function cleanSettings(v: unknown, defaults: Settings): Settings {
@@ -153,4 +155,40 @@ export function cleanHistory(v: unknown): { items: TimerHistoryItem[]; started: 
       .filter(i => i.minutes > 0),
     started: Math.round(num(h.started, 0, 1e9, 0)),
   };
+}
+
+// Chats: only local recording files are accepted as audio sources.
+const AUDIO_RE = /^file:\/\/\/[^\s"'<>]{1,500}\.(m4a|aac|caf|wav|mp4|3gp)$/i;
+const PHOTO_RE = /^file:\/\/\/[^\s"'<>]{1,500}$/i;
+
+export function cleanChats(v: unknown): Chat[] {
+  const now = Date.now();
+  const seen = new Set<string>();
+  return list(v, 200)
+    .map(x => {
+      const c = obj(x);
+      if (!isId(c.id) || seen.has(c.id)) return null;
+      seen.add(c.id);
+      const messages: ChatMessage[] = list(c.messages, 500)
+        .map(y => {
+          const m = obj(y);
+          if (!isId(m.id) || (m.role !== 'user' && m.role !== 'assistant')) return null;
+          const kind = m.kind === 'voice' ? 'voice' : 'text';
+          const audioUri = typeof m.audioUri === 'string' && AUDIO_RE.test(m.audioUri) ? m.audioUri : undefined;
+          if (kind === 'voice' && !audioUri) return null;
+          const a = obj(m.attachment);
+          const attachment: ChatAttachment | undefined =
+            a.type === 'recipe' && isId(a.recipeId) ? { type: 'recipe', recipeId: a.recipeId, title: str(a.title, LIMITS.title) }
+            : a.type === 'photo' && typeof a.uri === 'string' && PHOTO_RE.test(a.uri) ? { type: 'photo', uri: a.uri }
+            : undefined;
+          return {
+            id: m.id, role: m.role, kind, text: str(m.text, 8000), at: num(m.at, 0, now + 1, now),
+            ...(audioUri ? { audioUri, durationMs: num(m.durationMs, 0, 15 * 60 * 1000, 0) } : {}),
+            ...(attachment ? { attachment } : {}),
+          } as ChatMessage;
+        })
+        .filter((m): m is ChatMessage => !!m);
+      return { id: c.id, title: str(c.title, 60) || 'New chat', createdAt: num(c.createdAt, 0, now + 1, now), updatedAt: num(c.updatedAt, 0, now + 1, now), messages };
+    })
+    .filter((c): c is Chat => !!c);
 }

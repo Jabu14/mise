@@ -2,7 +2,7 @@
   "expo": {
     "name": "Mise",
     "slug": "mise",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -28,13 +28,18 @@
       "expo-status-bar",
       "expo-font",
       "expo-notifications",
-      "expo-audio",
       [
         "expo-image-picker",
         {
           "photosPermission": "Mise reads recipe photos you choose so the AI can turn them into steps.",
           "cameraPermission": "Mise uses the camera to photograph recipes so the AI can turn them into steps.",
           "microphonePermission": false
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Mise uses the microphone so you can talk to Sous and send voice messages."
         }
       ]
     ],

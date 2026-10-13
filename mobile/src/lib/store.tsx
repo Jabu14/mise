@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { guessEmoji } from '../shared/parser';
-import { startAlarmSound, stopAlarmSound } from './alarm';
+import { startAlarmSound, stopAlarmSound, type Tone } from './alarm';
 import { cancelAlarm, scheduleAlarm } from './notifications';
 import { LIMITS, cleanHistory, cleanParsed, cleanRecipes, cleanSettings, cleanTimers } from './validate';
 
@@ -44,6 +44,7 @@ export const DEFAULT_SETTINGS = {
   keepAwake: true,
   haptics: true,
   alarmSound: true,
+  alarmTone: 'chime',   // chime | bell | beeps
   timerStyle: 'ring',   // ring | clock | sand
   name: '',
   recipePrompt: '',     // empty = the built-in prompt
@@ -88,6 +89,7 @@ type TimerValue = {
   togglePause: (id: string) => void;
   addTime: (id: string, minutes?: number) => void;
   removeTimer: (id: string) => void;
+  renameTimer: (id: string, label: string) => void;
   history: TimerHistoryItem[];
   timersStarted: number;
   removeHistory: (ats: number[]) => void;
@@ -253,6 +255,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setNow(Date.now());
   }, [updateTimer]);
 
+  const renameTimer = useCallback((id: string, label: string) => {
+    const clean = label.trim().slice(0, 60);
+    if (clean) setTimers(list => list.map(t => (t.id === id ? { ...t, label: clean } : t)));
+  }, []);
+
   const removeTimer = useCallback((id: string) => {
     const t = timersRef.current.find(x => x.id === id);
     if (t) cancelAlarm(t.notificationId);
@@ -267,18 +274,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Ring while any timer says "Time's up!"; stop once they're all stopped or extended.
   const anyRinging = timers.some(t => t.done);
   const soundOn = settings.alarmSound;
+  const tone = settings.alarmTone;
   useEffect(() => {
-    if (anyRinging && soundOn) startAlarmSound();
+    if (anyRinging && soundOn) startAlarmSound(tone as Tone);
     else stopAlarmSound();
-  }, [anyRinging, soundOn]);
+  }, [anyRinging, soundOn, tone]);
 
   const appValue = useMemo<AppValue>(
     () => ({ ready, settings, updateSettings, resetLook, recipes, getRecipe, saveParsed, patchRecipe, setProgress, markCooked, deleteRecipe }),
     [ready, settings, updateSettings, resetLook, recipes, getRecipe, saveParsed, patchRecipe, setProgress, markCooked, deleteRecipe],
   );
   const timerValue = useMemo<TimerValue>(
-    () => ({ timers, now, remaining, startTimer, togglePause, addTime, removeTimer, history: history.items, timersStarted: history.started, removeHistory }),
-    [timers, now, remaining, startTimer, togglePause, addTime, removeTimer, history, removeHistory],
+    () => ({ timers, now, remaining, startTimer, togglePause, addTime, removeTimer, renameTimer, history: history.items, timersStarted: history.started, removeHistory }),
+    [timers, now, remaining, startTimer, togglePause, addTime, removeTimer, renameTimer, history, removeHistory],
   );
 
   return (

@@ -7,6 +7,7 @@ export default function TabsLayout() {
   return (
     <Tabs tabBar={props => <TabBar {...props} />} screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: th.c.bg } }}>
       <Tabs.Screen name="index" />
+      <Tabs.Screen name="chat" />
       <Tabs.Screen name="add" />
       <Tabs.Screen name="timers" />
       <Tabs.Screen name="account" />

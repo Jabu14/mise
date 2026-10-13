@@ -1,13 +1,14 @@
-// Account tab: your profile and stats, plus the way into Look & settings.
+// Account tab: your profile and stats, then a section each for Look, Settings, Feedback and About.
 // Sign-in / cloud sync will live here once there is a backend; for now everything stays on this phone.
 import * as Clipboard from 'expo-clipboard';
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
-import { Alert, Pressable, ScrollView, TextInput, View } from 'react-native';
-import { Card, Icon, Label, Screen, TopBar, Txt, type IconName } from '../../components/ui';
+import { Alert, ScrollView, TextInput, View } from 'react-native';
+import { Row } from '../../components/settings-ui';
+import { Btn, Card, Icon, Label, Screen, TopBar, Txt, type IconName } from '../../components/ui';
 import { RECIPE_PROMPT } from '../../shared/content';
 import { useApp, useTimers } from '../../lib/store';
-import { useTheme } from '../../lib/theme';
+import { FONTS, THEMES, useTheme } from '../../lib/theme';
 import { LIMITS } from '../../lib/validate';
 
 export default function AccountTab() {
@@ -16,6 +17,7 @@ export default function AccountTab() {
   const { timersStarted } = useTimers();
   const cooked = recipes.reduce((n, r) => n + (r.cookCount || 0), 0);
   const initial = settings.name.trim().charAt(0).toUpperCase();
+  const lookSummary = [THEMES[settings.theme as keyof typeof THEMES]?.name, FONTS[settings.font as keyof typeof FONTS]?.name].filter(Boolean).join(' · ');
 
   const copyPrompt = async () => {
     await Clipboard.setStringAsync(settings.recipePrompt || RECIPE_PROMPT);
@@ -69,14 +71,27 @@ export default function AccountTab() {
           </View>
         </Card>
 
-        <View style={{ gap: 8 }}>
-          <View style={{ marginLeft: 4 }}><Label color={th.c.muted}>Settings</Label></View>
-          <Card style={{ paddingHorizontal: 6 }}>
-            <Row icon="color-palette-outline" title="Look & settings" subtitle="Colours, fonts, cook mode, alarm" onPress={() => router.push('/settings')} />
-            <Row icon="copy-outline" title="Copy recipe prompt" subtitle="Ask any AI for a recipe in Mise format" onPress={copyPrompt} />
-            <Row icon="information-circle-outline" title="About Mise" subtitle={`Version ${Constants.expoConfig?.version ?? '1.0.0'}`} last />
-          </Card>
-        </View>
+        <Section title="Make it yours">
+          <Row icon="color-palette-outline" title="Look" subtitle="Colours, light or dark, font, text size" value={lookSummary} onPress={() => router.push('/look')} />
+          <Row icon="settings-outline" title="Settings" subtitle="Cook mode, timers & alarm, recipe prompt" onPress={() => router.push('/settings')} last />
+        </Section>
+
+        <Section title="Recipes">
+          <Row icon="copy-outline" title="Copy recipe prompt" subtitle="Ask any AI for a recipe in Mise format" onPress={copyPrompt} last />
+        </Section>
+
+        <Card style={{ padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <Txt size={30}>💬</Txt>
+          <View style={{ flex: 1 }}>
+            <Txt weight="black">Help shape Mise</Txt>
+            <Txt muted size={13}>Ideas, bugs or love notes, we read every one.</Txt>
+          </View>
+          <Btn title="Feedback" size="small" variant="secondary" onPress={() => router.push('/feedback')} />
+        </Card>
+
+        <Section title="About">
+          <Row icon="information-circle-outline" title="About Mise" subtitle="What's new and your data" value={`v${Constants.expoConfig?.version ?? '1.0.0'}`} onPress={() => router.push('/about')} last />
+        </Section>
       </ScrollView>
     </Screen>
   );
@@ -93,21 +108,12 @@ function Stat({ value, label, icon }: { value: number; label: string; icon: Icon
   );
 }
 
-function Row({ icon, title, subtitle, onPress, last }: { icon: IconName; title: string; subtitle?: string; onPress?: () => void; last?: boolean }) {
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
   const th = useTheme();
   return (
-    <Pressable
-      onPress={onPress}
-      disabled={!onPress}
-      accessibilityRole={onPress ? 'button' : undefined}
-      style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13, paddingHorizontal: 10, borderBottomWidth: last ? 0 : 1, borderBottomColor: th.c.line, opacity: pressed ? 0.6 : 1 })}
-    >
-      <Icon name={icon} size={22} color={th.c.accent} />
-      <View style={{ flex: 1 }}>
-        <Txt weight="bold">{title}</Txt>
-        {subtitle ? <Txt muted size={13}>{subtitle}</Txt> : null}
-      </View>
-      {onPress ? <Icon name="chevron-forward" size={18} color={th.c.muted} /> : null}
-    </Pressable>
+    <View style={{ gap: 8 }}>
+      <View style={{ marginLeft: 4 }}><Label color={th.c.muted}>{title}</Label></View>
+      <Card style={{ paddingHorizontal: 6 }}>{children}</Card>
+    </View>
   );
 }
