@@ -2,6 +2,14 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.8.0 (2026-10-13)
+
+### Changed
+- **Tab swiping works like Instagram's.** All five tabs sit side by side, and while you swipe, the next page slides in right next to the current one, following your finger, then snaps into place. Tapping a neighbouring tab slides the same way; farther tabs switch instantly.
+
+### Added
+- **Ready for Lottie animations.** Drop animation files named after a step action (`mix.json`, `bake.json`…) into `mobile/assets/lottie/` and run `npm run sync-lottie`. Cook mode then plays them instead of the drawn cooks, for every recipe. Extra versions (`mix-2.json`) take turns. The folder's README has the naming table, export settings and ready-to-paste prompts for the LottieFiles AI.
+
 ## 1.7.0 (2026-10-13)
 
 ### Added

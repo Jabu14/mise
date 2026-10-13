@@ -1,68 +1,73 @@
 import { router, usePathname } from 'expo-router';
 import { Tabs } from 'expo-router/js-tabs';
-import { useState } from 'react';
-import { Animated, Easing, PanResponder, View, useWindowDimensions } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Animated, PanResponder, View, useWindowDimensions } from 'react-native';
 import { ChatDrawerShell } from '../../components/chat/chat-drawer';
 import { TabBar } from '../../components/tab-bar';
 import { useTheme } from '../../lib/theme';
 
 // Tab order, left to right (matches the tab bar).
 const PAGES = ['/', '/chat', '/add', '/timers', '/account'] as const;
-const DURATION = 300;
-const EASE = Easing.out(Easing.cubic);
+const NAMES = ['index', 'chat', 'add', 'timers', 'account'];
+const settle = (v: Animated.Value, toValue: number) => Animated.spring(v, { toValue, speed: 16, bounciness: 0, useNativeDriver: true });
 
 export default function TabsLayout() {
   const th = useTheme();
   const { width } = useWindowDimensions();
   const path = usePathname();
-  const at = PAGES.indexOf(path as (typeof PAGES)[number]);
-  // How far the page is being dragged right now (0 when not dragging).
-  const [drag] = useState(() => new Animated.Value(0));
+  const idx = PAGES.indexOf(path as (typeof PAGES)[number]);
 
-  // Swipe left/right to move between tabs: the page follows your finger, then glides the rest of
-  // the way while the next one slides in. Not from Sous, where swiping right opens the chat history.
-  // Rows that swipe themselves (like a timer's delete) get the gesture first.
+  // Where the row of pages is: 0 = Recipes on screen, 1 = Sous, … (fractions while swiping).
+  // Every tab stays rendered side by side, so swiping drags the next page in with the current one,
+  // like Instagram's pager.
+  const [pos] = useState(() => new Animated.Value(Math.max(0, idx)));
+  // A tab changed (from a swipe or a tap): glide there. Jumps of more than one tab happen instantly.
+  // While another screen is open on top (a recipe, settings…), keep the last tab.
+  const [prev, setPrev] = useState(Math.max(0, idx));
+  const at = idx >= 0 ? idx : prev;
+  const [jump, setJump] = useState(false);
+  if (prev !== at) { setPrev(at); setJump(Math.abs(at - prev) > 1); }
+  useEffect(() => {
+    if (jump) pos.setValue(at);
+    else settle(pos, at).start();
+  }, [at, jump, pos]);
+
+  // Not from Sous: there, swiping right opens the chat history. Rows that swipe themselves
+  // (like a timer's delete) get the gesture first.
   const swipe = PanResponder.create({
-    onMoveShouldSetPanResponder: (_, g) => at >= 0 && PAGES[at] !== '/chat' && Math.abs(g.dx) > 18 && Math.abs(g.dx) > Math.abs(g.dy) * 2,
+    onMoveShouldSetPanResponder: (_, g) => PAGES[at] !== '/chat' && Math.abs(g.dx) > 14 && Math.abs(g.dx) > Math.abs(g.dy) * 1.8,
     onPanResponderTerminationRequest: () => false,
     onPanResponderMove: (_, g) => {
-      const next = PAGES[at + (g.dx < 0 ? 1 : -1)];
-      drag.setValue(next ? g.dx : g.dx * 0.25); // a little give at the ends
+      const hasNext = !!PAGES[at + (g.dx < 0 ? 1 : -1)];
+      pos.setValue(at - (hasNext ? g.dx : g.dx * 0.25) / width);
     },
     onPanResponderRelease: (_, g) => {
-      const dir = g.dx < -width * 0.25 || g.vx < -0.5 ? 1 : g.dx > width * 0.25 || g.vx > 0.5 ? -1 : 0;
+      const dir = g.dx < -width * 0.3 || g.vx < -0.4 ? 1 : g.dx > width * 0.3 || g.vx > 0.4 ? -1 : 0;
       const next = dir ? PAGES[at + dir] : undefined;
-      if (next) {
-        router.navigate(next);
-        Animated.timing(drag, { toValue: 0, duration: DURATION, easing: EASE, useNativeDriver: true }).start();
-      } else {
-        Animated.spring(drag, { toValue: 0, friction: 8, tension: 90, useNativeDriver: true }).start();
-      }
+      if (next) router.navigate(next);
+      else settle(pos, at).start();
     },
-    onPanResponderTerminate: () => Animated.spring(drag, { toValue: 0, useNativeDriver: true }).start(),
+    onPanResponderTerminate: () => settle(pos, at).start(),
   });
 
   return (
     <ChatDrawerShell>
-      <View style={{ flex: 1, backgroundColor: th.c.soft }} {...swipe.panHandlers}>
+      <View style={{ flex: 1, backgroundColor: th.c.bg }} {...swipe.panHandlers}>
         <Tabs
           tabBar={props => <TabBar {...props} />}
-          screenOptions={{
-            headerShown: false,
-            sceneStyle: { backgroundColor: th.c.bg },
-            animation: 'shift',
-            transitionSpec: { animation: 'timing', config: { duration: DURATION, easing: EASE } },
-            // Pages sit side by side like a pager; the one on screen also follows the finger.
-            sceneStyleInterpolator: ({ current }) => ({
-              sceneStyle: {
-                transform: [{
-                  translateX: Animated.add(
-                    Animated.multiply(current.progress, width),
-                    Animated.multiply(drag, current.progress.interpolate({ inputRange: [-1, 0, 1], outputRange: [0, 1, 0] })),
-                  ),
-                }],
-              },
-            }),
+          detachInactiveScreens={false}
+          screenOptions={({ route }) => {
+            const i = NAMES.indexOf(route.name);
+            return {
+              headerShown: false,
+              lazy: false,
+              sceneStyle: { backgroundColor: th.c.bg },
+              animation: 'shift',
+              // Each page sits at its own slot in the row; `pos` slides the whole row.
+              sceneStyleInterpolator: () => ({
+                sceneStyle: { transform: [{ translateX: Animated.multiply(Animated.subtract(i, pos), width) }] },
+              }),
+            };
           }}
         >
           <Tabs.Screen name="index" />

@@ -2,11 +2,15 @@
 // step says (stirring, kneading, waiting for dough to rise, baking, boiling, chopping, frying,
 // whisking, pouring, seasoning, cooling, serving), or waving hello for anything else.
 // The cook changes from step to step, so a recipe feels like a little team effort.
+// If a Lottie animation for the action is in assets/lottie (see its README), that plays instead.
 import type { ReactNode } from 'react';
 import { Circle, Ellipse, G, Path, Rect } from 'react-native-svg';
 import type { Step } from '../../lib/store';
 import { Arm, BowlBack, BowlFront, CAST, Character, Counter, HipArm, type Cook } from './characters';
 import { C, ClosedEyes, Layer, Scene, lerp, sparkle, squiggle, turn, useLoop } from './kit';
+import { LOTTIE } from './lottie-files';
+import { LottieScene } from './lottie-scene';
+import { Platform } from 'react-native';
 
 // ---------- shared bits ----------
 
@@ -473,9 +477,12 @@ function draw(key: SceneKey, who: Cook) {
 }
 
 export function StepScene({ step, index = 0, width, active = true }: { step: Pick<Step, 'title' | 'text'>; index?: number; width: number; active?: boolean }) {
+  const key = pick(step);
+  const files = Platform.OS === 'web' ? undefined : LOTTIE[key];
+  if (files?.length) return <LottieScene source={files[index % files.length]} width={width} active={active} />;
   return (
     <Scene width={width} active={active}>
-      {draw(pick(step), CAST[index % CAST.length])}
+      {draw(key, CAST[index % CAST.length])}
     </Scene>
   );
 }

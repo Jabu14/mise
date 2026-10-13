@@ -9,7 +9,7 @@ import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
-  'Swipe between tabs: the page follows your finger and glides into the next',
+  'Swipe between tabs like Instagram: the next page slides in right beside the current one',
   'New Account section with Profile, Notifications and Usage',
   `Pick ${AI_NAME}'s voice, and a new Light / Dark / System picker`,
   'The cooks stand right at the counter now',
