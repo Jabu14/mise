@@ -23,6 +23,7 @@ export default function SettingsScreen() {
           <Segmented label="Layout" k="cookLayout" options={[['cards', 'One step at a time'], ['list', 'All steps in a list']]} />
           <Card style={{ paddingHorizontal: 16, paddingVertical: 2 }}>
             <Toggle k="stepArt" label="Step animations" />
+            <Toggle k="handsFreeWake" label="Hands-free: wait for “Hey Mise”" hint="Only acts on commands that start with “Hey Mise”, so kitchen chatter doesn’t skip steps" />
             <Toggle k="stepIngredients" label="Show what each step needs" hint="Lists the ingredients mentioned in the step" />
             <Toggle k="highlightTimes" label="Highlight times & temperatures" />
             <Toggle k="keepAwake" label="Keep the screen on while cooking" />

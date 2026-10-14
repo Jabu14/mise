@@ -8,7 +8,7 @@ import { Card, Icon, Label, Screen, TopBar, Txt, type IconName } from '../../com
 import { useApp, useTimers } from '../../lib/store';
 import { FONTS, THEMES, useTheme } from '../../lib/theme';
 import { LIMITS } from '../../lib/validate';
-import { VOICES } from '../../lib/voices';
+import { voiceLabel } from '../../lib/voices';
 
 export default function AccountTab() {
   const th = useTheme();
@@ -51,21 +51,21 @@ export default function AccountTab() {
           <Stat value={timersStarted} label="Timers" icon="timer-outline" />
         </View>
 
-        <Pressable onPress={() => router.push('/plus')} accessibilityRole="button" accessibilityLabel="Mise Plus, see plans" style={({ pressed }) => ({ transform: [{ scale: pressed ? 0.98 : 1 }] })}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, padding: 18, borderRadius: th.radius, backgroundColor: th.c.accent }}>
-            <View style={{ width: 46, height: 46, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.onAccent + '22' }}>
-              <Icon name="sparkles" size={24} color={th.c.onAccent} />
-            </View>
+        <Section title="Plan">
+          <Pressable onPress={() => router.push('/plus')} accessibilityRole="button" accessibilityLabel="Mise Plus, see plans"
+            style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 10, opacity: pressed ? 0.6 : 1 })}>
+            <View style={{ width: 28, alignItems: 'center' }}><Icon name="sparkles" size={22} color={th.c.accent} /></View>
             <View style={{ flex: 1 }}>
-              <Txt weight="black" size={18} color={th.c.onAccent}>Mise Plus</Txt>
-              <Txt size={14} color={th.c.onAccent} style={{ opacity: 0.85 }}>Unlimited AI imports, voice commands and more</Txt>
+              <Txt weight="bold">Mise Plus</Txt>
+              <Txt muted size={13}>You’re on Free</Txt>
             </View>
-            <Icon name="chevron-forward" size={20} color={th.c.onAccent} />
-          </View>
-        </Pressable>
+            <View style={{ paddingHorizontal: 14, height: 32, borderRadius: 16, justifyContent: 'center', backgroundColor: th.c.accent }}>
+              <Txt weight="black" size={13} color={th.c.onAccent}>Upgrade</Txt>
+            </View>
+          </Pressable>
+        </Section>
 
         <Section title="Account">
-          <Row icon="sparkles-outline" title="Subscription" value="Free" onPress={() => router.push('/plus')} />
           <Row icon="cloud-outline" title="Sign in & sync" badge="SOON" onPress={() => Alert.alert('Coming soon', 'Soon you’ll be able to sign in and keep your recipes and chats on all your devices.')} />
           <Row icon="person-outline" title="Profile" onPress={() => router.push('/profile')} />
           <Row icon="notifications-outline" title="Notifications" onPress={() => router.push('/notifications')} />
@@ -74,7 +74,7 @@ export default function AccountTab() {
 
         <Section title="App">
           <Row icon="color-palette-outline" title="Appearance" value={appearanceSummary} onPress={() => router.push('/appearance')} />
-          <Row icon="mic-outline" title="Voice" value={VOICES[settings.aiVoice]?.name} onPress={() => router.push('/voice-settings')} />
+          <Row icon="mic-outline" title="Voice" value={voiceLabel(settings.aiVoice)} onPress={() => router.push('/voice-settings')} />
           <Row icon="settings-outline" title="Settings" onPress={() => router.push('/settings')} last />
         </Section>
 

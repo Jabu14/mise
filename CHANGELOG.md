@@ -2,6 +2,17 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.10.0 (2026-10-14)
+
+### Added
+- **Voice commands for hands-free cooking**: "next", "back", "repeat", "start timer", "pause timer", "ingredients" and "quiet". They use the phone's own speech recognition, so they work in Mise's own app build (not inside Expo Go, which falls back to claps). Mise stops listening while it talks, so it doesn't hear itself.
+- **"Hey Mise"** option (Settings → Cook mode): only act on commands that start with "Hey Mise", so kitchen chatter doesn't skip steps.
+
+### Changed
+- **More natural voice.** Mise now speaks with the best voice installed on the phone (Apple's Premium and Enhanced voices first) instead of one voice with the pitch shifted. Voice settings list the phone's voices and have a Slower / Normal / Faster setting, plus how to download better voices.
+- **Account:** the big Mise Plus card is now a compact **Plan** section with an Upgrade button.
+- **Mise Plus page** redesigned like a typical subscription screen: a coloured hero with one of the cooks, what's included, the two plans side by side, how the free week works, and a sticky "Start my free week" button.
+
 ## 1.9.0 (2026-10-14)
 
 ### Added

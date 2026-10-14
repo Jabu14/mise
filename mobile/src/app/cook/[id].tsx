@@ -1,5 +1,6 @@
 // Cook mode: one big step at a time (swipe between them) or all steps in a list.
-// Hands-free (the mic button): every step is read out loud, and claps move you along:
+// Hands-free (the mic button): every step is read out loud, and you move along by voice ("next",
+// "back", "repeat", "start timer"…) in the Mise app build, or by claps inside Expo Go:
 // two claps = next step, three claps = start the step's timer (or hear the step again).
 import * as Haptics from 'expo-haptics';
 import { useKeepAwake } from 'expo-keep-awake';
@@ -10,8 +11,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StepScene } from '../../components/art/step-scenes';
 import { IngredientList, ingCountText, servingsLabel } from '../../components/recipe';
 import { Btn, Card, Chip, Dock, Icon, IconBtn, Label, Screen, StepBody, TopBar, Txt, clock } from '../../components/ui';
-import { formatDuration, ingredientsUsedIn, scaleText } from '../../shared/parser';
+import { formatDuration, ingredientsUsedIn, plainText, scaleText } from '../../shared/parser';
 import { say, speakStep, stopSpeaking, useClapCommands } from '../../lib/hands-free';
+import { useVoiceCommands, voiceCommandsAvailable, type VoiceCommand } from '../../lib/voice-commands';
 import { useApp, useTimers, type Recipe } from '../../lib/store';
 import { useTheme } from '../../lib/theme';
 
@@ -26,7 +28,7 @@ export default function Cook() {
   const { width } = useWindowDimensions();
   const { id, step } = useLocalSearchParams<{ id: string; step?: string }>();
   const { getRecipe, setProgress, markCooked, settings, updateSettings } = useApp();
-  const { timers, startTimer } = useTimers();
+  const { timers, startTimer, togglePause } = useTimers();
   const r = getRecipe(id);
   const total = r?.steps.length ?? 0;
   const [index, setIndex] = useState(() => Math.min(Math.max(parseInt(step || '0', 10) || 0, 0), Math.max(total - 1, 0)));
@@ -80,8 +82,32 @@ export default function Cook() {
     return true;
   };
 
+  // Spoken commands (Mise app build).
+  const onVoice = (c: VoiceCommand) => {
+    if (!r) return;
+    if (settings.haptics) Haptics.selectionAsync().catch(() => {});
+    const s = r.steps[index];
+    if (c === 'next') { show(index === total - 1 ? '“Next”  ·  Finished!' : '“Next”'); goTo(index + 1); }
+    else if (c === 'back') { show('“Back”'); if (index === 0) readStep(); else goTo(index - 1); }
+    else if (c === 'repeat') { show('“Repeat”'); readStep(); }
+    else if (c === 'timer') { show('“Start timer”'); if (!startStepTimer()) say(s.timers.length ? 'The timer is already running.' : 'This step has no timer.', settings, voice); }
+    else if (c === 'pause') {
+      const t = timers.find(x => x.key.startsWith(`${r.id}:${index}:`) && !x.done);
+      show('“Pause timer”');
+      if (t) { togglePause(t.id); say(t.pausedLeft != null ? 'Timer resumed.' : 'Timer paused.', settings, voice); }
+      else say('No timer is running for this step.', settings, voice);
+    }
+    else if (c === 'ingredients') {
+      const used = ingredientsUsedIn(r, s).map(u => plainText(scaleText(u, r.progress.scale || 1)));
+      show('“Ingredients”');
+      say(used.length ? `For this step you need: ${used.join(', ')}.` : 'This step doesn’t list any ingredients.', settings, voice);
+    }
+    else if (c === 'quiet') { show('“Quiet”'); stopSpeaking(); }
+  };
+  const voiceCmd = useVoiceCommands({ enabled: handsFree, quiet: speaking, wakeWord: settings.handsFreeWake, onCommand: onVoice });
+
   const listening = useClapCommands({
-    enabled: handsFree,
+    enabled: handsFree && !voiceCommandsAvailable,
     quiet: speaking,
     onClaps: count => {
       if (settings.haptics) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
@@ -139,12 +165,23 @@ export default function Cook() {
       </View>
       {handsFree ? (
         <View style={{ marginHorizontal: 16, marginTop: 10, flexDirection: 'row', alignItems: 'center', gap: 10, paddingLeft: 14, paddingRight: 6, paddingVertical: 8, borderRadius: 18, backgroundColor: th.c.accentSoft }}>
-          <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: listening === 'listening' && !speaking ? th.c.accent : th.c.muted }} />
+          <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: (voiceCommandsAvailable ? voiceCmd.state : listening) === 'listening' && !speaking ? th.c.accent : th.c.muted }} />
           <View style={{ flex: 1 }}>
-            <Txt weight="black" size={14} color={th.c.accent}>
-              {heard ?? (listening === 'no-mic' ? 'Reading aloud (mic is off)' : speaking ? 'Reading the step…' : listening === 'listening' ? 'Listening for claps' : 'Getting ready…')}
-            </Txt>
-            <Txt size={12} muted>{listening === 'no-mic' ? 'Allow the microphone for Mise in Settings to use claps.' : '👏👏 next step  ·  👏👏👏 timer or repeat'}</Txt>
+            {voiceCommandsAvailable ? (
+              <>
+                <Txt weight="black" size={14} color={th.c.accent}>
+                  {heard ?? (voiceCmd.state === 'no-mic' ? 'Reading aloud (mic is off)' : speaking ? 'Reading the step…' : voiceCmd.awake ? 'Yes? I’m listening' : voiceCmd.state === 'listening' ? 'Listening' : 'Getting ready…')}
+                </Txt>
+                <Txt size={12} muted>{voiceCmd.state === 'no-mic' ? 'Allow the microphone and speech recognition for Mise in Settings.' : settings.handsFreeWake ? 'Say “Hey Mise, next” · back · repeat · start timer' : 'Say “next”, “back”, “repeat” or “start timer”'}</Txt>
+              </>
+            ) : (
+              <>
+                <Txt weight="black" size={14} color={th.c.accent}>
+                  {heard ?? (listening === 'no-mic' ? 'Reading aloud (mic is off)' : speaking ? 'Reading the step…' : listening === 'listening' ? 'Listening for claps' : 'Getting ready…')}
+                </Txt>
+                <Txt size={12} muted>{listening === 'no-mic' ? 'Allow the microphone for Mise in Settings to use claps.' : '👏👏 next step  ·  👏👏👏 timer or repeat'}</Txt>
+              </>
+            )}
           </View>
           <IconBtn name="volume-high-outline" label="Read this step again" size={38} onPress={readStep} />
         </View>

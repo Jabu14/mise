@@ -5,10 +5,11 @@
 import { RecordingPresets, requestRecordingPermissionsAsync, setAudioModeAsync, useAudioRecorder } from 'expo-audio';
 import { File } from 'expo-file-system';
 import * as Speech from 'expo-speech';
+import { voiceCommandsAvailable } from './voice-commands';
 import { useEffect, useRef, useState } from 'react';
 import { plainText } from '../shared/parser';
 import type { Settings, Step } from './store';
-import { VOICES } from './voices';
+import { speak } from './voices';
 
 const SAMPLE_MS = 50;
 const RESTART_MS = 60_000;     // start a fresh temporary file this often
@@ -98,15 +99,15 @@ export function speakStep(step: Step, number: number, total: number, settings: S
     `Step ${number} of ${total}. ${step.title}.`,
     plainText(step.text),
     step.tip ? `Tip: ${plainText(step.tip)}` : '',
-    timer ? 'Clap three times to start the timer.' : number < total ? 'Clap twice when you’re ready for the next step.' : 'That’s the last step.',
+    voiceCommandsAvailable
+      ? (timer ? 'Say “start timer” when you’re ready.' : number < total ? 'Say “next” when you’re ready.' : 'That’s the last step.')
+      : (timer ? 'Clap three times to start the timer.' : number < total ? 'Clap twice when you’re ready for the next step.' : 'That’s the last step.'),
   ];
   say(parts.filter(Boolean).join(' '), settings, callbacks);
 }
 
-export function say(text: string, settings: Settings, { onStart, onDone }: { onStart?: () => void; onDone?: () => void } = {}) {
-  const v = VOICES[settings.aiVoice] ?? VOICES.basil;
-  Speech.stop();
-  Speech.speak(text, { pitch: v.pitch, rate: v.rate, onStart, onDone, onStopped: onDone, onError: onDone });
+export function say(text: string, settings: Settings, callbacks: { onStart?: () => void; onDone?: () => void } = {}) {
+  speak(text, settings, callbacks);
 }
 
 export const stopSpeaking = () => { Speech.stop(); };

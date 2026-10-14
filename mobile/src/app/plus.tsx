@@ -1,123 +1,150 @@
-// Mise Plus: the subscription page (plans, what's included, free vs Plus).
-// Payments aren't connected yet: the buttons explain that Plus is coming soon. Prices below are
-// placeholders to settle before launch (and must match what's set up in App Store Connect / Play).
+// Mise Plus: the subscription page. A hero with one of the cooks, what's included, two plans side by
+// side, how the free trial works, and a sticky "Start my free week" button.
+// Payments aren't connected yet: the buttons explain that Plus is coming soon. Prices are placeholders
+// to settle before launch (they must match what's set up in App Store Connect / Google Play).
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, View } from 'react-native';
-import { Btn, Card, Icon, IconBtn, Screen, TopBar, Txt, type IconName } from '../components/ui';
+import { Alert, Pressable, ScrollView, View, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
+import { StepScene } from '../components/art/step-scenes';
+import { Glass } from '../components/glass';
+import { Btn, Icon, Txt } from '../components/ui';
 import { AI_NAME } from '../lib/chat-store';
-import { useTheme } from '../lib/theme';
-import { AI_IMPORTS_PER_DAY } from '../lib/usage';
+import { mix, useTheme } from '../lib/theme';
 
 const PLANS = {
-  yearly: { label: 'Yearly', price: '$39.99', per: 'per year', note: 'Just $3.33 a month · save 33%' },
-  monthly: { label: 'Monthly', price: '$4.99', per: 'per month', note: 'Cancel anytime' },
+  yearly: { label: 'Yearly', price: '$39.99', per: '/ year', small: '$3.33 / month', badge: 'SAVE 33%' },
+  monthly: { label: 'Monthly', price: '$4.99', per: '/ month', small: 'Billed monthly', badge: null },
 } as const;
+type Plan = keyof typeof PLANS;
 
-const PERKS: { icon: IconName; title: string; text: string }[] = [
-  { icon: 'sparkles-outline', title: 'Unlimited Import with AI', text: 'Links, photos and notes turned into recipes, as many as you like.' },
-  { icon: 'chatbubble-outline', title: `${AI_NAME}, fully unlocked`, text: 'Remembers your tastes and knows the step you’re on.' },
-  { icon: 'mic-outline', title: 'Voice commands', text: 'Say “next” or “start the timer” while your hands are busy.' },
-  { icon: 'calendar-outline', title: 'Meal planner & shopping list', text: 'Plan the week and get one tidy list for the shop.' },
-  { icon: 'cloud-outline', title: 'Sync across devices', text: 'Your recipes and chats on every phone and tablet.' },
-  { icon: 'color-palette-outline', title: 'Extra looks for the cooks', text: 'Seasonal outfits, themes and app icons.' },
+const INCLUDED = [
+  'Unlimited Import with AI',
+  `${AI_NAME} with memory, on every step`,
+  'Voice commands while you cook',
+  'Meal planner and shopping list',
+  'Sync on all your devices',
+  'Seasonal looks for the cooks',
 ];
 
-const COMPARE: [string, string, string][] = [
-  ['Recipes & cook mode', 'Unlimited', 'Unlimited'],
-  ['Import with AI', `${AI_IMPORTS_PER_DAY} a day`, 'Unlimited'],
-  [`Chat with ${AI_NAME}`, 'Basic', 'With memory'],
-  ['Hands-free cooking', 'Claps', 'Voice commands'],
-  ['Meal planner & shopping list', '–', '✓'],
-  ['Sync across devices', '–', '✓'],
+const TRIAL: { icon: 'lock-open-outline' | 'notifications-outline' | 'star-outline'; title: string; text: string }[] = [
+  { icon: 'lock-open-outline', title: 'Today', text: 'Everything in Plus unlocks.' },
+  { icon: 'notifications-outline', title: 'Day 5', text: 'We remind you that your trial is ending.' },
+  { icon: 'star-outline', title: 'Day 7', text: 'Your plan starts. Cancel anytime before.' },
 ];
 
 export default function PlusScreen() {
   const th = useTheme();
-  const [plan, setPlan] = useState<keyof typeof PLANS>('yearly');
+  const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const [plan, setPlan] = useState<Plan>('yearly');
+  const top = th.c.accent;
+  const bottom = mix(th.c.accent, '#000000', 0.35);
 
   const soon = () => Alert.alert('Mise Plus is coming soon', 'Subscriptions aren’t open yet. Everything in Mise is free while we get Plus ready.');
 
   return (
-    <Screen>
-      <TopBar>
-        <IconBtn name="close" label="Close" onPress={() => router.back()} />
-        <View style={{ flex: 1 }} />
-      </TopBar>
-      <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 0, paddingBottom: 48, gap: 22 }}>
-        <View style={{ alignItems: 'center', gap: 10 }}>
-          <View style={{ width: 76, height: 76, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.accent }}>
-            <Icon name="sparkles" size={36} color={th.c.onAccent} />
+    <View style={{ flex: 1, backgroundColor: th.c.bg }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 190 + insets.bottom }} bounces={false}>
+        {/* Hero */}
+        <View style={{ paddingTop: insets.top + 8, paddingBottom: 28, alignItems: 'center', overflow: 'hidden' }}>
+          <Svg style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} width="100%" height="100%" preserveAspectRatio="none">
+            <Defs>
+              <LinearGradient id="hero" x1="0" y1="0" x2="0" y2="1">
+                <Stop offset="0" stopColor={top} />
+                <Stop offset="1" stopColor={bottom} />
+              </LinearGradient>
+            </Defs>
+            <Rect x="0" y="0" width="100%" height="100%" fill="url(#hero)" />
+          </Svg>
+          <View style={{ alignSelf: 'stretch', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 14 }}>
+            <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Close" hitSlop={6}>
+              <Glass tint={0.25} style={{ width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', borderColor: '#FFFFFF33' }}>
+                <Icon name="close" size={20} color="#FFFFFF" />
+              </Glass>
+            </Pressable>
+            <Pressable onPress={soon} hitSlop={8}><Txt weight="bold" size={14} color="#FFFFFF" style={{ opacity: 0.9 }}>Restore</Txt></Pressable>
           </View>
-          <Txt kind="head" weight="bold" size={32} style={{ textAlign: 'center' }}>Mise Plus</Txt>
-          <Txt muted size={16} style={{ textAlign: 'center', maxWidth: 300 }}>{`Cook more, worry less, with ${AI_NAME} by your side.`}</Txt>
-          <View style={{ paddingHorizontal: 10, paddingVertical: 2, borderRadius: 999, backgroundColor: th.c.soft }}>
-            <Txt weight="black" size={12} muted>COMING SOON</Txt>
-          </View>
+          <StepScene step={{ title: 'Serve', text: 'serve' }} index={2} width={Math.min(width - 60, 300)} />
+          <Txt kind="head" weight="bold" size={34} color="#FFFFFF" style={{ marginTop: 4 }}>Mise Plus</Txt>
+          <Txt size={16} color="#FFFFFF" style={{ opacity: 0.88, textAlign: 'center', maxWidth: 300, marginTop: 4 }}>Everything you need to cook with confidence.</Txt>
         </View>
 
-        <View style={{ gap: 14 }}>
-          {PERKS.map(p => (
-            <View key={p.title} style={{ flexDirection: 'row', gap: 14, alignItems: 'flex-start' }}>
-              <View style={{ width: 28, alignItems: 'center', paddingTop: 1 }}><Icon name={p.icon} size={22} color={th.c.accent} /></View>
-              <View style={{ flex: 1 }}>
-                <Txt weight="bold">{p.title}</Txt>
-                <Txt muted size={14}>{p.text}</Txt>
+        <View style={{ padding: 20, gap: 26 }}>
+          {/* What's included */}
+          <View style={{ gap: 12 }}>
+            {INCLUDED.map(item => (
+              <View key={item} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <View style={{ width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.accent }}>
+                  <Icon name="checkmark" size={15} color={th.c.onAccent} />
+                </View>
+                <Txt weight="bold" size={16} style={{ flex: 1 }}>{item}</Txt>
               </View>
-            </View>
-          ))}
-        </View>
-
-        <View style={{ gap: 10 }}>
-          {(Object.keys(PLANS) as (keyof typeof PLANS)[]).map(key => {
-            const p = PLANS[key];
-            const on = plan === key;
-            return (
-              <Pressable key={key} onPress={() => setPlan(key)} accessibilityRole="radio" accessibilityState={{ selected: on }}
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: 20, borderWidth: 2, borderColor: on ? th.c.accent : th.c.line, backgroundColor: th.c.surface }}>
-                <View style={{ width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: on ? th.c.accent : th.c.line, alignItems: 'center', justifyContent: 'center' }}>
-                  {on ? <View style={{ width: 11, height: 11, borderRadius: 6, backgroundColor: th.c.accent }} /> : null}
-                </View>
-                <View style={{ flex: 1 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    <Txt weight="black" size={17}>{p.label}</Txt>
-                    {key === 'yearly' ? <View style={{ paddingHorizontal: 8, paddingVertical: 1, borderRadius: 999, backgroundColor: th.c.accent }}><Txt weight="black" size={11} color={th.c.onAccent}>BEST VALUE</Txt></View> : null}
-                  </View>
-                  <Txt muted size={13}>{p.note}</Txt>
-                </View>
-                <View style={{ alignItems: 'flex-end' }}>
-                  <Txt weight="black" size={18}>{p.price}</Txt>
-                  <Txt muted size={12}>{p.per}</Txt>
-                </View>
-              </Pressable>
-            );
-          })}
-        </View>
-
-        <Btn title="Start 7-day free trial" icon="sparkles" size="big" onPress={soon} />
-        <Txt muted size={12} style={{ textAlign: 'center', marginTop: -10 }}>Then {PLANS[plan].price} {PLANS[plan].per}. Cancel anytime.</Txt>
-
-        <Card style={{ padding: 6 }}>
-          <View style={{ flexDirection: 'row', paddingHorizontal: 10, paddingVertical: 10 }}>
-            <Txt weight="black" size={13} muted style={{ flex: 1.6 }}> </Txt>
-            <Txt weight="black" size={13} muted style={{ flex: 1, textAlign: 'center' }}>Free</Txt>
-            <Txt weight="black" size={13} color={th.c.accent} style={{ flex: 1, textAlign: 'center' }}>Plus</Txt>
+            ))}
           </View>
-          {COMPARE.map(([what, free, plus], i) => (
-            <View key={what} style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 11, borderTopWidth: 1, borderTopColor: th.c.line, backgroundColor: i % 2 ? 'transparent' : th.c.soft + '55' }}>
-              <Txt weight="bold" size={14} style={{ flex: 1.6 }}>{what}</Txt>
-              <Txt muted size={13} style={{ flex: 1, textAlign: 'center' }}>{free}</Txt>
-              <Txt weight="black" size={13} color={th.c.accent} style={{ flex: 1, textAlign: 'center' }}>{plus}</Txt>
-            </View>
-          ))}
-        </Card>
 
-        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 22 }}>
-          <Pressable onPress={soon} hitSlop={8}><Txt weight="bold" size={13} muted>Restore purchases</Txt></Pressable>
-          <Pressable onPress={() => router.push('/legal?doc=terms')} hitSlop={8}><Txt weight="bold" size={13} muted>Terms</Txt></Pressable>
-          <Pressable onPress={() => router.push('/legal?doc=privacy')} hitSlop={8}><Txt weight="bold" size={13} muted>Privacy</Txt></Pressable>
+          {/* Plans, side by side */}
+          <View style={{ flexDirection: 'row', gap: 12, paddingTop: 8 }}>
+            {(Object.keys(PLANS) as Plan[]).map(key => {
+              const p = PLANS[key];
+              const on = plan === key;
+              return (
+                <Pressable key={key} onPress={() => setPlan(key)} accessibilityRole="radio" accessibilityState={{ selected: on }} style={{ flex: 1 }}>
+                  <View style={{ minHeight: 132, padding: 16, paddingTop: 20, borderRadius: 22, borderWidth: 2.5, borderColor: on ? th.c.accent : th.c.line, backgroundColor: on ? th.c.accentSoft : th.c.surface, gap: 4 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <Txt weight="black" size={16}>{p.label}</Txt>
+                      <View style={{ width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center', borderWidth: on ? 0 : 2, borderColor: th.c.line, backgroundColor: on ? th.c.accent : 'transparent' }}>
+                        {on ? <Icon name="checkmark" size={14} color={th.c.onAccent} /> : null}
+                      </View>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 3, marginTop: 10 }}>
+                      <Txt kind="head" weight="bold" size={26}>{p.price}</Txt>
+                      <Txt muted size={13} weight="bold">{p.per}</Txt>
+                    </View>
+                    <Txt muted size={13}>{p.small}</Txt>
+                  </View>
+                  {p.badge ? (
+                    <View style={{ position: 'absolute', top: -11, alignSelf: 'center', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 999, backgroundColor: th.c.accent }}>
+                      <Txt weight="black" size={11} color={th.c.onAccent}>{p.badge}</Txt>
+                    </View>
+                  ) : null}
+                </Pressable>
+              );
+            })}
+          </View>
+
+          {/* How the trial works */}
+          <View style={{ gap: 4 }}>
+            <Txt kind="head" weight="bold" size={20} style={{ marginBottom: 8 }}>How your free week works</Txt>
+            {TRIAL.map((t, i) => (
+              <View key={t.title} style={{ flexDirection: 'row', gap: 14 }}>
+                <View style={{ alignItems: 'center' }}>
+                  <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: i === 0 ? th.c.accent : th.c.accentSoft }}>
+                    <Icon name={t.icon} size={18} color={i === 0 ? th.c.onAccent : th.c.accent} />
+                  </View>
+                  {i < TRIAL.length - 1 ? <View style={{ width: 3, flex: 1, minHeight: 18, borderRadius: 2, backgroundColor: th.c.accentSoft }} /> : null}
+                </View>
+                <View style={{ flex: 1, paddingTop: 6, paddingBottom: 14 }}>
+                  <Txt weight="black">{t.title}</Txt>
+                  <Txt muted size={14}>{t.text}</Txt>
+                </View>
+              </View>
+            ))}
+          </View>
         </View>
       </ScrollView>
-    </Screen>
+
+      {/* Sticky call to action */}
+      <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 20, paddingTop: 14, paddingBottom: insets.bottom + 12, gap: 8, backgroundColor: th.c.bg, borderTopWidth: 1, borderTopColor: th.c.line }}>
+        <Btn title="Start my free week" size="big" onPress={soon} />
+        <Txt muted size={12} style={{ textAlign: 'center' }}>7 days free, then {PLANS[plan].price}{PLANS[plan].per.replace('/ ', '/')}. Cancel anytime.</Txt>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 18 }}>
+          <Pressable onPress={() => router.push('/legal?doc=terms')} hitSlop={8}><Txt weight="bold" size={12} muted>Terms</Txt></Pressable>
+          <Pressable onPress={() => router.push('/legal?doc=privacy')} hitSlop={8}><Txt weight="bold" size={12} muted>Privacy</Txt></Pressable>
+          <Pressable onPress={soon} hitSlop={8}><Txt weight="bold" size={12} muted>Restore purchases</Txt></Pressable>
+        </View>
+      </View>
+    </View>
   );
 }

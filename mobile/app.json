@@ -2,7 +2,7 @@
   "expo": {
     "name": "Mise",
     "slug": "mise",
-    "version": "1.9.0",
+    "version": "1.10.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -40,6 +40,13 @@
         "expo-audio",
         {
           "microphonePermission": "Mise uses the microphone so you can talk to Sous and send voice messages."
+        }
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Mise uses the microphone so you can talk to Sous and cook hands-free.",
+          "speechRecognitionPermission": "Mise listens for words like “next” and “start timer” so you can cook without touching your phone."
         }
       ]
     ],

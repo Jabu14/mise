@@ -58,7 +58,9 @@ export const DEFAULT_SETTINGS = {
   aiNotes: '',          // allergies and dislikes, in the user's words
   aiUseRecipes: true,   // let Sous look at your saved recipes
   aiVoiceReplies: true, // read answers out loud in voice mode
-  aiVoice: 'basil',     // basil | saffron | juniper | clove (voice mode)
+  aiVoice: '',          // a phone voice id; '' = the most natural one installed
+  aiVoiceRate: 'normal', // slow | normal | fast
+  handsFreeWake: false, // hands-free only acts after hearing “Hey Mise”
 };
 export type Settings = typeof DEFAULT_SETTINGS;
 
