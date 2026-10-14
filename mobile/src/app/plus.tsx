@@ -1,150 +1,156 @@
-// Mise Plus: the subscription page. A hero with one of the cooks, what's included, two plans side by
-// side, how the free trial works, and a sticky "Start my free week" button.
-// Payments aren't connected yet: the buttons explain that Plus is coming soon. Prices are placeholders
+// Mise Plus: the subscription page, laid out like Google One's: a Monthly / Annual switch, then a card
+// per plan with its price, a "Get" button and what it includes (tap "Show all benefits" for the rest).
+// Payments aren't connected yet: the buttons explain that it's coming soon. Prices are placeholders
 // to settle before launch (they must match what's set up in App Store Connect / Google Play).
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, View, useWindowDimensions } from 'react-native';
+import { Alert, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
-import { StepScene } from '../components/art/step-scenes';
-import { Glass } from '../components/glass';
-import { Btn, Icon, Txt } from '../components/ui';
+import { Btn, Icon, Txt, type IconName } from '../components/ui';
 import { AI_NAME } from '../lib/chat-store';
-import { mix, useTheme } from '../lib/theme';
+import { useTheme } from '../lib/theme';
 
-const PLANS = {
-  yearly: { label: 'Yearly', price: '$39.99', per: '/ year', small: '$3.33 / month', badge: 'SAVE 33%' },
-  monthly: { label: 'Monthly', price: '$4.99', per: '/ month', small: 'Billed monthly', badge: null },
-} as const;
-type Plan = keyof typeof PLANS;
+type Billing = 'monthly' | 'annual';
+type Perk = { icon: IconName; title: string; text: string };
+type Tier = {
+  key: string; name: string; chip: string; recommended?: boolean;
+  price: Record<Billing, string>; per: Record<Billing, string>; perks: Perk[]; more: Perk[];
+};
 
-const INCLUDED = [
-  'Unlimited Import with AI',
-  `${AI_NAME} with memory, on every step`,
-  'Voice commands while you cook',
-  'Meal planner and shopping list',
-  'Sync on all your devices',
-  'Seasonal looks for the cooks',
-];
-
-const TRIAL: { icon: 'lock-open-outline' | 'notifications-outline' | 'star-outline'; title: string; text: string }[] = [
-  { icon: 'lock-open-outline', title: 'Today', text: 'Everything in Plus unlocks.' },
-  { icon: 'notifications-outline', title: 'Day 5', text: 'We remind you that your trial is ending.' },
-  { icon: 'star-outline', title: 'Day 7', text: 'Your plan starts. Cancel anytime before.' },
+const TIERS: Tier[] = [
+  {
+    key: 'plus', name: 'Mise Plus', chip: 'Unlimited AI imports', recommended: true,
+    price: { monthly: '$4.99', annual: '$39.99' }, per: { monthly: '/mo', annual: '/yr' },
+    perks: [
+      { icon: 'sparkles-outline', title: 'Unlimited Import with AI', text: 'Turn any link, photo or note into a recipe, as often as you like.' },
+      { icon: 'chatbubble-outline', title: `${AI_NAME}, fully unlocked`, text: 'Remembers your tastes and knows which step you’re on.' },
+      { icon: 'mic-outline', title: 'Voice commands', text: 'Say “next” or “start the timer” while your hands are busy.' },
+    ],
+    more: [
+      { icon: 'calendar-outline', title: 'Meal planner & shopping list', text: 'Plan the week and get one tidy list for the shop.' },
+      { icon: 'cloud-outline', title: 'Sync across devices', text: 'Your recipes and chats on every phone and tablet.' },
+    ],
+  },
+  {
+    key: 'pro', name: 'Mise Pro', chip: 'For the whole family',
+    price: { monthly: '$9.99', annual: '$79.99' }, per: { monthly: '/mo', annual: '/yr' },
+    perks: [
+      { icon: 'checkmark-done-outline', title: 'Everything in Plus', text: 'All the Plus features, included.' },
+      { icon: 'people-outline', title: 'Share with up to 6 people', text: 'One plan for the household, each with their own recipes and chats.' },
+      { icon: 'volume-high-outline', title: 'Lifelike AI voices', text: `${AI_NAME} reads steps in natural, studio-quality voices.` },
+    ],
+    more: [
+      { icon: 'flash-outline', title: 'Priority AI', text: 'Faster answers and imports when it’s busy.' },
+      { icon: 'color-palette-outline', title: 'Extra looks for the cooks', text: 'Seasonal outfits, themes and app icons, first.' },
+    ],
+  },
+  {
+    key: 'chef', name: 'Mise Chef', chip: 'For serious home cooks',
+    price: { monthly: '$19.99', annual: '$159.99' }, per: { monthly: '/mo', annual: '/yr' },
+    perks: [
+      { icon: 'checkmark-done-outline', title: 'Everything in Pro', text: 'All the Plus and Pro features, included.' },
+      { icon: 'nutrition-outline', title: 'Nutrition for every recipe', text: 'Calories, protein, carbs and more, adjusted when you scale a recipe.' },
+      { icon: 'barbell-outline', title: 'Meal plans that fit your goals', text: `${AI_NAME} builds weekly plans around your diet and targets.` },
+    ],
+    more: [
+      { icon: 'book-outline', title: 'Your own cookbook', text: 'Turn your recipes into a beautiful shareable cookbook.' },
+      { icon: 'rocket-outline', title: 'Early access', text: 'Try new features before everyone else.' },
+    ],
+  },
 ];
 
 export default function PlusScreen() {
   const th = useTheme();
   const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
-  const [plan, setPlan] = useState<Plan>('yearly');
-  const top = th.c.accent;
-  const bottom = mix(th.c.accent, '#000000', 0.35);
+  const [billing, setBilling] = useState<Billing>('monthly');
+  const [open, setOpen] = useState<Record<string, boolean>>({});
 
-  const soon = () => Alert.alert('Mise Plus is coming soon', 'Subscriptions aren’t open yet. Everything in Mise is free while we get Plus ready.');
+  const soon = (name: string) => Alert.alert(`${name} is coming soon`, 'Subscriptions aren’t open yet. Everything in Mise is free while we get them ready.');
 
   return (
-    <View style={{ flex: 1, backgroundColor: th.c.bg }}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 190 + insets.bottom }} bounces={false}>
-        {/* Hero */}
-        <View style={{ paddingTop: insets.top + 8, paddingBottom: 28, alignItems: 'center', overflow: 'hidden' }}>
-          <Svg style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} width="100%" height="100%" preserveAspectRatio="none">
-            <Defs>
-              <LinearGradient id="hero" x1="0" y1="0" x2="0" y2="1">
-                <Stop offset="0" stopColor={top} />
-                <Stop offset="1" stopColor={bottom} />
-              </LinearGradient>
-            </Defs>
-            <Rect x="0" y="0" width="100%" height="100%" fill="url(#hero)" />
-          </Svg>
-          <View style={{ alignSelf: 'stretch', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 14 }}>
-            <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Close" hitSlop={6}>
-              <Glass tint={0.25} style={{ width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', borderColor: '#FFFFFF33' }}>
-                <Icon name="close" size={20} color="#FFFFFF" />
-              </Glass>
-            </Pressable>
-            <Pressable onPress={soon} hitSlop={8}><Txt weight="bold" size={14} color="#FFFFFF" style={{ opacity: 0.9 }}>Restore</Txt></Pressable>
-          </View>
-          <StepScene step={{ title: 'Serve', text: 'serve' }} index={2} width={Math.min(width - 60, 300)} />
-          <Txt kind="head" weight="bold" size={34} color="#FFFFFF" style={{ marginTop: 4 }}>Mise Plus</Txt>
-          <Txt size={16} color="#FFFFFF" style={{ opacity: 0.88, textAlign: 'center', maxWidth: 300, marginTop: 4 }}>Everything you need to cook with confidence.</Txt>
+    <View style={{ flex: 1, backgroundColor: th.c.bg, paddingTop: insets.top }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, height: 56 }}>
+        <Txt kind="head" weight="bold" size={22} style={{ flex: 1 }}>Mise Plus</Txt>
+        <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Close" hitSlop={10}>
+          <Icon name="close" size={26} color={th.c.text} />
+        </Pressable>
+      </View>
+
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 18, paddingTop: 12, paddingBottom: insets.bottom + 40, gap: 18 }}>
+        <View style={{ alignItems: 'center', gap: 10 }}>
+          <Txt kind="head" weight="bold" size={30} style={{ textAlign: 'center', lineHeight: 38 }}>
+            Upgrade for more from{'\n'}<Txt kind="head" weight="bold" size={34} color={th.c.accent}>Mise</Txt>
+          </Txt>
+          <Txt muted size={13} style={{ textAlign: 'center', maxWidth: 320 }}>
+            Cancel anytime. By subscribing, you agree to the{' '}
+            <Txt size={13} color={th.c.accent} style={{ textDecorationLine: 'underline' }} onPress={() => router.push('/legal?doc=terms')}>Terms of Use</Txt>
+            {' '}and see how{' '}
+            <Txt size={13} color={th.c.accent} style={{ textDecorationLine: 'underline' }} onPress={() => router.push('/legal?doc=privacy')}>Mise handles data</Txt>.
+          </Txt>
         </View>
 
-        <View style={{ padding: 20, gap: 26 }}>
-          {/* What's included */}
-          <View style={{ gap: 12 }}>
-            {INCLUDED.map(item => (
-              <View key={item} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <View style={{ width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.accent }}>
-                  <Icon name="checkmark" size={15} color={th.c.onAccent} />
-                </View>
-                <Txt weight="bold" size={16} style={{ flex: 1 }}>{item}</Txt>
-              </View>
-            ))}
-          </View>
-
-          {/* Plans, side by side */}
-          <View style={{ flexDirection: 'row', gap: 12, paddingTop: 8 }}>
-            {(Object.keys(PLANS) as Plan[]).map(key => {
-              const p = PLANS[key];
-              const on = plan === key;
+        {/* Monthly / Annual */}
+        <View style={{ alignItems: 'center', gap: 10 }}>
+          <View style={{ flexDirection: 'row', alignSelf: 'stretch', marginHorizontal: 24, padding: 4, borderRadius: 999, backgroundColor: th.c.soft }}>
+            {(['monthly', 'annual'] as Billing[]).map(b => {
+              const on = billing === b;
               return (
-                <Pressable key={key} onPress={() => setPlan(key)} accessibilityRole="radio" accessibilityState={{ selected: on }} style={{ flex: 1 }}>
-                  <View style={{ minHeight: 132, padding: 16, paddingTop: 20, borderRadius: 22, borderWidth: 2.5, borderColor: on ? th.c.accent : th.c.line, backgroundColor: on ? th.c.accentSoft : th.c.surface, gap: 4 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <Txt weight="black" size={16}>{p.label}</Txt>
-                      <View style={{ width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center', borderWidth: on ? 0 : 2, borderColor: th.c.line, backgroundColor: on ? th.c.accent : 'transparent' }}>
-                        {on ? <Icon name="checkmark" size={14} color={th.c.onAccent} /> : null}
-                      </View>
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 3, marginTop: 10 }}>
-                      <Txt kind="head" weight="bold" size={26}>{p.price}</Txt>
-                      <Txt muted size={13} weight="bold">{p.per}</Txt>
-                    </View>
-                    <Txt muted size={13}>{p.small}</Txt>
-                  </View>
-                  {p.badge ? (
-                    <View style={{ position: 'absolute', top: -11, alignSelf: 'center', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 999, backgroundColor: th.c.accent }}>
-                      <Txt weight="black" size={11} color={th.c.onAccent}>{p.badge}</Txt>
-                    </View>
-                  ) : null}
+                <Pressable key={b} onPress={() => setBilling(b)} accessibilityRole="radio" accessibilityState={{ selected: on }}
+                  style={{ flex: 1, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? th.c.accent : 'transparent' }}>
+                  <Txt weight="black" size={16} color={on ? th.c.onAccent : th.c.text}>{b === 'monthly' ? 'Monthly' : 'Annual'}</Txt>
                 </Pressable>
               );
             })}
           </View>
+          <Txt weight="bold" size={15} color={th.c.accent}>{billing === 'monthly' ? 'Save more with annual billing' : 'You save about 33% with annual billing'}</Txt>
+        </View>
 
-          {/* How the trial works */}
-          <View style={{ gap: 4 }}>
-            <Txt kind="head" weight="bold" size={20} style={{ marginBottom: 8 }}>How your free week works</Txt>
-            {TRIAL.map((t, i) => (
-              <View key={t.title} style={{ flexDirection: 'row', gap: 14 }}>
-                <View style={{ alignItems: 'center' }}>
-                  <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: i === 0 ? th.c.accent : th.c.accentSoft }}>
-                    <Icon name={t.icon} size={18} color={i === 0 ? th.c.onAccent : th.c.accent} />
-                  </View>
-                  {i < TRIAL.length - 1 ? <View style={{ width: 3, flex: 1, minHeight: 18, borderRadius: 2, backgroundColor: th.c.accentSoft }} /> : null}
-                </View>
-                <View style={{ flex: 1, paddingTop: 6, paddingBottom: 14 }}>
-                  <Txt weight="black">{t.title}</Txt>
-                  <Txt muted size={14}>{t.text}</Txt>
+        {/* Plans */}
+        {TIERS.map(t => {
+          const expanded = !!open[t.key];
+          return (
+            <View key={t.key} style={{ padding: 22, gap: 18, borderRadius: 28, backgroundColor: th.c.surface, borderWidth: t.recommended ? 2.5 : 1, borderColor: t.recommended ? th.c.accent : th.c.line }}>
+              <View style={{ gap: 8 }}>
+                {t.recommended ? <Txt weight="black" size={13} color={th.c.accent} style={{ letterSpacing: 0.6 }}>RECOMMENDED</Txt> : null}
+                <Txt kind="head" weight="bold" size={28}>{t.name}</Txt>
+                <View style={{ flexDirection: 'row', alignSelf: 'flex-start', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, backgroundColor: th.c.soft }}>
+                  <Icon name="sparkles-outline" size={15} color={th.c.text} />
+                  <Txt weight="bold" size={14}>{t.chip}</Txt>
                 </View>
               </View>
-            ))}
-          </View>
+
+              <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 2 }}>
+                <Txt kind="head" weight="bold" size={46} style={{ lineHeight: 52 }}>{t.price[billing]}</Txt>
+                <Txt weight="bold" size={18} muted style={{ marginBottom: 6 }}>{t.per[billing]}</Txt>
+              </View>
+
+              <Btn title={`Get ${t.name}`} size="big" variant={t.recommended ? 'primary' : 'secondary'} onPress={() => soon(t.name)} />
+
+              <View style={{ gap: 16 }}>
+                {(expanded ? [...t.perks, ...t.more] : t.perks).map(p => (
+                  <View key={p.title} style={{ flexDirection: 'row', gap: 14 }}>
+                    <View style={{ width: 28, alignItems: 'center', paddingTop: 1 }}><Icon name={p.icon} size={23} color={th.c.text} /></View>
+                    <View style={{ flex: 1 }}>
+                      <Txt weight="bold" size={16}>{p.title}</Txt>
+                      <Txt muted size={15} style={{ lineHeight: 21 }}>{p.text}</Txt>
+                    </View>
+                  </View>
+                ))}
+              </View>
+
+              <Pressable onPress={() => setOpen(o => ({ ...o, [t.key]: !expanded }))} accessibilityRole="button" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                <Txt weight="bold" size={15} color={th.c.accent} style={{ textDecorationLine: 'underline' }}>{expanded ? 'Show fewer benefits' : 'Show all benefits'}</Txt>
+                <Icon name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={th.c.accent} />
+              </Pressable>
+            </View>
+          );
+        })}
+
+        <View style={{ gap: 8, paddingHorizontal: 8 }}>
+          <Txt muted size={12} style={{ textAlign: 'center' }}>Prices are in US dollars and may change before launch. Subscriptions renew automatically until you cancel in your App Store or Google Play account settings.</Txt>
+          <Txt muted size={12} style={{ textAlign: 'center' }}>Some features are still being built and will arrive during your subscription.</Txt>
         </View>
       </ScrollView>
-
-      {/* Sticky call to action */}
-      <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 20, paddingTop: 14, paddingBottom: insets.bottom + 12, gap: 8, backgroundColor: th.c.bg, borderTopWidth: 1, borderTopColor: th.c.line }}>
-        <Btn title="Start my free week" size="big" onPress={soon} />
-        <Txt muted size={12} style={{ textAlign: 'center' }}>7 days free, then {PLANS[plan].price}{PLANS[plan].per.replace('/ ', '/')}. Cancel anytime.</Txt>
-        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 18 }}>
-          <Pressable onPress={() => router.push('/legal?doc=terms')} hitSlop={8}><Txt weight="bold" size={12} muted>Terms</Txt></Pressable>
-          <Pressable onPress={() => router.push('/legal?doc=privacy')} hitSlop={8}><Txt weight="bold" size={12} muted>Privacy</Txt></Pressable>
-          <Pressable onPress={soon} hitSlop={8}><Txt weight="bold" size={12} muted>Restore purchases</Txt></Pressable>
-        </View>
-      </View>
     </View>
   );
 }

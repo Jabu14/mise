@@ -11,7 +11,7 @@ import { useTheme } from '../lib/theme';
 const WHATS_NEW = [
   'Hands-free cooking: steps read aloud, and voice commands in the Mise app build',
   'Natural phone voices (Premium and Enhanced) and a speed setting',
-  'A new Mise Plus page and a compact Plan section',
+  'Three plans to choose from: Mise Plus, Pro and Chef',
   'Swipe between tabs like Instagram: the next page slides in right beside the current one',
   'New Account section with Profile, Notifications and Usage',
   `Pick ${AI_NAME}'s voice, and a new Light / Dark / System picker`,

@@ -2,6 +2,12 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.11.0 (2026-10-14)
+
+### Changed
+- **Subscription page redone in the style of Google One**: a Monthly / Annual switch, then a card per plan with its price, a "Get" button and what it includes ("Show all benefits" opens the rest). Three plans: **Mise Plus** (recommended, $4.99/mo or $39.99/yr), **Mise Pro** for families ($9.99/mo or $79.99/yr) and **Mise Chef** with nutrition and goal-based meal plans ($19.99/mo or $159.99/yr). Prices are placeholders. Restore purchases removed for now.
+- **Account → Plan** is a single "Upgrade to Mise Plus" row.
+
 ## 1.10.0 (2026-10-14)
 
 ### Added

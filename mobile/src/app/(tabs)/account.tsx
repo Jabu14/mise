@@ -2,7 +2,7 @@
 // Sign-in / cloud sync will live here once there is a backend; for now everything stays on this phone.
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
-import { Alert, Pressable, ScrollView, TextInput, View } from 'react-native';
+import { Alert, ScrollView, TextInput, View } from 'react-native';
 import { Row } from '../../components/settings-ui';
 import { Card, Icon, Label, Screen, TopBar, Txt, type IconName } from '../../components/ui';
 import { useApp, useTimers } from '../../lib/store';
@@ -52,17 +52,7 @@ export default function AccountTab() {
         </View>
 
         <Section title="Plan">
-          <Pressable onPress={() => router.push('/plus')} accessibilityRole="button" accessibilityLabel="Mise Plus, see plans"
-            style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 10, opacity: pressed ? 0.6 : 1 })}>
-            <View style={{ width: 28, alignItems: 'center' }}><Icon name="sparkles" size={22} color={th.c.accent} /></View>
-            <View style={{ flex: 1 }}>
-              <Txt weight="bold">Mise Plus</Txt>
-              <Txt muted size={13}>You’re on Free</Txt>
-            </View>
-            <View style={{ paddingHorizontal: 14, height: 32, borderRadius: 16, justifyContent: 'center', backgroundColor: th.c.accent }}>
-              <Txt weight="black" size={13} color={th.c.onAccent}>Upgrade</Txt>
-            </View>
-          </Pressable>
+          <Row icon="sparkles" title="Upgrade to Mise Plus" onPress={() => router.push('/plus')} last />
         </Section>
 
         <Section title="Account">
