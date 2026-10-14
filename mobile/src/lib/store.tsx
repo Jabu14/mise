@@ -41,6 +41,7 @@ export const DEFAULT_SETTINGS = {
   cookLayout: 'cards',  // cards (one step at a time) | list
   stepIngredients: true,
   stepArt: true,        // animated picture at the top of each step
+  handsFree: false,     // cook mode reads steps aloud and listens for claps
   highlightTimes: true,
   keepAwake: true,
   haptics: true,

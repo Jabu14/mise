@@ -1,4 +1,6 @@
 // Cook mode: one big step at a time (swipe between them) or all steps in a list.
+// Hands-free (the mic button): every step is read out loud, and claps move you along:
+// two claps = next step, three claps = start the step's timer (or hear the step again).
 import * as Haptics from 'expo-haptics';
 import { useKeepAwake } from 'expo-keep-awake';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -9,6 +11,7 @@ import { StepScene } from '../../components/art/step-scenes';
 import { IngredientList, ingCountText, servingsLabel } from '../../components/recipe';
 import { Btn, Card, Chip, Dock, Icon, IconBtn, Label, Screen, StepBody, TopBar, Txt, clock } from '../../components/ui';
 import { formatDuration, ingredientsUsedIn, scaleText } from '../../shared/parser';
+import { say, speakStep, stopSpeaking, useClapCommands } from '../../lib/hands-free';
 import { useApp, useTimers, type Recipe } from '../../lib/store';
 import { useTheme } from '../../lib/theme';
 
@@ -22,7 +25,8 @@ export default function Cook() {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const { id, step } = useLocalSearchParams<{ id: string; step?: string }>();
-  const { getRecipe, setProgress, markCooked, settings } = useApp();
+  const { getRecipe, setProgress, markCooked, settings, updateSettings } = useApp();
+  const { timers, startTimer } = useTimers();
   const r = getRecipe(id);
   const total = r?.steps.length ?? 0;
   const [index, setIndex] = useState(() => Math.min(Math.max(parseInt(step || '0', 10) || 0, 0), Math.max(total - 1, 0)));
@@ -43,19 +47,65 @@ export default function Cook() {
     if (listLayout && positions.current[index] != null) list.current?.scrollTo({ y: Math.max(0, positions.current[index] - 24), animated: true });
   }, [index, listLayout]);
 
-  if (!r) return <Screen><TopBar><IconBtn name="close" label="Close" onPress={() => router.back()} /></TopBar></Screen>;
-
   const goTo = (i: number) => {
-    if (i < 0) return;
+    if (!r || i < 0) return;
     if (settings.haptics) Haptics.selectionAsync().catch(() => {});
     if (i >= total) {
       setFinished(true);
       markCooked(r.id);
+      if (settings.handsFree) say(`All done! Enjoy your ${r.title}.`, settings);
       return;
     }
     setIndex(i);
     if (!listLayout) pager.current?.scrollToIndex({ index: i, animated: true });
   };
+
+  // ---- hands-free ----
+  const handsFree = settings.handsFree && !finished && !!r;
+  const [speaking, setSpeaking] = useState(false);
+  const [heard, setHeard] = useState<string | null>(null);
+  const voice = { onStart: () => setSpeaking(true), onDone: () => setSpeaking(false) };
+  const show = (text: string) => { setHeard(text); setTimeout(() => setHeard(null), 1600); };
+  const readStep = () => { if (r) speakStep(r.steps[index], index + 1, total, settings, voice); };
+
+  // Starts the first of this step's timers that isn't already running.
+  const startStepTimer = () => {
+    if (!r) return false;
+    const s = r.steps[index];
+    const ti = s.timers.findIndex((_, k) => !timers.some(x => x.key === `${r.id}:${index}:${k}`));
+    if (ti < 0) return false;
+    const t = s.timers[ti];
+    startTimer({ key: `${r.id}:${index}:${ti}`, minutes: t.minutes, label: (!t.auto && t.label) || s.title || t.label || `Step ${index + 1}`, recipeId: r.id, recipeTitle: r.title });
+    say(`${formatDuration(t.minutes)} timer started.`, settings, voice);
+    return true;
+  };
+
+  const listening = useClapCommands({
+    enabled: handsFree,
+    quiet: speaking,
+    onClaps: count => {
+      if (settings.haptics) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      if (count === 2) {
+        show(index === total - 1 ? '👏👏  Finished!' : '👏👏  Next step');
+        goTo(index + 1);
+      } else if (startStepTimer()) {
+        show('👏👏👏  Timer started');
+      } else {
+        show('👏👏👏  Reading it again');
+        readStep();
+      }
+    },
+  });
+
+  // Read each step out loud as you reach it (and stop talking when you leave or turn it off).
+  useEffect(() => {
+    if (!handsFree || !r) return;
+    speakStep(r.steps[index], index + 1, total, settings, voice);
+    return () => stopSpeaking();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handsFree, index]);
+
+  if (!r) return <Screen><TopBar><IconBtn name="close" label="Close" onPress={() => router.back()} /></TopBar></Screen>;
 
   if (finished) {
     return (
@@ -81,11 +131,24 @@ export default function Cook() {
         <Txt weight="bold" muted style={{ flex: 1, textAlign: 'center' }}>
           <Txt weight="black">Step {index + 1}</Txt> of {total}
         </Txt>
+        <IconBtn name={settings.handsFree ? 'mic' : 'mic-outline'} label={settings.handsFree ? 'Turn off hands-free' : 'Turn on hands-free'} tinted={settings.handsFree} onPress={() => updateSettings({ handsFree: !settings.handsFree })} />
         <IconBtn name="list" label="Show ingredients" onPress={() => setSheet(true)} />
       </TopBar>
       <View style={{ height: 6, marginHorizontal: 16, borderRadius: 999, backgroundColor: th.c.soft, overflow: 'hidden' }}>
         <View style={{ height: '100%', width: `${((index + 1) / total) * 100}%`, borderRadius: 999, backgroundColor: th.c.accent }} />
       </View>
+      {handsFree ? (
+        <View style={{ marginHorizontal: 16, marginTop: 10, flexDirection: 'row', alignItems: 'center', gap: 10, paddingLeft: 14, paddingRight: 6, paddingVertical: 8, borderRadius: 18, backgroundColor: th.c.accentSoft }}>
+          <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: listening === 'listening' && !speaking ? th.c.accent : th.c.muted }} />
+          <View style={{ flex: 1 }}>
+            <Txt weight="black" size={14} color={th.c.accent}>
+              {heard ?? (listening === 'no-mic' ? 'Reading aloud (mic is off)' : speaking ? 'Reading the step…' : listening === 'listening' ? 'Listening for claps' : 'Getting ready…')}
+            </Txt>
+            <Txt size={12} muted>{listening === 'no-mic' ? 'Allow the microphone for Mise in Settings to use claps.' : '👏👏 next step  ·  👏👏👏 timer or repeat'}</Txt>
+          </View>
+          <IconBtn name="volume-high-outline" label="Read this step again" size={38} onPress={readStep} />
+        </View>
+      ) : null}
 
       {listLayout ? (
         <ScrollView ref={list} contentContainerStyle={{ padding: 16, paddingBottom: dockH + 300, gap: 14 }}>

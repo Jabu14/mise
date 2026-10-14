@@ -2,7 +2,7 @@
 // Sign-in / cloud sync will live here once there is a backend; for now everything stays on this phone.
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
-import { Alert, ScrollView, TextInput, View } from 'react-native';
+import { Alert, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { Row } from '../../components/settings-ui';
 import { Card, Icon, Label, Screen, TopBar, Txt, type IconName } from '../../components/ui';
 import { useApp, useTimers } from '../../lib/store';
@@ -51,7 +51,21 @@ export default function AccountTab() {
           <Stat value={timersStarted} label="Timers" icon="timer-outline" />
         </View>
 
+        <Pressable onPress={() => router.push('/plus')} accessibilityRole="button" accessibilityLabel="Mise Plus, see plans" style={({ pressed }) => ({ transform: [{ scale: pressed ? 0.98 : 1 }] })}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, padding: 18, borderRadius: th.radius, backgroundColor: th.c.accent }}>
+            <View style={{ width: 46, height: 46, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.onAccent + '22' }}>
+              <Icon name="sparkles" size={24} color={th.c.onAccent} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Txt weight="black" size={18} color={th.c.onAccent}>Mise Plus</Txt>
+              <Txt size={14} color={th.c.onAccent} style={{ opacity: 0.85 }}>Unlimited AI imports, voice commands and more</Txt>
+            </View>
+            <Icon name="chevron-forward" size={20} color={th.c.onAccent} />
+          </View>
+        </Pressable>
+
         <Section title="Account">
+          <Row icon="sparkles-outline" title="Subscription" value="Free" onPress={() => router.push('/plus')} />
           <Row icon="cloud-outline" title="Sign in & sync" badge="SOON" onPress={() => Alert.alert('Coming soon', 'Soon you’ll be able to sign in and keep your recipes and chats on all your devices.')} />
           <Row icon="person-outline" title="Profile" onPress={() => router.push('/profile')} />
           <Row icon="notifications-outline" title="Notifications" onPress={() => router.push('/notifications')} />

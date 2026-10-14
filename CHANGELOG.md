@@ -2,6 +2,12 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.9.0 (2026-10-14)
+
+### Added
+- **Hands-free cooking.** Tap the mic button at the top of cook mode. Each step is read out loud in Sous's voice, and the microphone listens for claps: clap twice for the next step, three times to start the step's timer (or hear the step again if it has none). A strip under the progress bar shows what it heard. The 🔊 button reads the step again. Claps only: nothing is recorded or kept. (Spoken commands like "next" need a custom app build and come later.)
+- **Mise Plus page** (Account → the purple Mise Plus card, or Subscription): what's included, yearly and monthly plans, and Free vs Plus. Payments aren't connected yet, so the buttons say it's coming soon. Prices are placeholders.
+
 ## 1.8.0 (2026-10-13)
 
 ### Changed

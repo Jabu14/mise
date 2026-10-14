@@ -9,6 +9,8 @@ import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
+  'Hands-free cooking: steps read aloud, clap twice for the next step',
+  'A first look at Mise Plus',
   'Swipe between tabs like Instagram: the next page slides in right beside the current one',
   'New Account section with Profile, Notifications and Usage',
   `Pick ${AI_NAME}'s voice, and a new Light / Dark / System picker`,

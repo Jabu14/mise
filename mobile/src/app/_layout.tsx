@@ -69,6 +69,7 @@ function Shell({ fontsLoaded }: { fontsLoaded: boolean }) {
         <Stack.Screen name="notifications" />
         <Stack.Screen name="usage" />
         <Stack.Screen name="voice-settings" />
+        <Stack.Screen name="plus" options={{ presentation: 'modal' }} />
         <Stack.Screen name="timer/[id]" />
         <Stack.Screen name="timer-new" options={{ presentation: 'modal' }} />
         <Stack.Screen name="voice" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
