@@ -7,7 +7,7 @@ import { IconBtn, Screen, TopBar, Txt } from '../components/ui';
 import { AI_NAME } from '../lib/chat-store';
 import { useTheme } from '../lib/theme';
 
-const UPDATED = '12 October 2026';
+const UPDATED = '15 October 2026';
 
 type Doc = { title: string; intro: string; sections: { h: string; p: string[] }[] };
 
@@ -39,6 +39,7 @@ const PRIVACY: Doc = {
       'Mise doesn’t keep a copy of what you send. The AI provider processes it under its own terms and privacy commitments.',
       'To stop abuse, the server briefly uses a random ID created by the app and your IP address to count requests. These counters are not linked to your name or content, and are deleted automatically within a day.',
     ] },
+    { h: 'Nutrition scanner', p: ['When you scan or type a barcode, only that number is sent to Open Food Facts, a free public food database, to look up the product. Your recent scans are kept on this phone.'] },
     { h: `${AI_NAME} (preview)`, p: [`${AI_NAME} isn’t connected to an AI yet, so nothing you type or record in a chat leaves your phone. We’ll update this policy before that changes.`] },
     { h: 'Microphone, camera and photos', p: ['Mise asks for these only when you use a feature that needs them (voice messages, voice mode, photo import or attachments). You can change access at any time in your phone’s Settings.'] },
     { h: 'Notifications', p: ['Timer alerts are scheduled on your phone. They are not sent through our servers.'] },

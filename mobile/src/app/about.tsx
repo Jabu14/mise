@@ -9,6 +9,8 @@ import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
+  'Nutrition scanner: scan a barcode to see the Nutri-Score and what’s inside',
+  'Smoother swiping, a sliding tab highlight and sliding switches',
   'Smart shopping list: combines ingredients and sorts them by aisle',
   'A floating navigation bar and a new Sous section in Account',
   'Hands-free cooking: steps read aloud, and voice commands in the Mise app build',

@@ -6,6 +6,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SlidingChoice } from '../components/sliding-choice';
 import { Btn, Icon, Txt, type IconName } from '../components/ui';
 import { AI_NAME } from '../lib/chat-store';
 import { useTheme } from '../lib/theme';
@@ -91,16 +92,8 @@ export default function PlusScreen() {
 
         {/* Monthly / Annual */}
         <View style={{ alignItems: 'center', gap: 10 }}>
-          <View style={{ flexDirection: 'row', alignSelf: 'stretch', marginHorizontal: 24, padding: 4, borderRadius: 999, backgroundColor: th.c.soft }}>
-            {(['monthly', 'annual'] as Billing[]).map(b => {
-              const on = billing === b;
-              return (
-                <Pressable key={b} onPress={() => setBilling(b)} accessibilityRole="radio" accessibilityState={{ selected: on }}
-                  style={{ flex: 1, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? th.c.accent : 'transparent' }}>
-                  <Txt weight="black" size={16} color={on ? th.c.onAccent : th.c.text}>{b === 'monthly' ? 'Monthly' : 'Annual'}</Txt>
-                </Pressable>
-              );
-            })}
+          <View style={{ alignSelf: 'stretch', marginHorizontal: 24 }}>
+            <SlidingChoice options={[['monthly', 'Monthly'], ['annual', 'Annual']]} value={billing} onChange={v => setBilling(v as Billing)} accent height={44} />
           </View>
           <Txt weight="bold" size={15} color={th.c.accent}>{billing === 'monthly' ? 'Save more with annual billing' : 'You save about 33% with annual billing'}</Txt>
         </View>

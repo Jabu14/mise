@@ -8,7 +8,7 @@ import { useApp } from '../lib/store';
 import { FONTS, THEMES, useTheme } from '../lib/theme';
 
 const SAMPLE_STEP = {
-  phase: 'Shaping',
+  phase: '',
   title: 'Shape the loaf',
   text: 'Tip the dough onto a floured surface, fold the edges in and let it rest for 10 minutes. Bake at 230°C (450°F).',
   tip: '',

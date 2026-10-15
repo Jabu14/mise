@@ -1,7 +1,7 @@
 // Sous, the in-app cooking assistant: chat, voice messages, voice mode and chat history.
 // Not connected to the AI yet: Sous replies with a short placeholder for now.
 import * as ImagePicker from 'expo-image-picker';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Image, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { Composer } from '../../components/chat/composer';
@@ -47,6 +47,13 @@ export default function ChatTab() {
   const [sheet, setSheet] = useState(false);
   const [actions, setActions] = useState(false);
   const [draft, setDraft] = useState<{ text: string; n: number } | undefined>();
+  // A question handed over from elsewhere (e.g. "Ask Sous about it" on a scanned product).
+  const { draft: incoming } = useLocalSearchParams<{ draft?: string }>();
+  const [seenIncoming, setSeenIncoming] = useState<string | undefined>();
+  if (incoming && incoming !== seenIncoming) {
+    setSeenIncoming(incoming);
+    setDraft(d => ({ text: incoming.slice(0, 1000), n: (d?.n ?? 0) + 1 }));
+  }
   const scroll = useRef<ScrollView>(null);
   const insets = useSafeAreaInsets();
   const island = useIslandSpace();
@@ -92,6 +99,7 @@ export default function ChatTab() {
   const choose = (c: AttachChoice) => {
     setSheet(false);
     if (typeof c === 'object') setDraft(d => ({ text: c.draft, n: (d?.n ?? 0) + 1 }));
+    else if (c === 'scan') router.push('/scan');
     else setTimeout(() => (c === 'recipe' ? setPickingRecipe(true) : pickPhoto(c === 'camera')), 350);
   };
 

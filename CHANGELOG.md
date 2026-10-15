@@ -2,6 +2,18 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.13.0 (2026-10-15)
+
+### Added
+- **Nutrition scanner.** Scan a food barcode (or type it) to see the product's Nutri-Score (A–E), NOVA group (how processed it is), fat / saturated fat / sugars / salt levels, nutrition per 100 g, allergens and ingredients, from the free Open Food Facts database. "Ask Sous about it" opens Sous with the question ready; "Add to shopping list" adds it. Recent scans are remembered. Open it from the barcode button on the shopping list, or ＋ › Scan food in Sous.
+
+### Changed
+- **Smoother tab swiping**: the page now finishes gliding before the app switches tabs, so there's no second little jump.
+- **Sliding tab highlight**: a soft pill slides between the tabs and follows your finger while you swipe.
+- **Add tab** is a normal tab like the others (no glow); the Recipes page's add button lost its glow too.
+- **Sliding switches**: every "pick one" control (cooking level, text size, font, layout, Sous settings, Monthly / Annual) glides to your choice.
+- Appearance preview no longer shows the "Shaping" label.
+
 ## 1.12.0 (2026-10-15)
 
 ### Added

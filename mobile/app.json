@@ -2,7 +2,7 @@
   "expo": {
     "name": "Mise",
     "slug": "mise",
-    "version": "1.12.0",
+    "version": "1.13.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -47,6 +47,14 @@
         {
           "microphonePermission": "Mise uses the microphone so you can talk to Sous and cook hands-free.",
           "speechRecognitionPermission": "Mise listens for words like “next” and “start timer” so you can cook without touching your phone."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Mise uses the camera to scan food barcodes and photograph recipes.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
         }
       ]
     ],

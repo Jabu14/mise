@@ -7,6 +7,7 @@ import { AI_NAME } from '../lib/chat-store';
 import { useTheme } from '../lib/theme';
 
 const FAQ: { q: string; a: string }[] = [
+  { q: 'How do I scan food?', a: 'Open your shopping list and tap the barcode button (or ＋ › Scan food in Sous). Point the camera at the barcode on a package to see its Nutri-Score, how processed it is, sugar, fat and salt levels, and allergens. You can also type the barcode number.' },
   { q: 'How does the shopping list work?', a: 'Open a recipe and tap “Add to shopping list”. Matching ingredients from different recipes are combined and sorted by aisle. Open the list from the cart button on the Recipes page, tap items to tick them off, and swipe left to remove one.' },
   { q: 'How do I add a recipe?', a: 'Tap ＋ in the middle of the tab bar. Paste a recipe, or use Import with AI to bring one in from a link, a photo or text. Mise splits it into steps with timers.' },
   { q: 'What is the Mise Prompt?', a: 'A short instruction you paste into any AI chat after asking for a recipe. The AI then answers in a format Mise reads perfectly. Find it in Account → Sous → Mise Prompt.' },

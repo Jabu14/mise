@@ -31,7 +31,7 @@ export function AddFab({ onPress }: { onPress: () => void }) {
           justifyContent: 'center',
           overflow: 'hidden',
           backgroundColor: th.c.accent,
-          ...(th.dark ? {} : { shadowColor: th.c.accent, shadowOpacity: 0.4, shadowRadius: 14, shadowOffset: { width: 0, height: 6 }, elevation: 6 }),
+          ...(th.dark ? {} : { shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 3 }),
         }}
       >
         <Animated.View style={{ transform: [{ translateX: -1.5 }] }}>

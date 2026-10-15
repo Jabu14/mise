@@ -69,6 +69,7 @@ export default function ShoppingScreen() {
           <Txt kind="head" weight="bold" size={19}>Shopping list</Txt>
           {items.length ? <Txt muted size={13}>{toBuy.length ? `${toBuy.length} to buy` : 'All done!'}{inCart.length ? ` · ${inCart.length} in your cart` : ''}</Txt> : null}
         </View>
+        <IconBtn name="barcode-outline" label="Scan food" onPress={() => router.push('/scan')} />
         {items.length ? <IconBtn name="ellipsis-horizontal" label="More" onPress={more} /> : null}
       </TopBar>
 

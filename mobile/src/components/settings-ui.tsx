@@ -3,6 +3,7 @@
 import { Pressable, Switch, View } from 'react-native';
 import { useApp, type Settings } from '../lib/store';
 import { useTheme } from '../lib/theme';
+import { SlidingChoice } from './sliding-choice';
 import { Icon, Txt, type IconName } from './ui';
 
 export function Group({ title, children }: { title: string; children: React.ReactNode }) {
@@ -15,27 +16,11 @@ export function Group({ title, children }: { title: string; children: React.Reac
 }
 
 export function Segmented({ label, k, options, columns, fontFor }: { label: string; k: keyof Settings; options: string[][]; columns?: number; fontFor?: (value: string) => string | undefined }) {
-  const th = useTheme();
   const { settings, updateSettings } = useApp();
   return (
     <View style={{ gap: 8 }}>
       <Txt weight="black" size={14}>{label}</Txt>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, padding: 4, borderRadius: th.flat ? 10 : 24, backgroundColor: th.c.soft }}>
-        {options.map(([value, text]) => {
-          const on = settings[k] === value;
-          return (
-            <Pressable
-              key={value}
-              onPress={() => updateSettings({ [k]: value } as Partial<Settings>)}
-              accessibilityRole="radio"
-              accessibilityState={{ selected: on }}
-              style={{ flexGrow: 1, flexBasis: columns ? `${100 / columns - 3}%` : 0, minHeight: 40, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8, borderRadius: th.flat ? 8 : 20, backgroundColor: on ? th.c.surface : 'transparent' }}
-            >
-              <Txt weight="bold" size={14} muted={!on} style={fontFor?.(value) ? { fontFamily: fontFor(value) } : undefined}>{text}</Txt>
-            </Pressable>
-          );
-        })}
-      </View>
+      <SlidingChoice options={options as [string, string][]} value={String(settings[k])} onChange={v => updateSettings({ [k]: v } as Partial<Settings>)} columns={columns} fontFor={fontFor} />
     </View>
   );
 }

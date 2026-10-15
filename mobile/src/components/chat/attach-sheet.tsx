@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../lib/theme';
 import { Icon, Txt, type IconName } from '../ui';
 
-export type AttachChoice = 'camera' | 'photos' | 'recipe' | { draft: string };
+export type AttachChoice = 'camera' | 'photos' | 'recipe' | 'scan' | { draft: string };
 
 const STARTERS: { icon: IconName; title: string; hint: string; draft: string }[] = [
   { icon: 'calendar-outline', title: 'Plan meals', hint: 'A week of easy dinners', draft: 'Plan easy dinners for this week. ' },
@@ -36,6 +36,7 @@ export function AttachSheet({ visible, hasRecipes, onClose, onChoose }: { visibl
     { key: 'camera', icon: 'camera-outline', label: 'Camera' },
     { key: 'photos', icon: 'images-outline', label: 'Photos' },
     ...(hasRecipes ? [{ key: 'recipe' as const, icon: 'book-outline' as IconName, label: 'Recipes' }] : []),
+    { key: 'scan', icon: 'barcode-outline', label: 'Scan food' },
   ];
 
   return (

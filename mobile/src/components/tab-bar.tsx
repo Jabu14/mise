@@ -1,9 +1,10 @@
 // Bottom navigation: Recipes · Sous (AI chat) · Add · Timers · Account, as a floating rounded bar
-// (frosted glass) that sits a little above the bottom edge.
+// (frosted glass) that sits a little above the bottom edge. A soft highlight slides between the tabs,
+// following your finger while you swipe between pages (like Instagram).
 import * as Haptics from 'expo-haptics';
 import type { BottomTabBarProps } from 'expo-router/js-tabs';
-import type { ReactNode } from 'react';
-import { Pressable, View } from 'react-native';
+import { createContext, useContext, useState, type ReactNode } from 'react';
+import { Animated, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AI_NAME } from '../lib/chat-store';
 import { useApp, useTimers } from '../lib/store';
@@ -12,15 +13,25 @@ import { Glass } from './glass';
 import { ChatSparkIcon, RecipeBookIcon } from './icons';
 import { Icon, Txt } from './ui';
 
+// Where the row of pages is (0 = first tab, fractions mid-swipe), shared by the tabs layout.
+export const TabPosition = createContext<Animated.Value | null>(null);
+
+const PAD = 6;
+const PILL = 56;
+
 export function TabBar({ state, navigation }: BottomTabBarProps) {
   const th = useTheme();
   const insets = useSafeAreaInsets();
   const { settings } = useApp();
   const { timers } = useTimers();
+  const pos = useContext(TabPosition);
+  const [rowWidth, setRowWidth] = useState(0);
+  const tabWidth = rowWidth ? (rowWidth - PAD * 2) / state.routes.length : 0;
 
   const TABS: Record<string, { label: string; icon: (on: boolean, color: string) => ReactNode }> = {
     index: { label: 'Recipes', icon: (on, color) => <RecipeBookIcon open={on} color={color} /> },
     chat: { label: AI_NAME, icon: (on, color) => <ChatSparkIcon active={on} color={color} /> },
+    add: { label: 'Add', icon: (on, color) => <Icon name={on ? 'add-circle' : 'add-circle-outline'} size={24} color={color} /> },
     timers: { label: 'Timers', icon: (on, color) => <Icon name={on ? 'timer' : 'timer-outline'} size={22} color={color} /> },
     account: { label: 'Account', icon: (on, color) => <Icon name={on ? 'person-circle' : 'person-circle-outline'} size={22} color={color} /> },
   };
@@ -44,7 +55,16 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
     <View style={{ paddingHorizontal: 14, paddingTop: 6, paddingBottom: Math.max(insets.bottom - 6, 10), backgroundColor: th.c.bg }}>
     {/* The shadow lives on a wrapper: the glass clips its own edges. */}
     <View style={{ borderRadius: 34, shadowColor: '#000', shadowOpacity: th.dark ? 0.4 : 0.12, shadowRadius: 18, shadowOffset: { width: 0, height: 6 }, elevation: 10 }}>
-    <Glass tint={th.dark ? 0.7 : 0.85} strength={50} style={{ flexDirection: 'row', alignItems: 'center', height: 68, paddingHorizontal: 6, borderRadius: 34 }}>
+    <Glass tint={th.dark ? 0.7 : 0.85} strength={50} style={{ flexDirection: 'row', alignItems: 'center', height: 68, paddingHorizontal: PAD, borderRadius: 34 }}>
+      <View style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} onLayout={e => setRowWidth(e.nativeEvent.layout.width)} pointerEvents="none">
+        {tabWidth && pos ? (
+          <Animated.View style={{
+            position: 'absolute', top: 9, width: PILL, height: 32, borderRadius: 16, backgroundColor: th.c.accentSoft,
+            left: PAD + (tabWidth - PILL) / 2,
+            transform: [{ translateX: Animated.multiply(pos, tabWidth) }],
+          }} />
+        ) : null}
+      </View>
       {state.routes.map((route, i) => {
         const focused = state.index === i;
         const onPress = () => {
@@ -55,17 +75,6 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
           }
         };
 
-        if (route.name === 'add') {
-          return (
-            <View key={route.key} style={{ width: 68, alignItems: 'center' }}>
-              <Pressable onPress={onPress} accessibilityRole="tab" accessibilityState={{ selected: focused }} accessibilityLabel="Add recipe" style={({ pressed }) => ({ transform: [{ scale: pressed ? 0.92 : 1 }] })}>
-                <View style={{ width: 50, height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.accent, borderWidth: 3, borderColor: th.c.surface, ...(th.dark ? {} : { shadowColor: th.c.accent, shadowOpacity: 0.35, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 }) }}>
-                  <Icon name="add" size={30} color={th.c.onAccent} />
-                </View>
-              </Pressable>
-            </View>
-          );
-        }
 
         const tab = TABS[route.name];
         if (!tab) return null;
@@ -79,7 +88,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
             accessibilityLabel={tab.label}
             style={({ pressed }) => ({ flex: 1, alignItems: 'center', gap: 3, transform: [{ scale: pressed ? 0.94 : 1 }] })}
           >
-            <View style={[{ width: 54, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }, focused && { backgroundColor: th.c.accentSoft }]}>
+            <View style={[{ width: PILL, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }, focused && !pos && { backgroundColor: th.c.accentSoft }]}>
               {tab.icon(focused, color)}
               {route.name === 'timers' && renderTimerBadge()}
             </View>
