@@ -1,5 +1,5 @@
 // Settings: how cook mode behaves, and timers and their alarm.
-// (The recipe prompt has its own page, reached from Account.)
+// (The Mise Prompt has its own page, reached from Account.)
 // (Colours and fonts live on their own Appearance page.)
 import { router } from 'expo-router';
 import { useState } from 'react';

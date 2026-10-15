@@ -1,4 +1,4 @@
-// Add or edit a recipe: copy the recipe prompt, paste the answer, preview, save.
+// Add or edit a recipe: copy the Mise Prompt, paste the answer, preview, save.
 import * as Clipboard from 'expo-clipboard';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
@@ -78,7 +78,7 @@ export function Editor({ existingId }: { existingId?: string }) {
         )}
         <Card style={{ padding: 18, gap: 14 }}>
           <HowStep n={1} title="Get the recipe in app format" text="Copy this prompt and send it to your AI assistant in the same chat as your recipe." />
-          <Btn title="Copy recipe prompt" icon="copy-outline" variant="secondary" onPress={copyPrompt} />
+          <Btn title="Copy the Mise Prompt" icon="copy-outline" variant="secondary" onPress={copyPrompt} />
           <Pressable onPress={() => setShowPrompt(v => !v)} hitSlop={8}>
             <Txt weight="bold" size={14} color={th.c.accent}>{showPrompt ? '▾ Hide the prompt' : '▸ See the prompt'}</Txt>
           </Pressable>

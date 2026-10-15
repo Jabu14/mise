@@ -36,14 +36,24 @@ function prepare() {
   return prepared;
 }
 
+// The user's notification choices (Account → Notifications), kept in step by the app's store.
+let prefs = { enabled: true, preview: true, sound: true };
+export function setNotificationPrefs(next: typeof prefs) { prefs = next; }
+
+// Number on the app icon (e.g. how many timers are running); 0 clears it.
+export function setBadge(count: number) {
+  Notifications.setBadgeCountAsync(count).catch(() => {});
+}
+
 export async function scheduleAlarm(label: string, recipeTitle: string, ms: number): Promise<string | null> {
+  if (!prefs.enabled) return null;
   if (!(await prepare())) return null;
   try {
     return await Notifications.scheduleNotificationAsync({
       content: {
-        title: `⏰ ${label}`,
-        body: recipeTitle ? `${recipeTitle}: time's up!` : "Time's up!",
-        sound: 'default',
+        title: prefs.preview ? `⏰ ${label}` : '⏰ Timer done',
+        body: prefs.preview ? (recipeTitle ? `${recipeTitle}: time's up!` : "Time's up!") : 'Your timer has finished.',
+        sound: prefs.sound ? 'default' : false,
       },
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,

@@ -1,4 +1,5 @@
-// Bottom navigation: Recipes · Sous (AI chat) · Add · Timers · Account.
+// Bottom navigation: Recipes · Sous (AI chat) · Add · Timers · Account, as a floating rounded bar
+// (frosted glass) that sits a little above the bottom edge.
 import * as Haptics from 'expo-haptics';
 import type { BottomTabBarProps } from 'expo-router/js-tabs';
 import type { ReactNode } from 'react';
@@ -7,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AI_NAME } from '../lib/chat-store';
 import { useApp, useTimers } from '../lib/store';
 import { useTheme } from '../lib/theme';
+import { Glass } from './glass';
 import { ChatSparkIcon, RecipeBookIcon } from './icons';
 import { Icon, Txt } from './ui';
 
@@ -39,7 +41,10 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
   };
 
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 8, paddingBottom: Math.max(insets.bottom, 10), paddingHorizontal: 4, backgroundColor: th.c.surface, borderTopWidth: 1, borderTopColor: th.c.line }}>
+    <View style={{ paddingHorizontal: 14, paddingTop: 6, paddingBottom: Math.max(insets.bottom - 6, 10), backgroundColor: th.c.bg }}>
+    {/* The shadow lives on a wrapper: the glass clips its own edges. */}
+    <View style={{ borderRadius: 34, shadowColor: '#000', shadowOpacity: th.dark ? 0.4 : 0.12, shadowRadius: 18, shadowOffset: { width: 0, height: 6 }, elevation: 10 }}>
+    <Glass tint={th.dark ? 0.7 : 0.85} strength={50} style={{ flexDirection: 'row', alignItems: 'center', height: 68, paddingHorizontal: 6, borderRadius: 34 }}>
       {state.routes.map((route, i) => {
         const focused = state.index === i;
         const onPress = () => {
@@ -54,7 +59,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
           return (
             <View key={route.key} style={{ width: 68, alignItems: 'center' }}>
               <Pressable onPress={onPress} accessibilityRole="tab" accessibilityState={{ selected: focused }} accessibilityLabel="Add recipe" style={({ pressed }) => ({ transform: [{ scale: pressed ? 0.92 : 1 }] })}>
-                <View style={{ width: 50, height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.accent, ...(th.dark ? {} : { shadowColor: th.c.accent, shadowOpacity: 0.35, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 }) }}>
+                <View style={{ width: 50, height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.accent, borderWidth: 3, borderColor: th.c.surface, ...(th.dark ? {} : { shadowColor: th.c.accent, shadowOpacity: 0.35, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 }) }}>
                   <Icon name="add" size={30} color={th.c.onAccent} />
                 </View>
               </Pressable>
@@ -82,6 +87,8 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
           </Pressable>
         );
       })}
+    </Glass>
+    </View>
     </View>
   );
 }

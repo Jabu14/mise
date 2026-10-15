@@ -4,7 +4,7 @@ import * as Haptics from 'expo-haptics';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { guessEmoji } from '../shared/parser';
 import { startAlarmSound, stopAlarmSound, type Tone } from './alarm';
-import { cancelAlarm, scheduleAlarm } from './notifications';
+import { cancelAlarm, scheduleAlarm, setBadge, setNotificationPrefs } from './notifications';
 import { LIMITS, cleanHistory, cleanParsed, cleanRecipes, cleanSettings, cleanTimers } from './validate';
 
 export type Timer = { minutes: number; label: string; auto?: boolean };
@@ -61,6 +61,10 @@ export const DEFAULT_SETTINGS = {
   aiVoice: '',          // a phone voice id; '' = the most natural one installed
   aiVoiceRate: 'normal', // slow | normal | fast
   handsFreeWake: false, // hands-free only acts after hearing “Hey Mise”
+  notifyTimers: true,   // send a notification when a timer ends
+  notifySound: true,    // …with a sound
+  notifyPreview: true,  // …showing the timer and recipe name
+  badgeTimers: false,   // number of running timers on the app icon
 };
 export type Settings = typeof DEFAULT_SETTINGS;
 
@@ -150,6 +154,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => { if (ready) save(KEYS.recipes, recipes); }, [ready, recipes]);
   useEffect(() => { if (ready) save(KEYS.timers, timers); }, [ready, timers]);
   useEffect(() => { if (ready) save(KEYS.history, history); }, [ready, history]);
+
+  // Notification choices for timers that are scheduled from now on.
+  useEffect(() => {
+    setNotificationPrefs({ enabled: settings.notifyTimers, preview: settings.notifyPreview, sound: settings.notifySound });
+  }, [settings.notifyTimers, settings.notifyPreview, settings.notifySound]);
+
+  // App icon badge: how many timers are still counting down.
+  const counting = timers.filter(t => !t.done).length;
+  useEffect(() => {
+    if (ready) setBadge(settings.badgeTimers ? counting : 0);
+  }, [ready, settings.badgeTimers, counting]);
 
   // ----- recipes & settings -----
 

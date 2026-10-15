@@ -6,6 +6,7 @@ import { DishArt } from '../../components/art/dish-art';
 import { EditableTitle, IngredientList, MakesValue, ingCountText, scaleBy } from '../../components/recipe';
 import { Btn, Card, Chip, Dock, Icon, IconBtn, Label, RichText, Screen, TopBar, Txt } from '../../components/ui';
 import { formatDuration, plainText } from '../../shared/parser';
+import { useShopping } from '../../lib/shopping';
 import { useApp } from '../../lib/store';
 import { artColor, useTheme } from '../../lib/theme';
 
@@ -15,6 +16,7 @@ export default function RecipeScreen() {
   const { getRecipe, patchRecipe, setProgress, deleteRecipe } = useApp();
   const r = getRecipe(id);
   const [dockH, setDockH] = useState(0);
+  const { addFromRecipe } = useShopping();
 
   useEffect(() => { if (id) patchRecipe(id, { lastOpened: Date.now() }); }, [id, patchRecipe]);
 
@@ -22,6 +24,14 @@ export default function RecipeScreen() {
 
   const p = r.progress;
   const started = p.step > 0 && p.step < r.steps.length;
+
+  const addToList = () => {
+    const n = addFromRecipe(r);
+    Alert.alert('Added to your shopping list', `${n} ${n === 1 ? 'ingredient' : 'ingredients'} from ${r.title}. Matching items are combined.`, [
+      { text: 'OK', style: 'cancel' },
+      { text: 'View list', onPress: () => router.push('/shopping') },
+    ]);
+  };
 
   const confirmDelete = () =>
     Alert.alert('Delete this recipe?', `“${r.title}” will be removed from this phone.`, [
@@ -70,6 +80,11 @@ export default function RecipeScreen() {
         {r.ingredients.length ? (
           <Section title="Ingredients" aside={ingCountText(r)}>
             <IngredientList recipe={r} />
+            <Pressable onPress={addToList} accessibilityRole="button"
+              style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 10, height: 48, borderRadius: 24, borderWidth: 1.5, borderColor: th.c.accent, backgroundColor: pressed ? th.c.accentSoft : 'transparent' })}>
+              <Icon name="cart-outline" size={20} color={th.c.accent} />
+              <Txt weight="black" color={th.c.accent}>Add to shopping list</Txt>
+            </Pressable>
           </Section>
         ) : null}
 

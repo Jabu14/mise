@@ -2,6 +2,18 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.12.0 (2026-10-15)
+
+### Added
+- **Smart shopping list.** "Add to shopping list" on any recipe (scaled to the amount you're making). Matching ingredients are combined (two recipes' flour becomes one line), large amounts read nicely (1000 g → 1 kg), plain water is skipped, and items are grouped by aisle (Produce, Meat & fish, Dairy & eggs, Bakery & grains, Pantry, Frozen). Tap to tick off (it moves to "In your cart"), swipe to remove, type your own items, share the list. Open it from the new cart button (with a count) on the Recipes page.
+- **Notification settings** in the style of WhatsApp: show timer notifications, play a sound, show preview (timer and recipe name), in-app alarm tone and vibration, an app icon badge with the number of running timers, and Reset. Reminders are marked "soon".
+
+### Changed
+- **Floating navigation bar**: a rounded, frosted bar that floats above the bottom edge.
+- **Account → Sous section**: Sous settings, Voice, Usage and the Mise Prompt (the old "Recipe prompt", renamed).
+- **Usage** looks like Claude's usage page: a big "% used" meter with when it resets, then simple rows for this month, Sous and cooking.
+- **Voice** looks like ChatGPT's: swipe between voices, each with its own glowing orb; Speed and Language rows; when Mise speaks.
+
 ## 1.11.0 (2026-10-14)
 
 ### Changed

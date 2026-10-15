@@ -9,6 +9,8 @@ import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
+  'Smart shopping list: combines ingredients and sorts them by aisle',
+  'A floating navigation bar and a new Sous section in Account',
   'Hands-free cooking: steps read aloud, and voice commands in the Mise app build',
   'Natural phone voices (Premium and Enhanced) and a speed setting',
   'Three plans to choose from: Mise Plus, Pro and Chef',

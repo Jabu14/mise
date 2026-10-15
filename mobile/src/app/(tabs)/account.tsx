@@ -1,4 +1,4 @@
-// Account tab: your profile and stats, then Account, App, Recipes, Support and About, and Log out.
+// Account tab: your profile and stats, then Plan, Account, Sous (the AI), App, Support and About, and Log out.
 // Sign-in / cloud sync will live here once there is a backend; for now everything stays on this phone.
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
@@ -9,6 +9,7 @@ import { useApp, useTimers } from '../../lib/store';
 import { FONTS, THEMES, useTheme } from '../../lib/theme';
 import { LIMITS } from '../../lib/validate';
 import { voiceLabel } from '../../lib/voices';
+import { AI_NAME } from '../../lib/chat-store';
 
 export default function AccountTab() {
   const th = useTheme();
@@ -58,18 +59,19 @@ export default function AccountTab() {
         <Section title="Account">
           <Row icon="cloud-outline" title="Sign in & sync" badge="SOON" onPress={() => Alert.alert('Coming soon', 'Soon you’ll be able to sign in and keep your recipes and chats on all your devices.')} />
           <Row icon="person-outline" title="Profile" onPress={() => router.push('/profile')} />
-          <Row icon="notifications-outline" title="Notifications" onPress={() => router.push('/notifications')} />
-          <Row icon="stats-chart-outline" title="Usage" onPress={() => router.push('/usage')} last />
+          <Row icon="notifications-outline" title="Notifications" onPress={() => router.push('/notifications')} last />
+        </Section>
+
+        <Section title={AI_NAME}>
+          <Row icon="chatbubble-outline" title={`${AI_NAME} settings`} onPress={() => router.push('/sous-settings')} />
+          <Row icon="mic-outline" title="Voice" value={voiceLabel(settings.aiVoice)} onPress={() => router.push('/voice-settings')} />
+          <Row icon="stats-chart-outline" title="Usage" onPress={() => router.push('/usage')} />
+          <Row icon="document-text-outline" title="Mise Prompt" onPress={() => router.push('/recipe-prompt')} last />
         </Section>
 
         <Section title="App">
           <Row icon="color-palette-outline" title="Appearance" value={appearanceSummary} onPress={() => router.push('/appearance')} />
-          <Row icon="mic-outline" title="Voice" value={voiceLabel(settings.aiVoice)} onPress={() => router.push('/voice-settings')} />
           <Row icon="settings-outline" title="Settings" onPress={() => router.push('/settings')} last />
-        </Section>
-
-        <Section title="Recipes">
-          <Row icon="document-text-outline" title="Recipe prompt" onPress={() => router.push('/recipe-prompt')} last />
         </Section>
 
         <Section title="Support">

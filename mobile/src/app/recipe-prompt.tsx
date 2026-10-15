@@ -1,4 +1,5 @@
-// Recipe prompt: what it's for, how to use it, the prompt itself (copy or edit it).
+// Mise Prompt: the instruction you paste into any AI chat so it answers with a recipe Mise reads
+// perfectly. What it's for, how to use it, and the prompt itself (copy or edit it).
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
@@ -34,7 +35,7 @@ export default function RecipePromptScreen() {
     <Screen>
       <TopBar>
         <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
-        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>Recipe prompt</Txt>
+        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>Mise Prompt</Txt>
         <IconBtn name={editing ? 'checkmark' : 'create-outline'} label={editing ? 'Done editing' : 'Edit prompt'} tinted={editing} onPress={() => setEditing(e => !e)} />
       </TopBar>
 

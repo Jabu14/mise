@@ -10,6 +10,7 @@ import { Pressable, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { TimerIslandHost } from '../components/timer-island';
 import { ChatProvider } from '../lib/chat-store';
+import { ShoppingProvider } from '../lib/shopping';
 import { AppProvider, useApp } from '../lib/store';
 import { useTheme } from '../lib/theme';
 
@@ -38,7 +39,9 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <AppProvider>
         <ChatProvider>
+        <ShoppingProvider>
           <Shell fontsLoaded={fontsLoaded} />
+        </ShoppingProvider>
         </ChatProvider>
       </AppProvider>
     </SafeAreaProvider>
@@ -69,6 +72,7 @@ function Shell({ fontsLoaded }: { fontsLoaded: boolean }) {
         <Stack.Screen name="notifications" />
         <Stack.Screen name="usage" />
         <Stack.Screen name="voice-settings" />
+        <Stack.Screen name="shopping" />
         <Stack.Screen name="plus" options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
         <Stack.Screen name="timer/[id]" />
         <Stack.Screen name="timer-new" options={{ presentation: 'modal' }} />

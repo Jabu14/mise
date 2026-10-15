@@ -7,6 +7,7 @@ import { DishArt } from '../../components/art/dish-art';
 import { Btn, Card, Dock, Icon, IconBtn, Screen, TopBar, Txt } from '../../components/ui';
 import { SAMPLE_RECIPE } from '../../shared/content';
 import { parseRecipe } from '../../shared/parser';
+import { useShopping } from '../../lib/shopping';
 import { useApp, type Recipe } from '../../lib/store';
 import { artColor, useTheme } from '../../lib/theme';
 import { timeAgo } from '../../lib/time';
@@ -14,6 +15,7 @@ import { timeAgo } from '../../lib/time';
 export default function Library() {
   const th = useTheme();
   const { recipes, saveParsed } = useApp();
+  const toBuy = useShopping().items.filter(i => !i.checked).length;
   const [query, setQuery] = useState('');
   const [dockH, setDockH] = useState(0);
 
@@ -39,6 +41,14 @@ export default function Library() {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 8, flex: 1 }}>
           <Icon name="restaurant-outline" size={24} color={th.c.accent} />
           <Txt kind="head" weight="bold" size={24}>Mise</Txt>
+        </View>
+        <View>
+          <IconBtn name="cart-outline" label={toBuy ? `Shopping list, ${toBuy} to buy` : 'Shopping list'} onPress={() => router.push('/shopping')} />
+          {toBuy ? (
+            <View pointerEvents="none" style={{ position: 'absolute', top: 4, right: 2, minWidth: 18, height: 18, paddingHorizontal: 4, borderRadius: 9, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.accent }}>
+              <Txt weight="black" size={10} color={th.c.onAccent}>{toBuy > 99 ? '99+' : toBuy}</Txt>
+            </View>
+          ) : null}
         </View>
         <IconBtn name="settings-outline" label="Settings" onPress={() => router.push('/settings')} />
       </TopBar>
@@ -73,7 +83,7 @@ export default function Library() {
           </View>
           <Txt kind="head" weight="bold" size={30} style={{ textAlign: 'center', maxWidth: 280 }}>Cook without scrolling back</Txt>
           <Txt muted style={{ textAlign: 'center', maxWidth: 300 }}>
-            Paste a recipe prompt and get big, simple steps with built-in timers.
+            Paste any recipe and get big, simple steps with built-in timers.
           </Txt>
           <Btn title="Add your first recipe" icon="add" size="big" onPress={() => router.navigate('/add')} style={{ marginTop: 8 }} />
           <Btn title="Try a sample bread recipe" variant="ghost" textSize={14.5} onPress={addSample} />
