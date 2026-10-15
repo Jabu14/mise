@@ -3,9 +3,12 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, View } from 'react-native';
 import { DishArt } from '../../components/art/dish-art';
+import { CookEntryRow } from '../../components/cook-log-ui';
+import { PlanSheet } from '../../components/plan-sheet';
 import { EditableTitle, IngredientList, MakesValue, ingCountText, scaleBy } from '../../components/recipe';
 import { Btn, Card, Chip, Dock, Icon, IconBtn, Label, RichText, Screen, TopBar, Txt } from '../../components/ui';
 import { formatDuration, plainText } from '../../shared/parser';
+import { useCookLog } from '../../lib/cook-log';
 import { useShopping } from '../../lib/shopping';
 import { useApp } from '../../lib/store';
 import { artColor, useTheme } from '../../lib/theme';
@@ -17,6 +20,8 @@ export default function RecipeScreen() {
   const r = getRecipe(id);
   const [dockH, setDockH] = useState(0);
   const { addFromRecipe } = useShopping();
+  const [planning, setPlanning] = useState(false);
+  const cooks = useCookLog().entries.filter(e => e.recipeId === id);
 
   useEffect(() => { if (id) patchRecipe(id, { lastOpened: Date.now() }); }, [id, patchRecipe]);
 
@@ -44,6 +49,7 @@ export default function RecipeScreen() {
       <TopBar>
         <IconBtn name="arrow-back" label="All recipes" onPress={() => router.back()} />
         <View style={{ flex: 1 }} />
+        <IconBtn name="calendar-outline" label="Add to meal plan" onPress={() => setPlanning(true)} />
         <IconBtn name="create-outline" label="Edit recipe" onPress={() => router.push(`/edit/${r.id}`)} />
         <IconBtn name="trash-outline" label="Delete recipe" onPress={confirmDelete} />
       </TopBar>
@@ -125,6 +131,16 @@ export default function RecipeScreen() {
           </View>
         </Section>
 
+        {cooks.length ? (
+          <Section title="Your cooks" aside={cooks.length > 3 ? `See all ${cooks.length}` : undefined} onAside={() => router.push({ pathname: '/journal', params: { recipe: r.id } })}>
+            <View style={{ gap: 8 }}>
+              {cooks.slice(0, 3).map(e => (
+                <CookEntryRow key={e.id} entry={e} onPress={() => router.push({ pathname: '/journal', params: { recipe: r.id } })} />
+              ))}
+            </View>
+          </Section>
+        ) : null}
+
         {r.notes.length ? (
           <Section title="Notes & tips">
             <View style={{ gap: 8 }}>
@@ -145,16 +161,18 @@ export default function RecipeScreen() {
           onPress={() => router.push({ pathname: '/cook/[id]', params: { id: r.id, step: String(started ? p.step : 0) } })}
         />
       </Dock>
+      <PlanSheet recipeId={r.id} title={r.title} visible={planning} onClose={() => setPlanning(false)} />
     </Screen>
   );
 }
 
-function Section({ title, aside, children }: { title: string; aside?: string; children: React.ReactNode }) {
+function Section({ title, aside, onAside, children }: { title: string; aside?: string; onAside?: () => void; children: React.ReactNode }) {
+  const th = useTheme();
   return (
     <View style={{ marginTop: 28, gap: 10 }}>
       <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>
         <Txt kind="head" weight="bold" size={23}>{title}</Txt>
-        {aside ? <Txt muted size={14}>{aside}</Txt> : null}
+        {aside ? (onAside ? <Pressable onPress={onAside} hitSlop={8}><Txt weight="bold" size={14} color={th.c.accent}>{aside}</Txt></Pressable> : <Txt muted size={14}>{aside}</Txt>) : null}
       </View>
       {children}
     </View>

@@ -9,9 +9,11 @@ import { useEffect, useRef, useState } from 'react';
 import { FlatList, Modal, Pressable, ScrollView, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StepScene } from '../../components/art/step-scenes';
+import { CookEntryEditor, Stars } from '../../components/cook-log-ui';
 import { IngredientList, ingCountText, servingsLabel } from '../../components/recipe';
 import { Btn, Card, Chip, Dock, Icon, IconBtn, Label, Screen, StepBody, TopBar, Txt, clock } from '../../components/ui';
 import { formatDuration, ingredientsUsedIn, plainText, scaleText } from '../../shared/parser';
+import { useCookLog } from '../../lib/cook-log';
 import { say, speakStep, stopSpeaking, useClapCommands } from '../../lib/hands-free';
 import { useVoiceCommands, voiceCommandsAvailable, type VoiceCommand } from '../../lib/voice-commands';
 import { useApp, useTimers, type Recipe } from '../../lib/store';
@@ -33,6 +35,9 @@ export default function Cook() {
   const total = r?.steps.length ?? 0;
   const [index, setIndex] = useState(() => Math.min(Math.max(parseInt(step || '0', 10) || 0, 0), Math.max(total - 1, 0)));
   const [finished, setFinished] = useState(false);
+  const { entries: cooks, log } = useCookLog();
+  const [logId, setLogId] = useState<string | null>(null);
+  const [hideLast, setHideLast] = useState(false);
   const [sheet, setSheet] = useState(false);
   const [dockH, setDockH] = useState(0);
   const pager = useRef<FlatList>(null);
@@ -55,6 +60,7 @@ export default function Cook() {
     if (i >= total) {
       setFinished(true);
       markCooked(r.id);
+      setLogId(log(r.id, r.title));
       if (settings.handsFree) say(`All done! Enjoy your ${r.title}.`, settings);
       return;
     }
@@ -134,20 +140,31 @@ export default function Cook() {
   if (!r) return <Screen><TopBar><IconBtn name="close" label="Close" onPress={() => router.back()} /></TopBar></Screen>;
 
   if (finished) {
+    const entry = cooks.find(e => e.id === logId);
     return (
       <Screen>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24 }}>
-          <Txt size={80} style={{ lineHeight: 100 }}>🎉</Txt>
-          <Txt kind="head" weight="bold" size={38}>All done!</Txt>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', gap: 10, padding: 24 }} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
+          <Txt size={64} style={{ lineHeight: 80 }}>🎉</Txt>
+          <Txt kind="head" weight="bold" size={36}>All done!</Txt>
           <Txt muted style={{ textAlign: 'center' }}>Enjoy your {r.title}. {r.emoji}</Txt>
-          <View style={{ gap: 10, width: '100%', maxWidth: 320, marginTop: 12 }}>
+          {entry ? (
+            <Card style={{ width: '100%', maxWidth: 420, padding: 16, gap: 12, marginTop: 10 }}>
+              <Txt weight="black" size={17} style={{ textAlign: 'center' }}>How did it go?</Txt>
+              <CookEntryEditor entry={entry} />
+              <Txt muted size={12} style={{ textAlign: 'center' }}>Saved to your cooking journal as you go.</Txt>
+            </Card>
+          ) : null}
+          <View style={{ gap: 10, width: '100%', maxWidth: 420, marginTop: 8 }}>
             <Btn title="Back to recipe" size="big" onPress={() => router.back()} />
-            <Btn title="Cook it again" icon="refresh" variant="secondary" onPress={() => { setFinished(false); setIndex(0); }} />
+            <Btn title="Cook it again" icon="refresh" variant="secondary" onPress={() => { setFinished(false); setIndex(0); setLogId(null); }} />
           </View>
-        </View>
+        </ScrollView>
       </Screen>
     );
   }
+
+  // Your notes from the last time you cooked this, shown on the first step.
+  const last = cooks.find(e => e.recipeId === r.id && (e.note || e.rating));
 
   return (
     <Screen>
@@ -185,6 +202,21 @@ export default function Cook() {
           </View>
           <IconBtn name="volume-high-outline" label="Read this step again" size={38} onPress={readStep} />
         </View>
+      ) : null}
+
+      {last && index === 0 && !hideLast ? (
+        <Pressable onPress={() => router.push({ pathname: '/journal', params: { recipe: r.id } })}
+          style={{ marginHorizontal: 16, marginTop: 10, flexDirection: 'row', alignItems: 'center', gap: 10, paddingLeft: 14, paddingRight: 6, paddingVertical: 8, borderRadius: 18, backgroundColor: th.c.soft }}>
+          <Icon name="book-outline" size={18} color={th.c.accent} />
+          <View style={{ flex: 1, gap: 1 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Txt weight="black" size={13}>Last time · {new Date(last.at).toLocaleDateString([], { month: 'short', day: 'numeric' })}</Txt>
+              {last.rating ? <Stars value={last.rating} size={11} /> : null}
+            </View>
+            {last.note ? <Txt size={13} numberOfLines={2}>{last.note}</Txt> : null}
+          </View>
+          <IconBtn name="close" label="Hide note" size={34} onPress={() => setHideLast(true)} />
+        </Pressable>
       ) : null}
 
       {listLayout ? (

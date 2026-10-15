@@ -7,6 +7,8 @@ import { AI_NAME } from '../lib/chat-store';
 import { useTheme } from '../lib/theme';
 
 const FAQ: { q: string; a: string }[] = [
+  { q: 'How do I plan my meals?', a: 'Tap the calendar on the Recipes page. Tap ＋ next to Breakfast, Lunch or Dinner on any day to add a saved recipe or a note like “Leftovers”. “Add the week to my shopping list” adds every planned recipe’s ingredients at once. From a recipe, the calendar button at the top adds it to a day.' },
+  { q: 'What is the cooking journal?', a: 'Every time you finish a recipe in cook mode it’s saved to your journal. Rate it, add a photo and write notes for next time; your notes show up on step 1 the next time you cook it. Open the journal from “Journal” next to Completed on the Recipes page.' },
   { q: 'How do I scan food?', a: 'Open your shopping list and tap the barcode button (or ＋ › Scan food in Sous). Point the camera at the barcode on a package to see its Nutri-Score, how processed it is, sugar, fat and salt levels, and allergens. You can also type the barcode number.' },
   { q: 'How does the shopping list work?', a: 'Open a recipe and tap “Add to shopping list”. Matching ingredients from different recipes are combined and sorted by aisle. Open the list from the cart button on the Recipes page, tap items to tick them off, and swipe left to remove one.' },
   { q: 'How do I add a recipe?', a: 'Tap ＋ in the middle of the tab bar. Paste a recipe, or use Import with AI to bring one in from a link, a photo or text. Mise splits it into steps with timers.' },

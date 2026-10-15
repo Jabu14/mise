@@ -9,6 +9,9 @@ import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
+  'Meal planner: plan the week and shop for it in one tap',
+  'Cooking journal: rate each cook, add a photo and notes for next time',
+  'The tab highlight now glides even when you jump across several tabs',
   'Nutrition scanner: scan a barcode to see the Nutri-Score and what’s inside',
   'Smoother swiping, a sliding tab highlight and sliding switches',
   'Smart shopping list: combines ingredients and sorts them by aisle',

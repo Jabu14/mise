@@ -1,12 +1,13 @@
 // Library: recipes still to cook, then the ones you've already made (Completed).
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, TextInput, View } from 'react-native';
+import { Image, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { AddFab } from '../../components/add-fab';
 import { DishArt } from '../../components/art/dish-art';
 import { Btn, Card, Dock, Icon, IconBtn, Screen, TopBar, Txt } from '../../components/ui';
 import { SAMPLE_RECIPE } from '../../shared/content';
 import { parseRecipe } from '../../shared/parser';
+import { useCookLog } from '../../lib/cook-log';
 import { useShopping } from '../../lib/shopping';
 import { useApp, type Recipe } from '../../lib/store';
 import { artColor, useTheme } from '../../lib/theme';
@@ -16,6 +17,7 @@ export default function Library() {
   const th = useTheme();
   const { recipes, saveParsed } = useApp();
   const toBuy = useShopping().items.filter(i => !i.checked).length;
+  const cooks = useCookLog().entries;
   const [query, setQuery] = useState('');
   const [dockH, setDockH] = useState(0);
 
@@ -42,6 +44,7 @@ export default function Library() {
           <Icon name="restaurant-outline" size={24} color={th.c.accent} />
           <Txt kind="head" weight="bold" size={24}>Mise</Txt>
         </View>
+        <IconBtn name="calendar-outline" label="Meal plan" onPress={() => router.push('/planner')} />
         <View>
           <IconBtn name="cart-outline" label={toBuy ? `Shopping list, ${toBuy} to buy` : 'Shopping list'} onPress={() => router.push('/shopping')} />
           {toBuy ? (
@@ -71,8 +74,13 @@ export default function Library() {
                 <View style={{ paddingHorizontal: 9, paddingVertical: 1, borderRadius: 999, backgroundColor: th.c.accentSoft }}>
                   <Txt weight="black" size={13} color={th.c.accent}>{completed.length}</Txt>
                 </View>
+                <View style={{ flex: 1 }} />
+                <Pressable onPress={() => router.push('/journal')} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <Icon name="book-outline" size={16} color={th.c.accent} />
+                  <Txt weight="bold" size={14} color={th.c.accent}>Journal</Txt>
+                </Pressable>
               </View>
-              {completed.map(r => <RecipeCard key={r.id} recipe={r} done={`Cooked ${r.cookCount === 1 ? 'once' : `${r.cookCount} times`}${r.lastCooked ? ` · ${timeAgo(r.lastCooked, now)}` : ''}`} />)}
+              {completed.map(r => <RecipeCard key={r.id} recipe={r} photo={cooks.find(e => e.recipeId === r.id && e.photo)?.photo} done={`Cooked ${r.cookCount === 1 ? 'once' : `${r.cookCount} times`}${r.lastCooked ? ` · ${timeAgo(r.lastCooked, now)}` : ''}`} />)}
             </>
           ) : null}
         </ScrollView>
@@ -97,7 +105,7 @@ export default function Library() {
   );
 }
 
-function RecipeCard({ recipe: r, done }: { recipe: Recipe; done?: string }) {
+function RecipeCard({ recipe: r, done, photo }: { recipe: Recipe; done?: string; photo?: string }) {
   const th = useTheme();
   const total = (r.times.find(t => t.label === 'Total') || r.times[0])?.value;
   const meta = [`${r.steps.length} steps`, total].filter(Boolean).join(' · ');
@@ -106,7 +114,7 @@ function RecipeCard({ recipe: r, done }: { recipe: Recipe; done?: string }) {
     <Pressable onPress={() => router.push(`/recipe/${r.id}`)} style={({ pressed }) => ({ transform: [{ scale: pressed ? 0.98 : 1 }] })}>
       <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 14, padding: 12 }}>
         <View style={{ width: 64, height: 64, borderRadius: th.radius - 6, backgroundColor: artColor(r.title, th.dark), alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-          <DishArt title={`${r.title} ${r.description}`} width={60} still />
+          {photo ? <Image source={{ uri: photo }} style={{ width: 64, height: 64 }} /> : <DishArt title={`${r.title} ${r.description}`} width={60} still />}
         </View>
         <View style={{ flex: 1, gap: 2 }}>
           <Txt kind="head" weight="bold" size={18} numberOfLines={2}>{r.title}</Txt>

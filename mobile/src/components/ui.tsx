@@ -2,7 +2,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { BottomTabBarHeightContext } from 'expo-router/js-tabs';
 import { useContext, type ComponentProps, type ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View, type StyleProp, type TextProps, type TextStyle, type ViewStyle } from 'react-native';
+import { Pressable, StyleSheet, Text, View, type StyleProp, type TextProps, type TextStyle, type ViewProps, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GLYPHS, Glyph } from './glyphs';
 import { useIslandSpace } from '../lib/island';
@@ -129,9 +129,9 @@ export function TopBar({ children }: { children: ReactNode }) {
   );
 }
 
-export function Card({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
+export function Card({ children, style, onLayout }: { children: ReactNode; style?: StyleProp<ViewStyle>; onLayout?: ViewProps['onLayout'] }) {
   const th = useTheme();
-  return <View style={[th.card, style]}>{children}</View>;
+  return <View style={[th.card, style]} onLayout={onLayout}>{children}</View>;
 }
 
 export function Chip({ children, icon, outlined }: { children: ReactNode; icon?: IconName; outlined?: boolean }) {

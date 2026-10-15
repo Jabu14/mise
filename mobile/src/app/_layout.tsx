@@ -10,6 +10,8 @@ import { Pressable, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { TimerIslandHost } from '../components/timer-island';
 import { ChatProvider } from '../lib/chat-store';
+import { CookLogProvider } from '../lib/cook-log';
+import { PlannerProvider } from '../lib/planner';
 import { ShoppingProvider } from '../lib/shopping';
 import { AppProvider, useApp } from '../lib/store';
 import { useTheme } from '../lib/theme';
@@ -40,7 +42,11 @@ export default function RootLayout() {
       <AppProvider>
         <ChatProvider>
         <ShoppingProvider>
+        <PlannerProvider>
+        <CookLogProvider>
           <Shell fontsLoaded={fontsLoaded} />
+        </CookLogProvider>
+        </PlannerProvider>
         </ShoppingProvider>
         </ChatProvider>
       </AppProvider>
@@ -73,6 +79,8 @@ function Shell({ fontsLoaded }: { fontsLoaded: boolean }) {
         <Stack.Screen name="usage" />
         <Stack.Screen name="voice-settings" />
         <Stack.Screen name="shopping" />
+        <Stack.Screen name="planner" />
+        <Stack.Screen name="journal" />
         <Stack.Screen name="scan" />
         <Stack.Screen name="product/[code]" />
         <Stack.Screen name="plus" options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />

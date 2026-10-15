@@ -2,6 +2,15 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.14.0 (2026-10-15)
+
+### Added
+- **Meal planner.** Plan breakfast, lunch and dinner for each day, a week at a time (Monday to Sunday, with Previous / Next week). Fill a slot with a saved recipe or a note ("Leftovers", "Eating out"…). "Add the week to my shopping list" adds every planned recipe's ingredients in one go, combined by the shopping list as usual. "Plan my week with Sous" opens Sous with the request ready. Open it from the new calendar button on the Recipes page; on a recipe, the calendar button adds it to any day in the next two weeks.
+- **Cooking journal.** Finishing a recipe in cook mode logs it. The "All done!" screen asks how it went: star rating, a photo of your dish (kept in the app's own folder) and notes for next time. Your last notes and stars show on step 1 the next time you cook it, and a recipe's cooks are listed on its page. The journal (from "Journal" next to Completed) shows every cook with totals, this month and your weekly cooking streak. Completed recipes use your latest photo as their picture.
+
+### Fixed
+- **Tab highlight on far jumps**: tapping a tab several places away (Recipes → Account) now glides the highlight there too, instead of only between neighbouring tabs.
+
 ## 1.13.0 (2026-10-15)
 
 ### Added
