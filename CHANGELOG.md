@@ -2,6 +2,13 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.17.0 (2026-10-15)
+
+### Added
+- **Ready by…** On a recipe, choose when you want to eat (±15 minutes, ±1 hour, tomorrow) and see a timeline of when to start each step, worked out from the step timers plus about 5 minutes for each hands-on step. "Every 30 minutes, 3 sets" counts all three sets, and "While it rises…" steps overlap the step before. "Remind me" sends a notification when it's time to start.
+- **What can I make?** From the Recipes page: add what you have (or tap quick picks from your recipes' ingredients) and your saved recipes are sorted by how little you're missing, with the missing items listed. Salt, pepper, oil and water always count. "Ask Sous for ideas" opens Sous with your list. Your list is remembered.
+- **Collections.** "Add to collection" on a recipe: pick Weeknight, Baking, Favourites, Quick, Healthy, For guests or type your own. Collections become filter chips (with counts) at the top of the Recipes page.
+
 ## 1.16.0 (2026-10-15)
 
 ### Added

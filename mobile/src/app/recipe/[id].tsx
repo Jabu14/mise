@@ -4,7 +4,9 @@ import { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, View } from 'react-native';
 import { DishArt } from '../../components/art/dish-art';
 import { CookEntryRow } from '../../components/cook-log-ui';
+import { CollectionSheet } from '../../components/collection-sheet';
 import { PlanSheet } from '../../components/plan-sheet';
+import { ReadyBySheet } from '../../components/ready-by-sheet';
 import { EditableTitle, IngredientList, MakesValue, ingCountText, scaleBy } from '../../components/recipe';
 import { Btn, Card, Chip, Dock, Icon, IconBtn, Label, RichText, Screen, TopBar, Txt } from '../../components/ui';
 import { formatDuration, plainText } from '../../shared/parser';
@@ -24,6 +26,8 @@ export default function RecipeScreen() {
   const [dockH, setDockH] = useState(0);
   const { addFromRecipe } = useShopping();
   const [planning, setPlanning] = useState(false);
+  const [readyBy, setReadyBy] = useState(false);
+  const [folders, setFolders] = useState(false);
   const cooks = useCookLog().entries.filter(e => e.recipeId === id);
 
   useEffect(() => { if (id) patchRecipe(id, { lastOpened: Date.now() }); }, [id, patchRecipe]);
@@ -73,6 +77,20 @@ export default function RecipeScreen() {
               ))}
             </View>
           ) : null}
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8 }}>
+            {r.steps.length > 1 ? (
+              <Pressable onPress={() => setReadyBy(true)} accessibilityRole="button"
+                style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 7, borderRadius: 999, backgroundColor: th.c.accentSoft, opacity: pressed ? 0.7 : 1 })}>
+                <Icon name="alarm-outline" size={16} color={th.c.accent} />
+                <Txt weight="black" size={14} color={th.c.accent}>Ready by…</Txt>
+              </Pressable>
+            ) : null}
+            <Pressable onPress={() => setFolders(true)} accessibilityRole="button" accessibilityLabel="Collections"
+              style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 6, maxWidth: 260, paddingHorizontal: 14, paddingVertical: 7, borderRadius: 999, backgroundColor: th.c.soft, opacity: pressed ? 0.7 : 1 })}>
+              <Icon name={r.collections?.length ? 'folder' : 'folder-outline'} size={16} color={th.c.accent} />
+              <Txt weight="black" size={14} numberOfLines={1} style={{ flexShrink: 1 }}>{r.collections?.length ? r.collections.join(', ') : 'Add to collection'}</Txt>
+            </Pressable>
+          </View>
         </View>
 
         <Card style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 18, paddingVertical: 10, paddingLeft: 18, paddingRight: 10 }}>
@@ -166,6 +184,8 @@ export default function RecipeScreen() {
           onPress={() => router.push({ pathname: '/cook/[id]', params: { id: r.id, step: String(started ? p.step : 0) } })}
         />
       </Dock>
+      {folders ? <CollectionSheet recipe={r} visible onClose={() => setFolders(false)} /> : null}
+      {readyBy ? <ReadyBySheet recipe={r} visible onClose={() => setReadyBy(false)} /> : null}
       <PlanSheet recipeId={r.id} title={r.title} visible={planning} onClose={() => setPlanning(false)} />
     </Screen>
   );

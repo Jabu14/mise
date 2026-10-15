@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Image, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { AddFab } from '../../components/add-fab';
 import { DishArt } from '../../components/art/dish-art';
+import { allCollections } from '../../components/collection-sheet';
 import { Btn, Card, Dock, Icon, IconBtn, Screen, TopBar, Txt } from '../../components/ui';
 import { SAMPLE_RECIPE } from '../../shared/content';
 import { parseRecipe } from '../../shared/parser';
@@ -19,13 +20,16 @@ export default function Library() {
   const toBuy = useShopping().items.filter(i => !i.checked).length;
   const cooks = useCookLog().entries;
   const [query, setQuery] = useState('');
+  const [folder, setFolder] = useState<string | null>(null);
+  const folders = allCollections(recipes);
+  const inFolder = folder && folders.some(f => f.name === folder) ? folder : null;
   const [dockH, setDockH] = useState(0);
 
   const sorted = useMemo(
     () => [...recipes].sort((a, b) => (b.lastOpened || b.updatedAt) - (a.lastOpened || a.updatedAt)),
     [recipes],
   );
-  const shown = sorted.filter(r => r.title.toLowerCase().includes(query.trim().toLowerCase()));
+  const shown = sorted.filter(r => r.title.toLowerCase().includes(query.trim().toLowerCase()) && (!inFolder || r.collections?.includes(inFolder)));
   // Cooked at least once (and not halfway through another go) = completed, newest first.
   const isDone = (r: Recipe) => (r.cookCount || 0) > 0 && !(r.progress.step > 0 && r.progress.step < r.steps.length);
   const toCook = shown.filter(r => !isDone(r));
@@ -58,15 +62,37 @@ export default function Library() {
 
       {recipes.length ? (
         <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 4, paddingBottom: dockH + 24, gap: 12 }} keyboardShouldPersistTaps="handled">
-          <Txt kind="head" weight="bold" size={32} style={{ marginBottom: 4 }}>Your recipes</Txt>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+            <Txt kind="head" weight="bold" size={32} style={{ flex: 1 }}>Your recipes</Txt>
+            <Pressable onPress={() => router.push('/pantry')} accessibilityRole="button"
+              style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999, backgroundColor: th.c.accentSoft, opacity: pressed ? 0.7 : 1 })}>
+              <Icon name="nutrition-outline" size={16} color={th.c.accent} />
+              <Txt weight="black" size={13} color={th.c.accent}>What can I make?</Txt>
+            </Pressable>
+          </View>
           {recipes.length > 4 && (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, height: 48, paddingHorizontal: 16, borderRadius: 999, backgroundColor: th.c.surface, borderWidth: 1, borderColor: th.c.line }}>
               <Icon name="search" size={18} color={th.c.muted} />
               <TextInput value={query} onChangeText={setQuery} placeholder="Search recipes" placeholderTextColor={th.c.muted} style={[{ flex: 1, color: th.c.text, fontSize: th.fs(16) }, th.f('body')]} />
             </View>
           )}
+          {folders.length ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -16 }} contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }}>
+              {[{ name: '', count: recipes.length }, ...folders].map(f => {
+                const on = (inFolder ?? '') === f.name;
+                return (
+                  <Pressable key={f.name || 'all'} onPress={() => setFolder(f.name || null)} accessibilityState={{ selected: on }}
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 999, backgroundColor: on ? th.c.accent : th.c.soft }}>
+                    {f.name ? <Icon name={on ? 'folder-open' : 'folder-outline'} size={15} color={on ? th.c.onAccent : th.c.muted} /> : null}
+                    <Txt weight="bold" size={14} color={on ? th.c.onAccent : th.c.text}>{f.name || 'All'}</Txt>
+                    <Txt weight="bold" size={12} color={on ? th.c.onAccent : th.c.muted}>{f.count}</Txt>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          ) : null}
           {toCook.map(r => <RecipeCard key={r.id} recipe={r} />)}
-          {!toCook.length && !query.trim() ? <Txt muted style={{ paddingHorizontal: 4 }}>Everything here is cooked. Time for something new!</Txt> : null}
+          {!toCook.length && !query.trim() && !inFolder ? <Txt muted style={{ paddingHorizontal: 4 }}>Everything here is cooked. Time for something new!</Txt> : null}
           {completed.length ? (
             <>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 18, marginBottom: 2 }}>

@@ -96,6 +96,7 @@ export function cleanRecipe(v: unknown): Recipe | null {
     ...(typeof r.lastOpened === 'number' ? { lastOpened: num(r.lastOpened, 0, time + 1, 0) } : {}),
     ...(typeof r.lastCooked === 'number' ? { lastCooked: num(r.lastCooked, 0, time + 1, 0) } : {}),
     cookCount: Math.round(num(r.cookCount, 0, 1e6, 0)),
+    ...(Array.isArray(r.collections) ? { collections: [...new Set(strings(r.collections, 12).map(c => c.trim().slice(0, 30)).filter(Boolean))] } : {}),
   };
 }
 

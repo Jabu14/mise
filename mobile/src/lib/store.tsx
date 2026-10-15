@@ -28,8 +28,9 @@ export type Recipe = {
   lastOpened?: number;
   lastCooked?: number;
   cookCount?: number;
+  collections?: string[]; // "Weeknight", "Baking"… you make these up
 };
-export type Parsed = Omit<Recipe, 'id' | 'source' | 'emoji' | 'progress' | 'createdAt' | 'updatedAt' | 'lastOpened' | 'lastCooked' | 'cookCount'> & { warnings?: string[] };
+export type Parsed = Omit<Recipe, 'id' | 'source' | 'emoji' | 'progress' | 'createdAt' | 'updatedAt' | 'lastOpened' | 'lastCooked' | 'cookCount' | 'collections'> & { warnings?: string[] };
 export type TimerHistoryItem = { minutes: number; label: string; at: number };
 
 export const DEFAULT_SETTINGS = {

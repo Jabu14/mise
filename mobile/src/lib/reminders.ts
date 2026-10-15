@@ -10,7 +10,7 @@ import { ensureNotifications, notificationPrefs } from './notifications';
 const CHANNEL = 'reminders';
 const FINISH_AFTER_MS = 4 * 60 * 60 * 1000;
 
-type Kind = 'plan' | 'finish';
+type Kind = 'plan' | 'finish' | 'start';
 
 async function cancelKind(kind: Kind) {
   const all = await Notifications.getAllScheduledNotificationsAsync().catch(() => []);
@@ -67,4 +67,23 @@ export function cancelFinishReminder() {
 export function reminderUrl(data: unknown): string | null {
   const url = data && typeof data === 'object' ? (data as Record<string, unknown>).url : null;
   return typeof url === 'string' && /^\/(planner|recipe\/[a-z0-9]{4,32})$/.test(url) ? url : null;
+}
+
+// "Ready by": a reminder when it's time to start cooking (one at a time). Returns false if
+// notifications aren't allowed.
+export async function scheduleStartReminder(recipeId: string, title: string, at: Date, readyBy: string): Promise<boolean> {
+  if (Platform.OS === 'web') return false;
+  await cancelKind('start');
+  if (at.getTime() < Date.now() + 60_000 || !(await ensureNotifications())) return false;
+  const { preview, sound } = notificationPrefs();
+  const id = await Notifications.scheduleNotificationAsync({
+    content: {
+      title: preview ? `Time to start ${title}` : 'Time to start cooking',
+      body: preview ? `Start now and it'll be ready by ${readyBy}.` : 'Tap to open the recipe.',
+      sound: sound ? 'default' : false,
+      data: { kind: 'start', url: `/recipe/${recipeId}` },
+    },
+    trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: at, channelId: CHANNEL },
+  }).catch(() => null);
+  return !!id;
 }

@@ -9,6 +9,9 @@ import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
+  '“Ready by…”: pick when you want to eat and see when to start each step',
+  '“What can I make?”: add what’s in your fridge and see which recipes fit',
+  'Collections: sort recipes into Weeknight, Baking or your own',
   'Mise en place: a prep screen to get everything ready before you cook',
   'Switch any recipe between metric and US units, oven temperatures included',
   'Ingredient swaps: tap ⇄ next to an ingredient you don’t have',
