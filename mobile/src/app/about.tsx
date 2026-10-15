@@ -9,6 +9,9 @@ import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
+  'Mise en place: a prep screen to get everything ready before you cook',
+  'Switch any recipe between metric and US units, oven temperatures included',
+  'Ingredient swaps: tap ⇄ next to an ingredient you don’t have',
   'Reminders for your meal plan, and a nudge to finish a recipe you left halfway',
   `${AI_NAME} can use your meal plan and journal, and you can see exactly what it knows`,
   'Meal planner: plan the week and shop for it in one tap',

@@ -83,6 +83,7 @@ function Shell({ fontsLoaded }: { fontsLoaded: boolean }) {
         <Stack.Screen name="shopping" />
         <Stack.Screen name="planner" />
         <Stack.Screen name="journal" />
+        <Stack.Screen name="prep/[id]" />
         <Stack.Screen name="scan" />
         <Stack.Screen name="product/[code]" />
         <Stack.Screen name="plus" options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />

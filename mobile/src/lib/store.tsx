@@ -40,6 +40,7 @@ export const DEFAULT_SETTINGS = {
   cards: 'soft',        // soft | flat
   cookLayout: 'cards',  // cards (one step at a time) | list
   stepIngredients: true,
+  units: 'original',    // original | metric | us: how amounts and temperatures are shown
   stepArt: true,        // animated picture at the top of each step
   handsFree: false,     // cook mode reads steps aloud and listens for claps
   highlightTimes: true,

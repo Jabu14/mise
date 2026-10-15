@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from 'react';
 import { plainText } from '../shared/parser';
 import type { Settings, Step } from './store';
 import { speak } from './voices';
+import { convertUnits } from './units';
 
 const SAMPLE_MS = 50;
 const RESTART_MS = 60_000;     // start a fresh temporary file this often
@@ -105,7 +106,7 @@ export function speakStep(step: Step, number: number, total: number, settings: S
   const timer = step.timers[0];
   const parts = [
     `Step ${number} of ${total}. ${step.title}.`,
-    plainText(step.text),
+    convertUnits(plainText(step.text), settings.units as 'original'),
     step.tip ? `Tip: ${plainText(step.tip)}` : '',
     voiceCommandsAvailable
       ? (timer ? 'Say “start timer” when you’re ready.' : number < total ? 'Say “next” when you’re ready.' : 'That’s the last step.')

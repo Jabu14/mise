@@ -10,7 +10,7 @@ import { FlatList, Modal, Pressable, ScrollView, View, useWindowDimensions } fro
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StepScene } from '../../components/art/step-scenes';
 import { CookEntryEditor, Stars } from '../../components/cook-log-ui';
-import { IngredientList, ingCountText, servingsLabel } from '../../components/recipe';
+import { IngredientList, ingCountText, servingsLabel, shownLine } from '../../components/recipe';
 import { Btn, Card, Chip, Dock, Icon, IconBtn, Label, Screen, StepBody, TopBar, Txt, clock } from '../../components/ui';
 import { formatDuration, ingredientsUsedIn, plainText, scaleText } from '../../shared/parser';
 import { useCookLog } from '../../lib/cook-log';
@@ -19,6 +19,7 @@ import { say, speakStep, stopSpeaking, useClapCommands } from '../../lib/hands-f
 import { useVoiceCommands, voiceCommandsAvailable, type VoiceCommand } from '../../lib/voice-commands';
 import { useApp, useTimers, type Recipe } from '../../lib/store';
 import { useTheme } from '../../lib/theme';
+import { convertUnits } from '../../lib/units';
 
 function KeepAwake() {
   useKeepAwake();
@@ -119,7 +120,7 @@ export default function Cook() {
       else say('No timer is running for this step.', settings, voice);
     }
     else if (c === 'ingredients') {
-      const used = ingredientsUsedIn(r, s).map(u => plainText(scaleText(u, r.progress.scale || 1)));
+      const used = ingredientsUsedIn(r, s).map(u => plainText(shownLine(r, u, settings.units)));
       show('“Ingredients”');
       say(used.length ? `For this step you need: ${used.join(', ')}.` : 'This step doesn’t list any ingredients.', settings, voice);
     }
@@ -299,7 +300,7 @@ export default function Cook() {
             <IconBtn name="close" label="Close" onPress={() => setSheet(false)} />
           </View>
           <ScrollView contentContainerStyle={{ padding: 8, paddingBottom: insets.bottom + 24 }}>
-            <IngredientList recipe={r} />
+            <IngredientList recipe={r} inSheet />
           </ScrollView>
         </View>
       </Modal>
@@ -314,7 +315,7 @@ function CookStep({ recipe: r, index: i, compact }: { recipe: Recipe; index: num
   const scale = r.progress.scale || 1;
   const used: string[] = settings.stepIngredients ? ingredientsUsedIn(r, s) : [];
   return (
-    <StepBody step={s} number={i + 1} compact={compact} text={scale !== 1 ? scaleText(s.text, scale, { unitsOnly: true }) : s.text}>
+    <StepBody step={s} number={i + 1} compact={compact} text={convertUnits(scale !== 1 ? scaleText(s.text, scale, { unitsOnly: true }) : s.text, settings.units as 'original')}>
       {s.timers.length ? (
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
           {s.timers.map((t, ti) => <TimerChip key={ti} recipe={r} stepIndex={i} timerIndex={ti} />)}
@@ -324,7 +325,7 @@ function CookStep({ recipe: r, index: i, compact }: { recipe: Recipe; index: num
         <View style={{ gap: 8 }}>
           <Label color={th.c.muted}>{"You'll need"}</Label>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-            {used.map(u => <Chip key={u} outlined>{scaleText(u, scale).replace(/\*\*/g, '')}</Chip>)}
+            {used.map(u => <Chip key={u} outlined>{shownLine(r, u, settings.units).replace(/\*\*/g, '')}</Chip>)}
           </View>
         </View>
       ) : null}

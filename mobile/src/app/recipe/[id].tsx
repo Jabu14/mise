@@ -12,11 +12,14 @@ import { useCookLog } from '../../lib/cook-log';
 import { useShopping } from '../../lib/shopping';
 import { useApp } from '../../lib/store';
 import { artColor, useTheme } from '../../lib/theme';
+import { UNIT_CHOICES, convertUnits, type UnitMode } from '../../lib/units';
+import { SlidingChoice } from '../../components/sliding-choice';
 
 export default function RecipeScreen() {
   const th = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { getRecipe, patchRecipe, setProgress, deleteRecipe } = useApp();
+  const { getRecipe, patchRecipe, setProgress, deleteRecipe, settings, updateSettings } = useApp();
+  const units = settings.units as UnitMode;
   const r = getRecipe(id);
   const [dockH, setDockH] = useState(0);
   const { addFromRecipe } = useShopping();
@@ -85,6 +88,7 @@ export default function RecipeScreen() {
 
         {r.ingredients.length ? (
           <Section title="Ingredients" aside={ingCountText(r)}>
+            <SlidingChoice options={UNIT_CHOICES} value={units} onChange={v => updateSettings({ units: v })} height={34} />
             <IngredientList recipe={r} />
             <Pressable onPress={addToList} accessibilityRole="button"
               style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 10, height: 48, borderRadius: 24, borderWidth: 1.5, borderColor: th.c.accent, backgroundColor: pressed ? th.c.accentSoft : 'transparent' })}>
@@ -114,8 +118,8 @@ export default function RecipeScreen() {
                         {done ? <Icon name="checkmark" size={16} color={th.c.onAccent} /> : <Txt weight="black" size={14} color={th.c.accent}>{i + 1}</Txt>}
                       </View>
                       <View style={{ flex: 1, gap: 2 }}>
-                        <Txt weight="black" size={16}>{s.title || plainText(s.text)}</Txt>
-                        {s.title && s.text ? <Txt muted size={14} numberOfLines={2}>{plainText(s.text)}</Txt> : null}
+                        <Txt weight="black" size={16}>{s.title || convertUnits(plainText(s.text), units)}</Txt>
+                        {s.title && s.text ? <Txt muted size={14} numberOfLines={2}>{convertUnits(plainText(s.text), units)}</Txt> : null}
                       </View>
                       {s.timers.length ? (
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 9, paddingVertical: 3, borderRadius: 999, backgroundColor: th.c.accentSoft }}>
@@ -153,6 +157,7 @@ export default function RecipeScreen() {
       </ScrollView>
 
       <Dock onHeight={setDockH}>
+        {!started ? <Btn variant="secondary" size="big" icon="basket-outline" title="Prep" onPress={() => router.push(`/prep/${r.id}`)} accessibilityLabel="Mise en place: get everything ready first" /> : null}
         <Btn
           grow
           size="big"

@@ -87,7 +87,8 @@ export function cleanRecipe(v: unknown): Recipe | null {
     emoji: str(r.emoji, 8) || '🍳',
     progress: {
       step: Math.round(num(progress.step, 0, parsed.steps.length, 0)),
-      checked: strings(progress.checked, LIMITS.items).filter(k => ingredientKeys.has(k)),
+      // Ingredient ticks, plus the prep screen's own (prep tasks, equipment, preheating).
+      checked: strings(progress.checked, LIMITS.items).filter(k => ingredientKeys.has(k) || /^(prep\.\d{1,3}|eq\.\d{1,3}|oven)$/.test(k)),
       scale: num(progress.scale, 0.25, 50, 1),
     },
     createdAt: num(r.createdAt, 0, time + 1, time),
@@ -120,6 +121,7 @@ const CHOICES: Partial<Record<keyof Settings, readonly string[]>> = {
   aiSkill: ['beginner', 'home', 'confident'],
   aiVoiceRate: ['slow', 'normal', 'fast'],
   remindPlanTime: ['9', '12', '16'],
+  units: ['original', 'metric', 'us'],
 };
 
 export function cleanSettings(v: unknown, defaults: Settings): Settings {

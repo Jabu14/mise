@@ -7,6 +7,9 @@ import { AI_NAME } from '../lib/chat-store';
 import { useTheme } from '../lib/theme';
 
 const FAQ: { q: string; a: string }[] = [
+  { q: 'Can I see a recipe in cups or grams?', a: 'Yes. On a recipe, pick As written, Metric or US above the ingredients (or in Settings → Cook mode → Units). Weights, volumes, lengths and oven temperatures change everywhere, including cook mode. Teaspoons and tablespoons stay, and small gram amounts stay in grams.' },
+  { q: 'What if I’m missing an ingredient?', a: 'Tap the ⇄ button next to it for common swaps, like milk and lemon juice for buttermilk. “Ask Sous about it” opens Sous with the question ready.' },
+  { q: 'What is the Prep button?', a: 'Mise en place: before you cook, it lists what to do first (preheat the oven, get out the equipment), the chopping and softening, and every ingredient to put on the counter. Tick things off, then start cooking.' },
   { q: 'Can Mise remind me what I planned?', a: 'Yes. On days you’ve planned meals, Mise sends a note at 9 AM, noon or 4 PM (your choice) with what’s on. If you leave a recipe halfway, you get a nudge a few hours later. Turn either off in Account → Notifications → Reminders.' },
   { q: `What does ${AI_NAME} know about me?`, a: `Open Account → ${AI_NAME} settings and tap “What ${AI_NAME} knows about you” to see it word for word: your cooking level, diet and allergies, and (if you allow them) your saved recipes, meal plan and cooking journal.` },
   { q: 'How do I plan my meals?', a: 'Tap the calendar on the Recipes page. Tap ＋ next to Breakfast, Lunch or Dinner on any day to add a saved recipe or a note like “Leftovers”. “Add the week to my shopping list” adds every planned recipe’s ingredients at once. From a recipe, the calendar button at the top adds it to a day.' },

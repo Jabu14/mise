@@ -2,6 +2,13 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.16.0 (2026-10-15)
+
+### Added
+- **Mise en place.** A new "Prep" button next to "Start cooking" opens a get-ready screen: preheat the oven (temperature found in the steps), get out the equipment, prep work found in the ingredients ("finely chopped" → Chop, "softened" → Soften…), and every ingredient to put on the counter, with a progress bar. Ticks are saved and shared with the recipe's ingredient list.
+- **Units.** Show any recipe "As written", "Metric" (g, ml, °C, cm) or "US" (oz, lb, cups, °F, inches), from the switch above the ingredients or Settings → Cook mode. It converts ingredients, step text, cook mode and what hands-free reads aloud. When a recipe already gives both ("375 ml (1½ cups)", "230°C (450°F)", "7 g (2¼ tsp)") it keeps the one you use. Oven temperatures snap to the usual dial steps (220°C ↔ 425°F). Teaspoons and tablespoons stay as they are, and small gram amounts stay in grams.
+- **Ingredient swaps.** A ⇄ button next to ingredients with known substitutes (buttermilk, eggs, butter, cream, yeast, baking powder, wine, garlic and about 30 more) shows what to use instead, with "Ask Sous about it".
+
 ## 1.15.0 (2026-10-15)
 
 ### Added

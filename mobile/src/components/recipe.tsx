@@ -1,14 +1,18 @@
 // Recipe-specific pieces shared by the recipe page and cook mode.
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
 import { scaleText } from '../shared/parser';
+import { AI_NAME } from '../lib/chat-store';
 import { useApp, type Recipe } from '../lib/store';
+import { swapsFor } from '../lib/swaps';
+import { convertUnits } from '../lib/units';
 import { useTheme } from '../lib/theme';
 import { Icon, Label, RichText, Txt } from './ui';
 
 export function ingCountText(r: Recipe) {
   const total = r.ingredients.reduce((n, g) => n + g.items.length, 0);
-  const done = r.progress.checked.length;
+  const done = r.progress.checked.filter(k => /^\d+\.\d+$/.test(k)).length;
   return done ? `${done} of ${total} ready` : `${total} items`;
 }
 
@@ -129,10 +133,17 @@ export function MakesValue({ recipe: r }: { recipe: Recipe }) {
   );
 }
 
-export function IngredientList({ recipe: r }: { recipe: Recipe }) {
+// Ingredient line as shown: scaled to the amount you're making, in your units.
+export function shownLine(r: Recipe, line: string, units: string) {
+  return convertUnits(scaleText(line, r.progress.scale || 1), units as 'original');
+}
+
+// inSheet: shown inside another sheet (cook mode), where "Ask Sous" can't open the chat.
+export function IngredientList({ recipe: r, inSheet }: { recipe: Recipe; inSheet?: boolean }) {
   const th = useTheme();
-  const { setProgress } = useApp();
+  const { setProgress, settings } = useApp();
   const checked = new Set(r.progress.checked);
+  const [open, setOpen] = useState<string | null>(null);
   const toggle = (key: string) => {
     const next = new Set(checked);
     if (next.has(key)) next.delete(key);
@@ -147,9 +158,11 @@ export function IngredientList({ recipe: r }: { recipe: Recipe }) {
           {g.items.map((item, ii) => {
             const key = `${gi}.${ii}`;
             const on = checked.has(key);
+            const swaps = swapsFor(item);
+            const line = shownLine(r, item, settings.units);
             return (
+              <View key={key}>
               <Pressable
-                key={key}
                 onPress={() => toggle(key)}
                 accessibilityRole="checkbox"
                 accessibilityState={{ checked: on }}
@@ -159,9 +172,32 @@ export function IngredientList({ recipe: r }: { recipe: Recipe }) {
                   {on ? <Icon name="checkmark" size={16} color={th.c.onAccent} /> : null}
                 </View>
                 <View style={{ flex: 1, opacity: on ? 0.5 : 1 }}>
-                  <RichText text={scaleText(item, r.progress.scale || 1)} strike={on} />
+                  <RichText text={line} strike={on} />
                 </View>
+                {swaps ? (
+                  <Pressable onPress={() => setOpen(open === key ? null : key)} hitSlop={8} accessibilityLabel={`Swaps for ${swaps.name.toLowerCase()}`} accessibilityState={{ expanded: open === key }}
+                    style={{ width: 30, height: 30, marginTop: -3, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: open === key ? th.c.accentSoft : 'transparent' }}>
+                    <Icon name="swap-horizontal" size={18} color={open === key ? th.c.accent : th.c.muted} />
+                  </Pressable>
+                ) : null}
               </Pressable>
+              {swaps && open === key ? (
+                <View style={{ marginLeft: 48, marginRight: 8, marginBottom: 8, padding: 12, gap: 8, borderRadius: th.radiusSm, backgroundColor: th.c.soft }}>
+                  <Txt weight="black" size={13} color={th.c.accent}>{`NO ${swaps.name.toUpperCase()}? TRY`}</Txt>
+                  {swaps.options.map(o => (
+                    <View key={o} style={{ flexDirection: 'row', gap: 8 }}>
+                      <Txt size={14} color={th.c.accent}>•</Txt>
+                      <Txt size={14} style={{ flex: 1 }}>{o}</Txt>
+                    </View>
+                  ))}
+                  {!inSheet ? (
+                    <Pressable hitSlop={6} onPress={() => router.navigate({ pathname: '/chat', params: { draft: `I'm making ${r.title} and I don't have ${swaps.name.toLowerCase()} (${plainLine(line)}). What can I use instead? ` } })}>
+                      <Txt weight="bold" size={14} color={th.c.accent}>{`Ask ${AI_NAME} about it ›`}</Txt>
+                    </Pressable>
+                  ) : null}
+                </View>
+              ) : null}
+              </View>
             );
           })}
         </View>
@@ -169,3 +205,5 @@ export function IngredientList({ recipe: r }: { recipe: Recipe }) {
     </View>
   );
 }
+
+const plainLine = (s: string) => s.replace(/\*\*/g, '').trim();
