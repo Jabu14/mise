@@ -36,15 +36,18 @@ export function useClapCommands({ enabled, quiet, onClaps }: { enabled: boolean;
     let above = false;
     let claps: number[] = [];
 
-    const throwAway = () => {
-      const uri = recorder.uri;
+    // The recorder can already be released when the screen closes, so read its file first and
+    // never let clean-up throw.
+    const currentUri = () => { try { return recorder.uri; } catch { return null; } };
+    const throwAway = (uri: string | null) => {
       if (!uri) return;
       try { const f = new File(uri); if (f.exists) f.delete(); } catch { /* already gone */ }
     };
 
     const sample = () => {
       const now = Date.now();
-      const level = recorder.getStatus().metering;
+      let level: number | undefined;
+      try { level = recorder.getStatus().metering; } catch { return; }
       if (latest.current.quiet || level == null) { claps = []; above = false; return; }
       const loud = level > LOUD_DB && level - base > JUMP_DB;
       if (loud && !above && (!claps.length || now - claps[claps.length - 1] > CLAP_GAP_MS)) claps.push(now);
@@ -69,8 +72,9 @@ export function useClapCommands({ enabled, quiet, onClaps }: { enabled: boolean;
       setState('listening');
       sampler = setInterval(sample, SAMPLE_MS);
       restarter = setInterval(async () => {
-        await recorder.stop().catch(() => {});
-        throwAway();
+        const uri = currentUri();
+        try { await recorder.stop(); } catch { /* not recording */ }
+        throwAway(uri);
         if (!alive) return;
         await recorder.prepareToRecordAsync().catch(() => {});
         if (alive) recorder.record();
@@ -81,10 +85,14 @@ export function useClapCommands({ enabled, quiet, onClaps }: { enabled: boolean;
       alive = false;
       if (sampler) clearInterval(sampler);
       if (restarter) clearInterval(restarter);
-      recorder.stop().catch(() => {}).finally(() => {
-        throwAway();
-        setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }).catch(() => {});
-      });
+      const uri = currentUri();
+      Promise.resolve()
+        .then(() => recorder.stop())
+        .catch(() => {})
+        .finally(() => {
+          throwAway(uri);
+          setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }).catch(() => {});
+        });
       setState('off');
     };
   }, [enabled, recorder]);
