@@ -2,6 +2,17 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.15.0 (2026-10-15)
+
+### Added
+- **Meal plan reminders.** On each day you've planned something, a notification at 9 AM, noon or 4 PM lists what's on ("Dinner: Easy Crusty Bread"). They update by themselves when you change the plan. Tapping one opens the meal plan.
+- **Finish what you started.** Leave cook mode halfway and you get a nudge four hours later ("You stopped at step 5 of 12"); going back to cook cancels it, and tapping it opens the recipe.
+- Both live in Account → Notifications → Reminders (they used to say "soon") and follow your sound and preview choices.
+- **Sous context.** New "Use my meal plan" and "Use my cooking journal" switches, and "What Sous knows about you" shows, word for word, what Sous will be told along with your messages once it's connected.
+
+### Changed
+- The shopping list's empty picture no longer sits in a box.
+
 ## 1.14.0 (2026-10-15)
 
 ### Added

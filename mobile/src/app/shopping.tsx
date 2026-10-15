@@ -85,9 +85,7 @@ export default function ShoppingScreen() {
 
         {!items.length ? (
           <View style={{ alignItems: 'center', gap: 10, paddingTop: 30 }}>
-            <View style={{ borderRadius: 30, paddingHorizontal: 6, backgroundColor: th.c.accentSoft }}>
-              <DishArt title="salad" width={180} />
-            </View>
+            <DishArt title="salad" width={180} />
             <Txt kind="head" weight="bold" size={22}>Your list is empty</Txt>
             <Txt muted style={{ textAlign: 'center', maxWidth: 290 }}>Open any recipe and tap “Add to shopping list”. Matching ingredients are combined for you.</Txt>
           </View>

@@ -14,6 +14,7 @@ import { IngredientList, ingCountText, servingsLabel } from '../../components/re
 import { Btn, Card, Chip, Dock, Icon, IconBtn, Label, Screen, StepBody, TopBar, Txt, clock } from '../../components/ui';
 import { formatDuration, ingredientsUsedIn, plainText, scaleText } from '../../shared/parser';
 import { useCookLog } from '../../lib/cook-log';
+import { cancelFinishReminder, scheduleFinishReminder } from '../../lib/reminders';
 import { say, speakStep, stopSpeaking, useClapCommands } from '../../lib/hands-free';
 import { useVoiceCommands, voiceCommandsAvailable, type VoiceCommand } from '../../lib/voice-commands';
 import { useApp, useTimers, type Recipe } from '../../lib/store';
@@ -38,6 +39,20 @@ export default function Cook() {
   const { entries: cooks, log } = useCookLog();
   const [logId, setLogId] = useState<string | null>(null);
   const [hideLast, setHideLast] = useState(false);
+
+  // Leaving halfway: a nudge a few hours later (cancelled when you come back to cook).
+  const where = useRef({ index, finished });
+  useEffect(() => { where.current = { index, finished }; }, [index, finished]);
+  useEffect(() => {
+    if (!r) return;
+    cancelFinishReminder();
+    const spot = where;
+    return () => {
+      const { index: i, finished: done } = spot.current;
+      if (settings.remindFinish && !done && i > 0) scheduleFinishReminder(r.id, r.title, i, r.steps.length).catch(() => {});
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [r?.id]);
   const [sheet, setSheet] = useState(false);
   const [dockH, setDockH] = useState(0);
   const pager = useRef<FlatList>(null);

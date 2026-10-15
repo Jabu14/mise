@@ -57,6 +57,8 @@ export const DEFAULT_SETTINGS = {
   aiDiet: '',           // comma-separated: vegetarian,vegan,...
   aiNotes: '',          // allergies and dislikes, in the user's words
   aiUseRecipes: true,   // let Sous look at your saved recipes
+  aiUsePlan: true,      // …your meal plan
+  aiUseJournal: true,   // …and your cooking journal (stars and notes)
   aiVoiceReplies: true, // read answers out loud in voice mode
   aiVoice: '',          // a phone voice id; '' = the most natural one installed
   aiVoiceRate: 'normal', // slow | normal | fast
@@ -65,6 +67,9 @@ export const DEFAULT_SETTINGS = {
   notifySound: true,    // …with a sound
   notifyPreview: true,  // …showing the timer and recipe name
   badgeTimers: false,   // number of running timers on the app icon
+  remindPlan: true,     // a note on days you've planned meals…
+  remindPlanTime: '9',  // …at this hour: 9 | 12 | 16
+  remindFinish: true,   // a nudge a few hours after leaving a recipe halfway
 };
 export type Settings = typeof DEFAULT_SETTINGS;
 

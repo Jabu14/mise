@@ -26,6 +26,11 @@ function prepare() {
         sound: 'default',
         vibrationPattern: [0, 400, 200, 400, 200, 400],
       });
+      await Notifications.setNotificationChannelAsync('reminders', {
+        name: 'Reminders',
+        importance: Notifications.AndroidImportance.DEFAULT,
+        sound: 'default',
+      });
     }
     const granted = (s: Notifications.NotificationPermissionsStatus) =>
       Platform.OS === 'ios' ? s.ios?.status === Notifications.IosAuthorizationStatus.AUTHORIZED : s.status === 'granted';
@@ -39,6 +44,9 @@ function prepare() {
 // The user's notification choices (Account → Notifications), kept in step by the app's store.
 let prefs = { enabled: true, preview: true, sound: true };
 export function setNotificationPrefs(next: typeof prefs) { prefs = next; }
+export const notificationPrefs = () => prefs;
+// Asks for permission the first time; false if notifications aren't allowed.
+export const ensureNotifications = () => prepare();
 
 // Number on the app icon (e.g. how many timers are running); 0 clears it.
 export function setBadge(count: number) {

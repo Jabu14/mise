@@ -119,6 +119,7 @@ const CHOICES: Partial<Record<keyof Settings, readonly string[]>> = {
   aiUnits: ['metric', 'us', 'both'],
   aiSkill: ['beginner', 'home', 'confident'],
   aiVoiceRate: ['slow', 'normal', 'fast'],
+  remindPlanTime: ['9', '12', '16'],
 };
 
 export function cleanSettings(v: unknown, defaults: Settings): Settings {

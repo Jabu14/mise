@@ -4,7 +4,7 @@ import * as Notifications from 'expo-notifications';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState, type ReactNode } from 'react';
 import { Alert, Linking, Pressable, ScrollView, View } from 'react-native';
-import { Toggle } from '../components/settings-ui';
+import { Segmented, Toggle } from '../components/settings-ui';
 import { ToneRow, ToneSheet } from '../components/tone-sheet';
 import { Btn, Card, Icon, IconBtn, Screen, TopBar, Txt } from '../components/ui';
 import { useApp } from '../lib/store';
@@ -12,11 +12,11 @@ import { useTheme } from '../lib/theme';
 
 type Status = 'loading' | 'on' | 'off' | 'blocked';
 
-const DEFAULTS = { notifyTimers: true, notifySound: true, notifyPreview: true, badgeTimers: false, alarmSound: true };
+const DEFAULTS = { notifyTimers: true, notifySound: true, notifyPreview: true, badgeTimers: false, alarmSound: true, remindPlan: true, remindPlanTime: '9', remindFinish: true };
 
 export default function NotificationsScreen() {
   const th = useTheme();
-  const { updateSettings } = useApp();
+  const { settings, updateSettings } = useApp();
   const [status, setStatus] = useState<Status>('loading');
   const [tones, setTones] = useState(false);
 
@@ -36,7 +36,7 @@ export default function NotificationsScreen() {
   };
 
   const reset = () =>
-    Alert.alert('Reset notification settings?', 'Timer notifications, sounds, previews and the app icon badge go back to how they were.', [
+    Alert.alert('Reset notification settings?', 'Timer notifications, sounds, previews, reminders and the app icon badge go back to how they were.', [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Reset', style: 'destructive', onPress: () => updateSettings(DEFAULTS) },
     ]);
@@ -79,10 +79,15 @@ export default function NotificationsScreen() {
 
         <Heading>Reminders</Heading>
         <Group>
-          <SoonRow label="Finish what you started" />
-          <SoonRow label="Meal plan for tomorrow" last />
+          <Toggle k="remindPlan" label="Meal plan" hint="On days you’ve planned, see what’s on" last={!settings.remindPlan} />
+          {settings.remindPlan ? (
+            <View style={{ paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: th.c.line }}>
+              <Segmented label="Remind me at" k="remindPlanTime" options={[['9', '9 AM'], ['12', 'Noon'], ['16', '4 PM']]} />
+            </View>
+          ) : null}
+          <Toggle k="remindFinish" label="Finish what you started" hint="A nudge a few hours after you leave a recipe halfway" last />
         </Group>
-        <Note>Gentle nudges when you leave a recipe halfway, or plan meals for the next day.</Note>
+        <Note>Reminders follow your timer settings for sound and preview.</Note>
 
         <Heading>Home screen</Heading>
         <Group>
@@ -113,12 +118,3 @@ function Group({ children, padded = true }: { children: ReactNode; padded?: bool
   return <Card style={{ paddingHorizontal: padded ? 16 : 0, paddingVertical: padded ? 2 : 0, overflow: 'hidden' }}>{children}</Card>;
 }
 
-function SoonRow({ label, last }: { label: string; last?: boolean }) {
-  const th = useTheme();
-  return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 14, borderBottomWidth: last ? 0 : 1, borderBottomColor: th.c.line }}>
-      <Txt weight="bold" style={{ flex: 1 }}>{label}</Txt>
-      <View style={{ paddingHorizontal: 8, paddingVertical: 1, borderRadius: 999, backgroundColor: th.c.soft }}><Txt weight="black" size={11} muted>SOON</Txt></View>
-    </View>
-  );
-}

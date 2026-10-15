@@ -1,10 +1,14 @@
 // Sous settings: how the assistant should answer, your diet and allergies, and chat history.
 // Saved now; Sous uses them once it is connected to the AI.
 import { router } from 'expo-router';
+import { useState } from 'react';
 import { Alert, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { Group, Segmented, Toggle } from '../components/settings-ui';
 import { Btn, Card, Icon, IconBtn, Screen, TopBar, Txt } from '../components/ui';
 import { AI_NAME, useChats } from '../lib/chat-store';
+import { useCookLog } from '../lib/cook-log';
+import { usePlanner } from '../lib/planner';
+import { buildSousContext } from '../lib/sous-context';
 import { useApp } from '../lib/store';
 import { useTheme } from '../lib/theme';
 
@@ -12,8 +16,12 @@ const DIETS = ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-free', 'Dairy-free'
 
 export default function SousSettings() {
   const th = useTheme();
-  const { settings, updateSettings } = useApp();
+  const { settings, updateSettings, recipes } = useApp();
   const { chats, deleteChats } = useChats();
+  const plan = usePlanner().entries;
+  const cooks = useCookLog().entries;
+  const [showContext, setShowContext] = useState(false);
+  const context = buildSousContext({ settings, recipes, plan, cooks });
   const diets = new Set(settings.aiDiet.split(',').filter(d => DIETS.includes(d)));
 
   const toggleDiet = (d: string) => {
@@ -79,8 +87,30 @@ export default function SousSettings() {
         <Group title="Behaviour">
           <Card style={{ paddingHorizontal: 16, paddingVertical: 2 }}>
             <Toggle k="aiUseRecipes" label="Use my saved recipes" />
+            <Toggle k="aiUsePlan" label="Use my meal plan" />
+            <Toggle k="aiUseJournal" label="Use my cooking journal" hint="Your stars and notes, so it remembers what you liked" />
             <Toggle k="aiVoiceReplies" label="Read answers out loud in voice mode" last />
           </Card>
+          <Pressable onPress={() => setShowContext(v => !v)} accessibilityRole="button" accessibilityState={{ expanded: showContext }}>
+            <Card style={{ padding: 16, gap: 10 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <Icon name="eye-outline" size={20} color={th.c.accent} />
+                <Txt weight="bold" style={{ flex: 1 }}>{`What ${AI_NAME} knows about you`}</Txt>
+                <Icon name={showContext ? 'chevron-up' : 'chevron-down'} size={18} color={th.c.muted} />
+              </View>
+              {showContext ? (
+                <View style={{ gap: 8 }}>
+                  <Txt muted size={13}>{`Sent along with your messages, word for word. Turn things off above to leave them out.`}</Txt>
+                  {context.map(line => (
+                    <View key={line} style={{ flexDirection: 'row', gap: 8 }}>
+                      <Txt muted size={14}>•</Txt>
+                      <Txt size={14} style={{ flex: 1 }}>{line}</Txt>
+                    </View>
+                  ))}
+                </View>
+              ) : null}
+            </Card>
+          </Pressable>
         </Group>
 
         <Group title="Chat history">

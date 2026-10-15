@@ -8,6 +8,7 @@ import { Stack, type ErrorBoundaryProps } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Pressable, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { ReminderHost } from '../components/reminder-host';
 import { TimerIslandHost } from '../components/timer-island';
 import { ChatProvider } from '../lib/chat-store';
 import { CookLogProvider } from '../lib/cook-log';
@@ -61,6 +62,7 @@ function Shell({ fontsLoaded }: { fontsLoaded: boolean }) {
   return (
     <>
       <StatusBar style={th.dark ? 'light' : 'dark'} />
+      <ReminderHost />
       <TimerIslandHost>
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: th.c.bg } }}>
         <Stack.Screen name="(tabs)" />

@@ -9,6 +9,8 @@ import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
+  'Reminders for your meal plan, and a nudge to finish a recipe you left halfway',
+  `${AI_NAME} can use your meal plan and journal, and you can see exactly what it knows`,
   'Meal planner: plan the week and shop for it in one tap',
   'Cooking journal: rate each cook, add a photo and notes for next time',
   'The tab highlight now glides even when you jump across several tabs',
