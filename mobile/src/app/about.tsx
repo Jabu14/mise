@@ -9,6 +9,8 @@ import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
+  'The meal plan is a real calendar now: tap any day to plan it',
+  'The navigation bar floats over the page with a frosted, blurry glass look',
   '“Ready by…”: pick when you want to eat and see when to start each step',
   '“What can I make?”: add what’s in your fridge and see which recipes fit',
   'Collections: sort recipes into Weeknight, Baking or your own',

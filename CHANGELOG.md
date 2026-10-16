@@ -2,6 +2,12 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.18.0 (2026-10-15)
+
+### Changed
+- **Meal plan is a normal calendar.** A month grid (Monday first) with dots under days that have meals planned (one per meal), today outlined and the chosen day filled in. Swipe the grid or use the arrows to change month; "Today" jumps back. Tap a day to see its Breakfast, Lunch and Dinner below, each with an Add button. "Add this week to my shopping list" uses the week of the chosen day, and ••• can clear the day or the week.
+- **Floating, frosted navigation bar.** The bar now floats over the page with no strip of background behind it, and it's see-through glass: whatever scrolls underneath shows through, blurred. Pages leave room at the bottom so nothing hides behind it; in Sous the message box sits just above the bar and drops to the keyboard while typing.
+
 ## 1.17.0 (2026-10-15)
 
 ### Added

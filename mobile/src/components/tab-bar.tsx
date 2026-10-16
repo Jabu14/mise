@@ -1,10 +1,10 @@
 // Bottom navigation: Recipes · Sous (AI chat) · Add · Timers · Account, as a floating rounded bar
-// (frosted glass) that sits a little above the bottom edge. A soft highlight slides between the tabs,
+// (frosted glass) that floats over the page, so whatever scrolls behind it shows through blurred. A soft highlight slides between the tabs,
 // following your finger while you swipe between pages (like Instagram).
 import * as Haptics from 'expo-haptics';
-import type { BottomTabBarProps } from 'expo-router/js-tabs';
-import { createContext, useContext, useState, type ReactNode } from 'react';
-import { Animated, Pressable, View } from 'react-native';
+import { BottomTabBarHeightCallbackContext, type BottomTabBarProps } from 'expo-router/js-tabs';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { Animated, Keyboard, Platform, Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AI_NAME } from '../lib/chat-store';
 import { useApp, useTimers } from '../lib/store';
@@ -26,6 +26,16 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
   const { timers } = useTimers();
   const pos = useContext(TabPosition);
   const [rowWidth, setRowWidth] = useState(0);
+  // Pages read this to leave room at the bottom for the floating bar.
+  const reportHeight = useContext(BottomTabBarHeightCallbackContext);
+  // Android moves the bar up with the keyboard; hide it while typing there.
+  const [typing, setTyping] = useState(false);
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+    const show = Keyboard.addListener('keyboardDidShow', () => setTyping(true));
+    const hide = Keyboard.addListener('keyboardDidHide', () => setTyping(false));
+    return () => { show.remove(); hide.remove(); };
+  }, []);
   const tabWidth = rowWidth ? (rowWidth - PAD * 2) / state.routes.length : 0;
 
   const TABS: Record<string, { label: string; icon: (on: boolean, color: string) => ReactNode }> = {
@@ -52,10 +62,11 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
   };
 
   return (
-    <View style={{ paddingHorizontal: 14, paddingTop: 6, paddingBottom: Math.max(insets.bottom - 6, 10), backgroundColor: th.c.bg }}>
+    <View pointerEvents="box-none" onLayout={e => reportHeight?.(e.nativeEvent.layout.height)}
+      style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 14, paddingTop: 6, paddingBottom: Math.max(insets.bottom - 6, 10), display: typing ? 'none' : 'flex' }}>
     {/* The shadow lives on a wrapper: the glass clips its own edges. */}
-    <View style={{ borderRadius: 34, shadowColor: '#000', shadowOpacity: th.dark ? 0.4 : 0.12, shadowRadius: 18, shadowOffset: { width: 0, height: 6 }, elevation: 10 }}>
-    <Glass tint={th.dark ? 0.7 : 0.85} strength={50} style={{ flexDirection: 'row', alignItems: 'center', height: 68, paddingHorizontal: PAD, borderRadius: 34 }}>
+    <View style={{ borderRadius: 34, shadowColor: '#000', shadowOpacity: th.dark ? 0.35 : 0.1, shadowRadius: 18, shadowOffset: { width: 0, height: 6 }, elevation: 10 }}>
+    <Glass tint={th.dark ? 0.25 : 0.2} strength={70} style={{ flexDirection: 'row', alignItems: 'center', height: 68, paddingHorizontal: PAD, borderRadius: 34 }}>
       <View style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} onLayout={e => setRowWidth(e.nativeEvent.layout.width)} pointerEvents="none">
         {tabWidth && pos ? (
           <Animated.View style={{

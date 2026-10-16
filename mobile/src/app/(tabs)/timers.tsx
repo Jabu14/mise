@@ -3,6 +3,7 @@
 // With no timers running, the picker shows right here.
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
+import { useBottomTabBarHeight } from 'expo-router/js-tabs';
 import { useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { EditMinus, SwipeRow } from '../../components/swipe-row';
@@ -14,6 +15,7 @@ import { useTheme } from '../../lib/theme';
 
 export default function TimersTab() {
   const th = useTheme();
+  const tabBarH = useBottomTabBarHeight();
   const { settings } = useApp();
   const { timers, removeTimer } = useTimers();
   const [editing, setEditing] = useState(false);
@@ -33,7 +35,7 @@ export default function TimersTab() {
         {running ? <IconBtn name="add" label="Add another timer" tinted onPress={() => router.push('/timer-new')} /> : null}
       </TopBar>
 
-      <ScrollView scrollEnabled={!wheelActive} contentContainerStyle={{ paddingBottom: 32 }} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
+      <ScrollView scrollEnabled={!wheelActive} contentContainerStyle={{ paddingBottom: tabBarH + 24 }} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
         <Txt kind="head" weight="bold" size={34} style={{ paddingHorizontal: 16, paddingBottom: 8 }}>Timers</Txt>
         {running ? (
           <View style={{ borderTopWidth: 1, borderTopColor: th.c.line }}>

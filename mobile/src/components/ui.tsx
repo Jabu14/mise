@@ -149,14 +149,15 @@ export function Chip({ children, icon, outlined }: { children: ReactNode; icon?:
 export function Dock({ children, onHeight }: { children?: ReactNode; onHeight?: (h: number) => void }) {
   const th = useTheme();
   const insets = useSafeAreaInsets();
-  const inTabs = useContext(BottomTabBarHeightContext) != null;
+  const tabBar = useContext(BottomTabBarHeightContext);
+  const inTabs = tabBar != null;
   const empty = !children;
   return (
     <View
       onLayout={e => onHeight?.(empty ? 0 : e.nativeEvent.layout.height)}
       pointerEvents="box-none"
       style={[
-        { position: 'absolute', left: 0, right: 0, bottom: 0, paddingBottom: inTabs ? 10 : Math.max(insets.bottom, 12), paddingTop: 10, paddingHorizontal: 16, gap: 10, backgroundColor: th.c.bg + 'F2' },
+        { position: 'absolute', left: 0, right: 0, bottom: 0, paddingBottom: inTabs ? tabBar + 10 : Math.max(insets.bottom, 12), paddingTop: 10, paddingHorizontal: 16, gap: 10, backgroundColor: inTabs ? 'transparent' : th.c.bg + 'F2' },
         empty && { opacity: 0, paddingTop: 0, paddingBottom: 0 },
       ]}
     >

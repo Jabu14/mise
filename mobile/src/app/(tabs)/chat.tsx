@@ -2,8 +2,9 @@
 // Not connected to the AI yet: Sous replies with a short placeholder for now.
 import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useBottomTabBarHeight } from 'expo-router/js-tabs';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Image, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
+import { Animated, Image, Keyboard, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { Composer } from '../../components/chat/composer';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AttachSheet, type AttachChoice } from '../../components/chat/attach-sheet';
@@ -38,6 +39,15 @@ function greeting(hour: number, name: string) {
 
 export default function ChatTab() {
   const th = useTheme();
+  // The composer sits just above the floating tab bar, and drops to the keyboard while typing.
+  const tabBarH = useBottomTabBarHeight();
+  const [kb, setKb] = useState(false);
+  useEffect(() => {
+    const show = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () => setKb(true));
+    const hide = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () => setKb(false));
+    return () => { show.remove(); hide.remove(); };
+  }, []);
+  const lift = kb ? 0 : tabBarH;
   const { recipes, settings } = useApp();
   const { getChat, send } = useChats();
   const drawer = useChatDrawer();
@@ -109,7 +119,7 @@ export default function ChatTab() {
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={{ flex: 1 }}>
-        <ScrollView ref={scroll} contentContainerStyle={{ flexGrow: 1, padding: 16, paddingTop: headerH + 8, paddingBottom: composerH + 16, gap: 12 }} keyboardShouldPersistTaps="handled" onScroll={onScroll} scrollEventThrottle={64}
+        <ScrollView ref={scroll} contentContainerStyle={{ flexGrow: 1, padding: 16, paddingTop: headerH + 8, paddingBottom: composerH + lift + 16, gap: 12 }} keyboardShouldPersistTaps="handled" onScroll={onScroll} scrollEventThrottle={64}
           onContentSizeChange={() => { if (!awayFromEnd) scroll.current?.scrollToEnd({ animated: true }); }}>
           {chat?.messages.length ? (
             chat.messages.map(m => <Bubble key={m.id} m={m} />)
@@ -133,7 +143,7 @@ export default function ChatTab() {
             </View>
           )}
         </ScrollView>
-        <Animated.View pointerEvents={awayFromEnd ? 'auto' : 'none'} style={{ position: 'absolute', bottom: composerH + 10, alignSelf: 'center', opacity: downBtn, transform: [{ scale: downBtn.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }] }}>
+        <Animated.View pointerEvents={awayFromEnd ? 'auto' : 'none'} style={{ position: 'absolute', bottom: composerH + lift + 10, alignSelf: 'center', opacity: downBtn, transform: [{ scale: downBtn.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }] }}>
           <Pressable onPress={() => scroll.current?.scrollToEnd({ animated: true })} accessibilityRole="button" accessibilityLabel="Scroll to the newest message"
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
             <Glass style={{ width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' }}>
@@ -141,7 +151,7 @@ export default function ChatTab() {
             </Glass>
           </Pressable>
         </Animated.View>
-        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }} onLayout={e => setComposerH(e.nativeEvent.layout.height)}>
+        <View style={{ position: 'absolute', left: 0, right: 0, bottom: lift }} onLayout={e => setComposerH(e.nativeEvent.layout.height)}>
         <Composer
           attachment={attachment}
           onClearAttachment={() => setAttachment(null)}

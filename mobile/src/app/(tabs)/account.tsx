@@ -2,6 +2,7 @@
 // Sign-in / cloud sync will live here once there is a backend; for now everything stays on this phone.
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
+import { useBottomTabBarHeight } from 'expo-router/js-tabs';
 import { Alert, ScrollView, TextInput, View } from 'react-native';
 import { Row } from '../../components/settings-ui';
 import { Card, Icon, Label, Screen, TopBar, Txt, type IconName } from '../../components/ui';
@@ -13,6 +14,7 @@ import { AI_NAME } from '../../lib/chat-store';
 
 export default function AccountTab() {
   const th = useTheme();
+  const tabBarH = useBottomTabBarHeight();
   const { settings, updateSettings, recipes } = useApp();
   const { timersStarted } = useTimers();
   const cooked = recipes.reduce((n, r) => n + (r.cookCount || 0), 0);
@@ -26,7 +28,7 @@ export default function AccountTab() {
         <Txt kind="head" weight="bold" size={30} style={{ flex: 1, paddingLeft: 8 }}>Account</Txt>
       </TopBar>
 
-      <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 4, paddingBottom: 32, gap: 16 }} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 4, paddingBottom: tabBarH + 24, gap: 16 }} keyboardShouldPersistTaps="handled">
         <Card style={{ padding: 18, flexDirection: 'row', alignItems: 'center', gap: 14 }}>
           <View style={{ width: 60, height: 60, borderRadius: 30, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.accent }}>
             {initial ? <Txt kind="head" weight="bold" size={26} color={th.c.onAccent}>{initial}</Txt> : <Icon name="person" size={28} color={th.c.onAccent} />}
