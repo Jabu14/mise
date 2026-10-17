@@ -9,6 +9,9 @@ import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
+  'A new Help center with topics and full how-to articles',
+  'Attach screenshots and screen recordings when you send feedback',
+  'See an example of your units before you choose',
   'Hold and slide along the navigation bar: a glass lens follows your finger',
   'A proper QR scanner, a new Help center and centred page titles',
   'Settings split into their own pages: Cook mode, Units, Hands-free and more',

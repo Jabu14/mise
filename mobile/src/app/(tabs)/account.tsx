@@ -144,7 +144,7 @@ export default function AccountTab() {
             <Pressable onPress={() => router.push('/profile')} accessibilityLabel="Profile picture" style={{ borderRadius: AVATAR / 2, borderWidth: 1, borderColor: th.c.line }}>
               {avatar(AVATAR)}
             </Pressable>
-            <StatusBubble status={settings.status} onPress={statusSheet} />
+            {settings.showStatus ? <StatusBubble status={settings.status} onPress={statusSheet} /> : null}
           </View>
 
           <Pressable onPress={accountSheet} accessibilityRole="button" accessibilityLabel={user ? 'Your account' : 'Sign in'} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 14 }}>

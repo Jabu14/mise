@@ -26,7 +26,7 @@ const NAV_TABS: [string, string, IconName][] = [
   ['timers', 'Timers', 'timer-outline'],
   ['account', 'Account', 'person-circle-outline'],
 ];
-const TITLES: Record<string, string> = { layout: 'Account layout', navbar: 'Navigation bar', data: 'Test data', storage: 'Storage' };
+const TITLES: Record<string, string> = { features: 'Feature switches', layout: 'Account layout', navbar: 'Navigation bar', data: 'Test data', storage: 'Storage' };
 
 export default function DevTool() {
   const { tool } = useLocalSearchParams<{ tool: string }>();
@@ -37,7 +37,7 @@ export default function DevTool() {
         <PageTitle>{TITLES[tool] ?? 'Developer'}</PageTitle>
       </TopBar>
       <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 4, paddingBottom: 60, gap: 16 }}>
-        {tool === 'layout' ? <LayoutTool /> : tool === 'navbar' ? <NavbarTool /> : tool === 'data' ? <DataTool /> : tool === 'storage' ? <StorageTool /> : null}
+        {tool === 'features' ? <FeaturesTool /> : tool === 'layout' ? <LayoutTool /> : tool === 'navbar' ? <NavbarTool /> : tool === 'data' ? <DataTool /> : tool === 'storage' ? <StorageTool /> : null}
       </ScrollView>
     </Screen>
   );
@@ -54,6 +54,35 @@ function RoundBtn({ icon, label, onPress, disabled, active, small }: { icon: Ico
       style={({ pressed }) => ({ width: small ? 34 : 38, height: small ? 26 : 38, borderRadius: small ? 9 : 19, alignItems: 'center', justifyContent: 'center', backgroundColor: active ? th.c.accentSoft : pressed ? th.c.line : th.c.soft, opacity: disabled ? 0.35 : 1 })}>
       <Icon name={icon} size={small ? 16 : 18} color={active ? th.c.accent : th.c.text} />
     </Pressable>
+  );
+}
+
+// ---------- Feature switches ----------
+function FeaturesTool() {
+  const th = useTheme();
+  const { settings, updateSettings } = useApp();
+  const items: ['showStatus' | 'navLens', string, string, IconName][] = [
+    ['showStatus', 'Status bubble', 'The emoji thought bubble above your picture on Account', 'happy-outline'],
+    ['navLens', 'Navbar lens', 'Hold or slide on the navigation bar to get the glass lens', 'scan-circle-outline'],
+  ];
+  return (
+    <>
+      <Hint>Switch parts of the app on or off to compare designs. Changes show right away.</Hint>
+      <View style={{ gap: 10 }}>
+        {items.map(([k, title, sub, icon]) => (
+          <View key={k} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, padding: 14, borderRadius: 20, backgroundColor: th.c.surface, borderWidth: 1, borderColor: th.c.line }}>
+            <View style={{ width: 42, height: 42, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.accentSoft }}>
+              <Icon name={icon} size={20} color={th.c.accent} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Txt weight="black" size={15}>{title}</Txt>
+              <Txt muted size={12}>{sub}</Txt>
+            </View>
+            <Switch value={settings[k]} onValueChange={v => updateSettings({ [k]: v })} trackColor={{ true: th.c.accent, false: th.c.line }} thumbColor="#fff" accessibilityLabel={title} />
+          </View>
+        ))}
+      </View>
+    </>
   );
 }
 

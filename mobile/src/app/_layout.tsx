@@ -80,7 +80,10 @@ function Shell({ fontsLoaded }: { fontsLoaded: boolean }) {
         <Stack.Screen name="about" />
         <Stack.Screen name="feedback" />
         <Stack.Screen name="recipe-prompt" />
-        <Stack.Screen name="help" />
+        <Stack.Screen name="help/index" />
+        <Stack.Screen name="help/topic/[id]" />
+        <Stack.Screen name="help/section/[id]" />
+        <Stack.Screen name="help/article/[id]" />
         <Stack.Screen name="sous-settings" />
         <Stack.Screen name="profile" />
         <Stack.Screen name="notifications" />

@@ -80,11 +80,11 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
     onPanResponderTerminationRequest: () => false,
     onPanResponderGrant: (_, g) => {
       const i = Math.round(indexAt(g.x0));
-      setPress({ i, timer: setTimeout(() => startLens(i), 220) });
+      setPress({ i, timer: setTimeout(() => { if (settings.navLens) startLens(i); }, 220) });
     },
     onPanResponderMove: (_, g) => {
       if (!grab) {
-        if (Math.abs(g.dx) < 10) return;
+        if (Math.abs(g.dx) < 10 || !settings.navLens) return;
         if (press) clearTimeout(press.timer);
         startLens(Math.round(indexAt(g.moveX)));
       }
@@ -100,7 +100,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
       if (press) clearTimeout(press.timer);
       setPress(null);
       if (grab) endLens(true);
-      else if (Math.abs(g.dx) >= 10) { setHover(Math.round(indexAt(g.moveX))); endLens(true); }
+      else if (Math.abs(g.dx) >= 10 && settings.navLens) { setHover(Math.round(indexAt(g.moveX))); endLens(true); }
       else if (press) {
         if (press.i !== state.index && settings.haptics) Haptics.selectionAsync().catch(() => {});
         open(press.i);

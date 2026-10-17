@@ -8,11 +8,13 @@ import { ToneRow, ToneSheet } from '../components/tone-sheet';
 import { Card, Icon, IconBtn, PageTitle, Screen, TopBar, Txt } from '../components/ui';
 import { useTheme } from '../lib/theme';
 import { SETTINGS_SECTIONS, type SettingsSection } from '../lib/settings-sections';
-import { UNIT_CHOICES } from '../lib/units';
+import { UNIT_CHOICES, convertUnits, type UnitMode } from '../lib/units';
+import { useApp } from '../lib/store';
 
 
 export default function SettingsScreen() {
   const th = useTheme();
+  const { settings } = useApp();
   const { section } = useLocalSearchParams<{ section?: string }>();
   const [tones, setTones] = useState(false);
   const only = SETTINGS_SECTIONS.find(s => s[0] === section);
@@ -55,6 +57,7 @@ export default function SettingsScreen() {
           <Group title={only ? '' : 'Units'}>
             {intro('units')}
             <Segmented label="Show amounts in" k="units" options={UNIT_CHOICES} />
+            <UnitsExample mode={settings.units as UnitMode} />
             <Txt muted size={13}>Changes ingredients, steps, oven temperatures and what hands-free reads aloud. Teaspoons and tablespoons stay as they are.</Txt>
           </Group>
         ) : null}
@@ -90,5 +93,29 @@ export default function SettingsScreen() {
       </ScrollView>
       <ToneSheet visible={tones} onClose={() => setTones(false)} />
     </Screen>
+  );
+}
+
+// A few recipe lines shown the way the chosen units would show them, updating as you switch.
+const EXAMPLES = ['500 g bread flour', '1 cup milk', '8 oz cream cheese', 'Bake at 220°C for 30 minutes', 'Use a 23 cm cake tin'];
+function UnitsExample({ mode }: { mode: UnitMode }) {
+  const th = useTheme();
+  return (
+    <Card style={{ padding: 0, overflow: 'hidden' }}>
+      <View style={{ flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 10, backgroundColor: th.c.soft }}>
+        <Txt muted weight="black" size={12} style={{ flex: 1 }}>THE RECIPE SAYS</Txt>
+        <Txt muted weight="black" size={12} style={{ flex: 1 }}>YOU SEE</Txt>
+      </View>
+      {EXAMPLES.map((line, i) => {
+        const shown = convertUnits(line, mode);
+        const changed = shown !== line;
+        return (
+          <View key={line} style={{ flexDirection: 'row', gap: 10, paddingHorizontal: 16, paddingVertical: 11, borderTopWidth: i ? 1 : 0, borderTopColor: th.c.line }}>
+            <Txt muted size={14} style={{ flex: 1 }}>{line}</Txt>
+            <Txt weight={changed ? 'black' : 'regular'} size={14} color={changed ? th.c.accent : th.c.text} style={{ flex: 1 }}>{shown}</Txt>
+          </View>
+        );
+      })}
+    </Card>
   );
 }

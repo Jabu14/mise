@@ -2,6 +2,17 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.22.0 (2026-10-17)
+
+### Added
+- **Help center, rebuilt** (like WhatsApp's): "How can we help?" with a search across every article, a list of Help topics (Get started, Recipes, Cooking, Timers and alarms, Planning and shopping, Sous, Sharing, Privacy, Plans and payments, Customize Mise), popular articles and "Need more help? Contact us". Topics open sections, sections open articles. About 40 articles explain how Mise works, with steps, notes, links to other articles and to the right screen, related articles, a share button and "Does this answer your question? Yes / No".
+- **Feedback with attachments**: add up to 5 screenshots or screen recordings (tap one to remove it). Send sits at the top right and lights up when your message is ready; the mail app opens with everything attached.
+- **Units example**: Settings → Units shows a few recipe lines as "The recipe says / You see", updating as you switch between As written, Metric and US.
+- **Developer → Feature switches**: turn the status bubble and the navbar lens on or off.
+
+### Changed
+- Timers & alarms uses the stopwatch icon.
+
 ## 1.21.0 (2026-10-17)
 
 ### Added

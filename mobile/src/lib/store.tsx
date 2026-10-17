@@ -54,6 +54,8 @@ export const DEFAULT_SETTINGS = {
   avatar: '',           // profile photo (a file in the app's folder); '' = your initial
   status: '',           // an emoji above your profile picture, like 🍞
   navHideLabels: '',
+  showStatus: true,     // developer: the emoji status bubble on Account
+  navLens: true,        // developer: hold or slide on the navbar to get the lens
   accountOrder: '',     // developer: order of the Account sections, comma-separated ('' = default)
   accountHidden: '',    // developer: Account sections to hide, comma-separated    // developer: tabs whose navbar label is hidden, comma-separated (index,chat,add,timers,account)
   recipePrompt: '',     // empty = the built-in prompt

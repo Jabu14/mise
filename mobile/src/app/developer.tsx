@@ -8,6 +8,7 @@ import { AUTH_MODE } from '../lib/auth';
 import { useTheme } from '../lib/theme';
 
 const DEV_TOOLS: [string, string, IconName, string][] = [
+  ['features', 'Feature switches', 'toggle-outline', 'Turn parts of the app on or off, like the status bubble'],
   ['layout', 'Account layout', 'reorder-four-outline', 'Reorder or hide the sections on the Account tab'],
   ['navbar', 'Navigation bar', 'apps-outline', 'Show or hide each tab’s text'],
   ['data', 'Test data', 'flask-outline', 'Add sample recipes and cooks, test a notification, clear things'],
