@@ -11,6 +11,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ReminderHost } from '../components/reminder-host';
 import { TimerIslandHost } from '../components/timer-island';
 import { ChatProvider } from '../lib/chat-store';
+import { AuthProvider } from '../lib/auth';
 import { CookLogProvider } from '../lib/cook-log';
 import { PlannerProvider } from '../lib/planner';
 import { ShoppingProvider } from '../lib/shopping';
@@ -41,6 +42,7 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <AppProvider>
+        <AuthProvider>
         <ChatProvider>
         <ShoppingProvider>
         <PlannerProvider>
@@ -50,6 +52,7 @@ export default function RootLayout() {
         </PlannerProvider>
         </ShoppingProvider>
         </ChatProvider>
+        </AuthProvider>
       </AppProvider>
     </SafeAreaProvider>
   );
@@ -84,6 +87,8 @@ function Shell({ fontsLoaded }: { fontsLoaded: boolean }) {
         <Stack.Screen name="planner" />
         <Stack.Screen name="journal" />
         <Stack.Screen name="pantry" />
+        <Stack.Screen name="sign-in" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="developer" />
         <Stack.Screen name="prep/[id]" />
         <Stack.Screen name="scan" />
         <Stack.Screen name="product/[code]" />

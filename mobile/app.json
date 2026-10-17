@@ -2,7 +2,7 @@
   "expo": {
     "name": "Mise",
     "slug": "mise",
-    "version": "1.18.0",
+    "version": "1.19.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -56,7 +56,8 @@
           "microphonePermission": false,
           "recordAudioAndroid": false
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "scheme": "mise",
     "experiments": {

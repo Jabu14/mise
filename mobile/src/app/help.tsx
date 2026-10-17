@@ -7,6 +7,7 @@ import { AI_NAME } from '../lib/chat-store';
 import { useTheme } from '../lib/theme';
 
 const FAQ: { q: string; a: string }[] = [
+  { q: 'Do I need an account?', a: 'No. Everything works without one. Signing in will let your recipes follow you to other devices once sync arrives. Tap “Sign in or create account” on the Account tab.' },
   { q: 'How do I know when to start cooking?', a: 'On a recipe, tap “Ready by…”, choose when you want to eat, and Mise works backwards to when each step should start. Tap “Remind me” to get a notification when it’s time to begin.' },
   { q: 'How do I find a recipe for what’s in my fridge?', a: 'On the Recipes page, tap “What can I make?” and add what you have. Your saved recipes are sorted by how little you’re missing. Salt, pepper, oil and water are always counted.' },
   { q: 'How do collections work?', a: 'On a recipe, tap “Add to collection” and pick one or type a new name. Your collections show as filters at the top of the Recipes page.' },

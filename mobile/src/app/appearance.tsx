@@ -1,19 +1,11 @@
-// Appearance: colours, light/dark, font, text size and card style, with a live cook-mode step on top.
+// Appearance: colours, light/dark, font and text size. Changes show right away across the app.
 import { router } from 'expo-router';
 import { Pressable, ScrollView, View } from 'react-native';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { Group, Segmented } from '../components/settings-ui';
-import { Btn, Card, Icon, IconBtn, Screen, StepBody, TopBar, Txt } from '../components/ui';
+import { Btn, IconBtn, Screen, TopBar, Txt } from '../components/ui';
 import { useApp } from '../lib/store';
 import { FONTS, THEMES, useTheme } from '../lib/theme';
-
-const SAMPLE_STEP = {
-  phase: '',
-  title: 'Shape the loaf',
-  text: 'Tip the dough onto a floured surface, fold the edges in and let it rest for 10 minutes. Bake at 230°C (450°F).',
-  tip: '',
-  timers: [],
-};
 
 export default function AppearanceScreen() {
   const th = useTheme();
@@ -25,17 +17,6 @@ export default function AppearanceScreen() {
         <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
         <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>Appearance</Txt>
       </TopBar>
-
-      <View style={{ paddingHorizontal: 16, paddingBottom: 12, backgroundColor: th.c.bg }}>
-        <Card style={{ padding: 16 }}>
-          <StepBody step={SAMPLE_STEP} number={3} compact>
-            <View style={{ flexDirection: 'row', alignSelf: 'flex-start', alignItems: 'center', gap: 8, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 999, backgroundColor: th.c.accentSoft }}>
-              <Icon name="timer-outline" size={18} color={th.c.accent} />
-              <Txt weight="black" size={15} color={th.c.accent}>Start 10 min</Txt>
-            </View>
-          </StepBody>
-        </Card>
-      </View>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 8, paddingBottom: 60, gap: 28 }}>
         <Group title="Colour">

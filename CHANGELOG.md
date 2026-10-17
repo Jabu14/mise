@@ -2,6 +2,19 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.19.0 (2026-10-17)
+
+### Added
+- **Sign in and create an account.** A new sign-in sheet with Sign in / Create account (name, email, password with show/hide), "Forgot password?", and Apple / Google buttons marked "soon". It uses Supabase (free online database with built-in accounts) as soon as EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY are set in mobile/.env.local (see mobile/.env.example); until then it runs in demo mode, where accounts are kept on the phone with salted, hashed passwords. The session is kept in the iPhone Keychain. Sign out from the Account tab; delete a demo account from Profile.
+- **Developer tools** (Account → Developer, to be removed before launch): switch each tab's navbar text on or off (or all at once), plus build info.
+- **Profile photo**: tap your picture in Profile to take or choose one.
+
+### Changed
+- **New Account header**: settings button on the left, Share and Edit on the right, a big profile picture with an emoji status bubble ("What's cooking?"), and your name with a menu (Edit profile, Sign out). Signed out, it shows "Sign in or create account".
+- **Your kitchen**: Recipes, Cooked (with this month), Week streak and Timers are now tappable tiles instead of flat numbers.
+- **Help & legal** replaces Support and now holds Help center, Report an issue, Send feedback, Terms & privacy and About Mise.
+- **Appearance** no longer shows the sample step box at the top.
+
 ## 1.18.0 (2026-10-15)
 
 ### Changed

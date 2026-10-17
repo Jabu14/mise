@@ -37,6 +37,8 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
     return () => { show.remove(); hide.remove(); };
   }, []);
   const tabWidth = rowWidth ? (rowWidth - PAD * 2) / state.routes.length : 0;
+  // Developer setting: tabs that show only their icon.
+  const noLabel = new Set(settings.navHideLabels.split(',').filter(Boolean));
 
   const TABS: Record<string, { label: string; icon: (on: boolean, color: string) => ReactNode }> = {
     index: { label: 'Recipes', icon: (on, color) => <RecipeBookIcon open={on} color={color} /> },
@@ -70,7 +72,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
       <View style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} onLayout={e => setRowWidth(e.nativeEvent.layout.width)} pointerEvents="none">
         {tabWidth && pos ? (
           <Animated.View style={{
-            position: 'absolute', top: 9, width: PILL, height: 32, borderRadius: 16, backgroundColor: th.c.accentSoft,
+            position: 'absolute', top: noLabel.has(state.routes[state.index]?.name) ? 18 : 9, width: PILL, height: 32, borderRadius: 16, backgroundColor: th.c.accentSoft,
             left: PAD + (tabWidth - PILL) / 2,
             transform: [{ translateX: Animated.multiply(pos, tabWidth) }],
           }} />
@@ -103,7 +105,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
               {tab.icon(focused, color)}
               {route.name === 'timers' && renderTimerBadge()}
             </View>
-            <Txt weight={focused ? 'black' : 'bold'} size={12} color={color}>{tab.label}</Txt>
+            {noLabel.has(route.name) ? null : <Txt weight={focused ? 'black' : 'bold'} size={12} color={color}>{tab.label}</Txt>}
           </Pressable>
         );
       })}

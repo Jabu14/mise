@@ -51,6 +51,9 @@ export const DEFAULT_SETTINGS = {
   alarmTone: 'chime',   // chime | bell | beeps
   timerStyle: 'ring',   // ring | clock | sand
   name: '',
+  avatar: '',           // profile photo (a file in the app's folder); '' = your initial
+  status: '',           // an emoji above your profile picture, like 🍞
+  navHideLabels: '',    // developer: tabs whose navbar label is hidden, comma-separated (index,chat,add,timers,account)
   recipePrompt: '',     // empty = the built-in prompt
   // Sous (AI) preferences, used once the assistant is connected.
   aiStyle: 'short',     // short | detailed

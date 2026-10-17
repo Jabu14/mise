@@ -9,6 +9,8 @@ import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
+  'Sign in and create an account',
+  'A new Account page: profile photo, an emoji status and your kitchen at a glance',
   'The meal plan is a real calendar now: tap any day to plan it',
   'The navigation bar floats over the page with a frosted, blurry glass look',
   '“Ready by…”: pick when you want to eat and see when to start each step',
