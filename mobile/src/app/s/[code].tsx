@@ -3,7 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import { Btn, Card, Icon, IconBtn, Screen, TopBar, Txt, type IconName } from '../../components/ui';
+import { Btn, Card, Icon, IconBtn, Screen, TopBar, Txt, type IconName, PageTitle } from '../../components/ui';
 import { AI_NAME, useChats } from '../../lib/chat-store';
 import { SETUP_KEYS, decodeShare, type SharedRecipe } from '../../lib/share-code';
 import { useShopping } from '../../lib/shopping';
@@ -84,7 +84,7 @@ export default function ReceivedScreen() {
     <Screen>
       <TopBar>
         <IconBtn name="close" label="Close" onPress={() => router.back()} />
-        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>Shared with you</Txt>
+        <PageTitle>Shared with you</PageTitle>
       </TopBar>
       <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 8, paddingBottom: 48, gap: 16 }}>
         <View style={{ alignItems: 'center', gap: 8 }}>

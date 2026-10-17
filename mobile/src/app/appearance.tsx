@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { Pressable, ScrollView, View } from 'react-native';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { Group, Segmented } from '../components/settings-ui';
-import { Btn, IconBtn, Screen, TopBar, Txt } from '../components/ui';
+import { Btn, IconBtn, Screen, TopBar, Txt, PageTitle } from '../components/ui';
 import { useApp } from '../lib/store';
 import { FONTS, THEMES, useTheme } from '../lib/theme';
 
@@ -15,7 +15,7 @@ export default function AppearanceScreen() {
     <Screen>
       <TopBar>
         <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
-        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>Appearance</Txt>
+        <PageTitle>Appearance</PageTitle>
       </TopBar>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 8, paddingBottom: 60, gap: 28 }}>

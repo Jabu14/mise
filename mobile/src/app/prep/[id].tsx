@@ -6,7 +6,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { IngredientList } from '../../components/recipe';
-import { Btn, Dock, Icon, IconBtn, Screen, TopBar, Txt } from '../../components/ui';
+import { Btn, Dock, Icon, IconBtn, Screen, TopBar, Txt, PageTitle } from '../../components/ui';
 import { plainText } from '../../shared/parser';
 import { useApp, type Recipe } from '../../lib/store';
 import { useTheme } from '../../lib/theme';
@@ -85,10 +85,7 @@ export default function PrepScreen() {
     <Screen>
       <TopBar>
         <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
-        <View style={{ flex: 1, paddingLeft: 4 }}>
-          <Txt kind="head" weight="bold" size={19}>Mise en place</Txt>
-          <Txt muted size={13} numberOfLines={1}>{r.title}</Txt>
-        </View>
+        <PageTitle sub={r.title}>Mise en place</PageTitle>
         {done ? <IconBtn name="refresh" label="Untick everything" onPress={() => setProgress(r.id, { checked: [] })} /> : null}
       </TopBar>
 

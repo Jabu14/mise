@@ -6,7 +6,7 @@ import { useCallback, useState, type ReactNode } from 'react';
 import { Linking, Pressable, ScrollView, View } from 'react-native';
 import { Segmented, Toggle } from '../components/settings-ui';
 import { ToneRow, ToneSheet } from '../components/tone-sheet';
-import { Btn, Card, Icon, IconBtn, Screen, TopBar, Txt } from '../components/ui';
+import { Btn, Card, Icon, IconBtn, Screen, TopBar, Txt, PageTitle } from '../components/ui';
 import { useApp } from '../lib/store';
 import { useTheme } from '../lib/theme';
 import { showAlert } from '../components/sheet';
@@ -46,7 +46,7 @@ export default function NotificationsScreen() {
     <Screen>
       <TopBar>
         <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
-        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>Notifications</Txt>
+        <PageTitle>Notifications</PageTitle>
       </TopBar>
       <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 4, paddingBottom: 48, gap: 10 }}>
         {status === 'off' || status === 'blocked' ? (

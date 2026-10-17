@@ -113,6 +113,19 @@ export function IconBtn({ name, onPress, label, tinted, size = 44, color }: { na
 
 // ---------- Layout ----------
 
+// A page's title, always centred in the top bar whatever buttons sit on either side.
+export function PageTitle({ children, sub }: { children: ReactNode; sub?: string }) {
+  return (
+    <>
+      <View style={{ flex: 1 }} />
+      <View pointerEvents="none" style={{ position: 'absolute', left: 60, right: 60, top: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>
+        <Txt kind="head" weight="bold" size={18} numberOfLines={1}>{children}</Txt>
+        {sub ? <Txt muted size={12} numberOfLines={1}>{sub}</Txt> : null}
+      </View>
+    </>
+  );
+}
+
 export function Screen({ children }: { children: ReactNode }) {
   const th = useTheme();
   return <View style={{ flex: 1, backgroundColor: th.c.bg }}>{children}</View>;
@@ -123,8 +136,8 @@ export function TopBar({ children }: { children: ReactNode }) {
   const insets = useSafeAreaInsets();
   const island = useIslandSpace();
   return (
-    <View style={{ paddingTop: insets.top + 6 + island, paddingHorizontal: 8, paddingBottom: 6, flexDirection: 'row', alignItems: 'center', gap: 2, backgroundColor: th.c.bg }}>
-      {children}
+    <View style={{ paddingTop: insets.top + 6 + island, paddingHorizontal: 8, paddingBottom: 6, backgroundColor: th.c.bg }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, minHeight: 44 }}>{children}</View>
     </View>
   );
 }

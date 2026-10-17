@@ -3,7 +3,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { Image, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { Group, Row, Segmented } from '../components/settings-ui';
-import { Card, Icon, IconBtn, Screen, TopBar, Txt } from '../components/ui';
+import { Card, Icon, IconBtn, Screen, TopBar, Txt, PageTitle } from '../components/ui';
 import { AI_NAME } from '../lib/chat-store';
 import { AuthError, useAuth } from '../lib/auth';
 import { keepPhoto } from '../lib/cook-log';
@@ -44,7 +44,7 @@ export default function ProfileScreen() {
     <Screen>
       <TopBar>
         <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
-        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>Profile</Txt>
+        <PageTitle>Profile</PageTitle>
       </TopBar>
       <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 8, paddingBottom: 48, gap: 28 }} keyboardShouldPersistTaps="handled">
         <View style={{ alignItems: 'center', gap: 10 }}>

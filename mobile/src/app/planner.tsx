@@ -6,7 +6,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Modal, PanResponder, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { DishArt } from '../components/art/dish-art';
-import { Btn, Card, Icon, IconBtn, Screen, TopBar, Txt } from '../components/ui';
+import { Btn, Card, Icon, IconBtn, Screen, TopBar, Txt, PageTitle } from '../components/ui';
 import { AI_NAME } from '../lib/chat-store';
 import { MEALS, dayKey, usePlanner, weekDays, type Meal } from '../lib/planner';
 import { useShopping } from '../lib/shopping';
@@ -97,7 +97,7 @@ export default function PlannerScreen() {
     <Screen>
       <TopBar>
         <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
-        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>Meal plan</Txt>
+        <PageTitle>Meal plan</PageTitle>
         {selected !== todayKey || view.m !== today.getMonth() || view.y !== today.getFullYear() ? (
           <Pressable onPress={goToday} hitSlop={6} style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, backgroundColor: th.c.accentSoft, marginRight: 4 }}>
             <Txt weight="black" size={13} color={th.c.accent}>Today</Txt>

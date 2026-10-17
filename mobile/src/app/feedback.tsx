@@ -7,7 +7,7 @@ import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Linking, Platform, Pressable, ScrollView, Share, TextInput, View } from 'react-native';
-import { Btn, IconBtn, Screen, TopBar, Txt } from '../components/ui';
+import { Btn, IconBtn, Screen, TopBar, Txt, PageTitle } from '../components/ui';
 import { useApp } from '../lib/store';
 import { useTheme } from '../lib/theme';
 import { showAlert } from '../components/sheet';
@@ -59,7 +59,7 @@ export default function FeedbackScreen() {
     <Screen>
       <TopBar>
         <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
-        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>{issue ? 'Report an issue' : 'Feedback'}</Txt>
+        <PageTitle>{issue ? 'Report an issue' : 'Feedback'}</PageTitle>
       </TopBar>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 8, paddingBottom: 48, gap: 22 }} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>

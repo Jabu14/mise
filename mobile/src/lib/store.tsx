@@ -53,7 +53,9 @@ export const DEFAULT_SETTINGS = {
   name: '',
   avatar: '',           // profile photo (a file in the app's folder); '' = your initial
   status: '',           // an emoji above your profile picture, like 🍞
-  navHideLabels: '',    // developer: tabs whose navbar label is hidden, comma-separated (index,chat,add,timers,account)
+  navHideLabels: '',
+  accountOrder: '',     // developer: order of the Account sections, comma-separated ('' = default)
+  accountHidden: '',    // developer: Account sections to hide, comma-separated    // developer: tabs whose navbar label is hidden, comma-separated (index,chat,add,timers,account)
   recipePrompt: '',     // empty = the built-in prompt
   // Sous (AI) preferences, used once the assistant is connected.
   aiStyle: 'short',     // short | detailed

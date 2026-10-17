@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Image, Pressable, ScrollView, View } from 'react-native';
 import { DishArt } from '../../components/art/dish-art';
 import { Stars } from '../../components/cook-log-ui';
-import { Card, Icon, IconBtn, Screen, TopBar, Txt, type IconName } from '../../components/ui';
+import { Card, Icon, IconBtn, Screen, TopBar, Txt, type IconName, PageTitle } from '../../components/ui';
 import { useCookLog } from '../../lib/cook-log';
 import { useApp, useTimers } from '../../lib/store';
 import { artColor, useTheme } from '../../lib/theme';
@@ -77,7 +77,7 @@ export default function ActivityScreen() {
     <Screen>
       <TopBar>
         <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
-        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>{title}</Txt>
+        <PageTitle>{title}</PageTitle>
       </TopBar>
       <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 4, paddingBottom: 48, gap: 16 }}>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>

@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, TextInput, View } from 'react-native';
 import { Group, Segmented, Toggle } from '../components/settings-ui';
-import { Btn, Card, Icon, IconBtn, Screen, TopBar, Txt } from '../components/ui';
+import { Btn, Card, Icon, IconBtn, Screen, TopBar, Txt, PageTitle } from '../components/ui';
 import { AI_NAME, useChats } from '../lib/chat-store';
 import { useCookLog } from '../lib/cook-log';
 import { usePlanner } from '../lib/planner';
@@ -42,7 +42,7 @@ export default function SousSettings() {
     <Screen>
       <TopBar>
         <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
-        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>{`${AI_NAME} settings`}</Txt>
+        <PageTitle>{`${AI_NAME} settings`}</PageTitle>
       </TopBar>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 8, paddingBottom: 60, gap: 28 }} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>

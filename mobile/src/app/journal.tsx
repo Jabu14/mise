@@ -4,7 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Modal, ScrollView, View } from 'react-native';
 import { CookEntryEditor, CookEntryRow } from '../components/cook-log-ui';
-import { Btn, Card, Icon, IconBtn, Screen, TopBar, Txt } from '../components/ui';
+import { Btn, Card, Icon, IconBtn, Screen, TopBar, Txt, PageTitle } from '../components/ui';
 import { useCookLog, weekStreak } from '../lib/cook-log';
 import { useApp } from '../lib/store';
 import { useTheme } from '../lib/theme';
@@ -42,7 +42,7 @@ export default function JournalScreen() {
     <Screen>
       <TopBar>
         <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
-        <Txt kind="head" weight="bold" size={19} numberOfLines={1} style={{ flex: 1, paddingLeft: 4 }}>{r ? r.title : 'Cooking journal'}</Txt>
+        <PageTitle>{r ? r.title : 'Cooking journal'}</PageTitle>
       </TopBar>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 4, paddingBottom: 48, gap: 10 }}>

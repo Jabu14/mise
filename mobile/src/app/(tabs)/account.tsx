@@ -17,6 +17,8 @@ import { useIslandSpace } from '../../lib/island';
 import { useApp, useTimers } from '../../lib/store';
 import { FONTS, THEMES, useTheme } from '../../lib/theme';
 import { voiceLabel } from '../../lib/voices';
+import { SETTINGS_SECTIONS } from '../../lib/settings-sections';
+import { ACCOUNT_SECTIONS, accountLayout } from '../../lib/account-layout';
 
 const STATUSES = ['🍞', '🍝', '🥗', '🍰', '🍳', '🍜', '🌮', '🍕', '🥘', '🧁', '🔥', '👩‍🍳', '🧑‍🍳', '😋', '🛒', '💪', '🥐', '🍲'];
 const AVATAR = 132;
@@ -153,42 +155,57 @@ export default function AccountTab() {
         </View>
 
         <View style={{ paddingHorizontal: 16, gap: 16 }}>
-          <Section title="Your kitchen">
-            <Row icon="book-outline" title="Recipes" value={`${recipes.length} saved`} onPress={() => router.push('/activity/recipes')} />
-            <Row icon="restaurant-outline" title="Cooked" value={cookedThisMonth ? `${cooked} · ${cookedThisMonth} this month` : String(cooked)} onPress={() => router.push('/activity/cooked')} />
-            <Row icon="flame-outline" title="Cooking streak" value={streak ? `${streak} ${streak === 1 ? 'week' : 'weeks'} 🔥` : 'Start one'} onPress={() => router.push('/streak')} />
-            <Row icon="timer-outline" title="Timers" value={`${timersStarted} started`} onPress={() => router.push('/activity/timers')} last />
-          </Section>
-
-          <Section title="Plan">
-            <Row icon="sparkles" title="Upgrade to Mise Plus" onPress={() => router.push('/plus')} last />
-          </Section>
-
-          <Section title="Account">
-            <Row icon="person-outline" title="Profile" onPress={() => router.push('/profile')} />
-            <Row icon="notifications-outline" title="Notifications" onPress={() => router.push('/notifications')} />
-            <Row icon="cloud-outline" title="Sync across devices" badge="SOON" onPress={() => sheet.open({ title: 'Coming soon', message: 'Soon your recipes, plans and journal will follow you to all your devices when you’re signed in.', cancel: 'OK' })} last />
-          </Section>
-
-          <Section title={AI_NAME}>
-            <Row icon="chatbubble-outline" title={`${AI_NAME} settings`} onPress={() => router.push('/sous-settings')} />
-            <Row icon="mic-outline" title="Voice" value={voiceLabel(settings.aiVoice)} onPress={() => router.push('/voice-settings')} />
-            <Row icon="stats-chart-outline" title="Usage" onPress={() => router.push('/usage')} />
-            <Row icon="document-text-outline" title="Mise Prompt" onPress={() => router.push('/recipe-prompt')} last />
-          </Section>
-
-          <Section title="App">
-            <Row icon="color-palette-outline" title="Appearance" value={appearanceSummary} onPress={() => router.push('/appearance')} />
-            <Row icon="settings-outline" title="Settings" onPress={() => router.push('/settings')} last />
-          </Section>
-
-          <Section title="Help & legal">
-            <Row icon="help-circle-outline" title="Help center" onPress={() => router.push('/help')} />
-            <Row icon="bug-outline" title="Report an issue" onPress={() => router.push('/feedback?mode=issue')} />
-            <Row icon="chatbox-ellipses-outline" title="Send feedback" onPress={() => router.push('/feedback')} />
-            <Row icon="shield-checkmark-outline" title="Terms & privacy" onPress={() => router.push('/legal')} />
-            <Row icon="information-circle-outline" title="About Mise" value={`v${Constants.expoConfig?.version ?? '1.0.0'}`} onPress={() => router.push('/about')} last />
-          </Section>
+          {accountLayout(settings).order.map(key => {
+            const title = ACCOUNT_SECTIONS.find(s => s[0] === key)?.[1] ?? key;
+            switch (key) {
+              case 'plan': return (
+                <Section key={key} title={title}>
+                  <Row icon="sparkles" title="Upgrade to Mise Plus" onPress={() => router.push('/plus')} last />
+                </Section>
+              );
+              case 'kitchen': return (
+                <Section key={key} title={title}>
+                  <Row icon="book-outline" title="Recipes" value={`${recipes.length} saved`} onPress={() => router.push('/activity/recipes')} />
+                  <Row icon="restaurant-outline" title="Cooked" value={cookedThisMonth ? `${cooked} · ${cookedThisMonth} this month` : String(cooked)} onPress={() => router.push('/activity/cooked')} />
+                  <Row icon="flame-outline" title="Cooking streak" value={streak ? `${streak} ${streak === 1 ? 'week' : 'weeks'} 🔥` : 'Start one'} onPress={() => router.push('/streak')} />
+                  <Row icon="timer-outline" title="Timers" value={`${timersStarted} started`} onPress={() => router.push('/activity/timers')} last />
+                </Section>
+              );
+              case 'account': return (
+                <Section key={key} title={title}>
+                  <Row icon="person-outline" title="Profile" onPress={() => router.push('/profile')} />
+                  <Row icon="notifications-outline" title="Notifications" onPress={() => router.push('/notifications')} />
+                  <Row icon="cloud-outline" title="Sync across devices" badge="SOON" onPress={() => sheet.open({ title: 'Coming soon', message: 'Soon your recipes, plans and journal will follow you to all your devices when you’re signed in.', cancel: 'OK' })} last />
+                </Section>
+              );
+              case 'sous': return (
+                <Section key={key} title={title}>
+                  <Row icon="chatbubble-outline" title={`${AI_NAME} settings`} onPress={() => router.push('/sous-settings')} />
+                  <Row icon="mic-outline" title="Voice" value={voiceLabel(settings.aiVoice)} onPress={() => router.push('/voice-settings')} />
+                  <Row icon="stats-chart-outline" title="Usage" onPress={() => router.push('/usage')} />
+                  <Row icon="document-text-outline" title="Mise Prompt" onPress={() => router.push('/recipe-prompt')} last />
+                </Section>
+              );
+              case 'app': return (
+                <Section key={key} title={title}>
+                  <Row icon="color-palette-outline" title="Appearance" value={appearanceSummary} onPress={() => router.push('/appearance')} />
+                  {SETTINGS_SECTIONS.map(([k, label, icon], i) => (
+                    <Row key={k} icon={icon} title={label} onPress={() => router.push({ pathname: '/settings', params: { section: k } })} last={i === SETTINGS_SECTIONS.length - 1} />
+                  ))}
+                </Section>
+              );
+              case 'help': return (
+                <Section key={key} title={title}>
+                  <Row icon="help-circle-outline" title="Help center" onPress={() => router.push('/help')} />
+                  <Row icon="bug-outline" title="Report an issue" onPress={() => router.push('/feedback?mode=issue')} />
+                  <Row icon="chatbox-ellipses-outline" title="Send feedback" onPress={() => router.push('/feedback')} />
+                  <Row icon="shield-checkmark-outline" title="Terms & privacy" onPress={() => router.push('/legal')} />
+                  <Row icon="information-circle-outline" title="About Mise" value={`v${Constants.expoConfig?.version ?? '1.0.0'}`} onPress={() => router.push('/about')} last />
+                </Section>
+              );
+              default: return null;
+            }
+          })}
 
           {/* Remove before launch. */}
           <Section title="Developer">

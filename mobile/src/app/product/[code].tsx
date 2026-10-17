@@ -3,7 +3,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Linking, ScrollView, View } from 'react-native';
-import { Btn, Card, IconBtn, Screen, TopBar, Txt } from '../../components/ui';
+import { Btn, Card, IconBtn, Screen, TopBar, Txt, PageTitle } from '../../components/ui';
 import { AI_NAME } from '../../lib/chat-store';
 import { FoodError, LEVEL_COLORS, NOVA_LABELS, NUTRISCORE_COLORS, fetchProduct, rememberScan, type Level, type Product } from '../../lib/food';
 import { useShopping } from '../../lib/shopping';
@@ -53,7 +53,7 @@ export default function ProductScreen() {
     <Screen>
       <TopBar>
         <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
-        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }} numberOfLines={1}>{p ? p.name : 'Product'}</Txt>
+        <PageTitle>{p ? p.name : 'Product'}</PageTitle>
       </TopBar>
 
       {state.product === undefined && !state.error ? (

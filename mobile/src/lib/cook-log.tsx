@@ -59,7 +59,8 @@ export function weekStreak(entries: CookEntry[], now = Date.now()) {
 
 type LogValue = {
   entries: CookEntry[];
-  log: (recipeId: string, title: string) => string;
+  log: (recipeId: string, title: string, at?: number) => string;
+  clearAll: () => void;
   update: (id: string, patch: Partial<Pick<CookEntry, 'rating' | 'note' | 'photo'>>) => void;
   remove: (id: string) => void;
   forRecipe: (recipeId: string) => CookEntry[];
@@ -81,9 +82,9 @@ export function CookLogProvider({ children }: { children: ReactNode }) {
   useEffect(() => { if (ready) AsyncStorage.setItem(KEY, JSON.stringify(entries)).catch(() => {}); }, [ready, entries]);
 
   // Newest first.
-  const log = useCallback((recipeId: string, title: string) => {
+  const log = useCallback((recipeId: string, title: string, at = Date.now()) => {
     const id = newId();
-    setEntries(list => [{ id, recipeId, title: title.slice(0, 120), at: Date.now(), rating: 0, note: '' }, ...list].slice(0, MAX));
+    setEntries(list => [{ id, recipeId, title: title.slice(0, 120), at, rating: 0, note: '' }, ...list].sort((a, b) => b.at - a.at).slice(0, MAX));
     return id;
   }, []);
   const update = useCallback<LogValue['update']>((id, patch) => {
@@ -99,9 +100,10 @@ export function CookLogProvider({ children }: { children: ReactNode }) {
       return list.filter(e => e.id !== id);
     });
   }, []);
+  const clearAll = useCallback(() => setEntries(list => { list.forEach(e => dropPhoto(e.photo)); return []; }), []);
   const forRecipe = useCallback((recipeId: string) => entries.filter(e => e.recipeId === recipeId), [entries]);
 
-  const value = useMemo(() => ({ entries, log, update, remove, forRecipe }), [entries, log, update, remove, forRecipe]);
+  const value = useMemo(() => ({ entries, log, update, remove, clearAll, forRecipe }), [entries, log, update, remove, clearAll, forRecipe]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

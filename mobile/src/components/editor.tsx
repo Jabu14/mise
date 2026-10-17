@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, TextInput, View } from 'react-native';
 import { AiImportCard } from './ai-import';
-import { Btn, Card, Dock, IconBtn, Label, Screen, TopBar, Txt } from './ui';
+import { Btn, Card, Dock, IconBtn, Label, Screen, TopBar, Txt, PageTitle } from './ui';
 import { RECIPE_PROMPT } from '../shared/content';
 import { parseRecipe, plainText, guessEmoji } from '../shared/parser';
 import { useApp } from '../lib/store';
@@ -59,7 +59,7 @@ export function Editor({ existingId }: { existingId?: string }) {
         {existing ? (
           <>
             <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
-            <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>Edit recipe</Txt>
+            <PageTitle>Edit recipe</PageTitle>
           </>
         ) : (
           <Txt kind="head" weight="bold" size={30} style={{ flex: 1, paddingLeft: 8 }}>Add a recipe</Txt>

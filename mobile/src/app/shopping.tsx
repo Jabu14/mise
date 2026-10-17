@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, Share, TextInput, View } from 'react-native';
 import { DishArt } from '../components/art/dish-art';
 import { SwipeRow } from '../components/swipe-row';
-import { Card, Icon, IconBtn, Screen, TopBar, Txt } from '../components/ui';
+import { Card, Icon, IconBtn, Screen, TopBar, Txt, PageTitle } from '../components/ui';
 import { AISLES, itemLabel, useShopping, type ShopItem } from '../lib/shopping';
 import { useApp } from '../lib/store';
 import { useTheme } from '../lib/theme';
@@ -66,10 +66,7 @@ export default function ShoppingScreen() {
     <Screen>
       <TopBar>
         <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
-        <View style={{ flex: 1, paddingLeft: 4 }}>
-          <Txt kind="head" weight="bold" size={19}>Shopping list</Txt>
-          {items.length ? <Txt muted size={13}>{toBuy.length ? `${toBuy.length} to buy` : 'All done!'}{inCart.length ? ` · ${inCart.length} in your cart` : ''}</Txt> : null}
-        </View>
+        <PageTitle sub={items.length ? `${toBuy.length ? `${toBuy.length} to buy` : 'All done!'}${inCart.length ? ` · ${inCart.length} in your cart` : ''}` : undefined}>Shopping list</PageTitle>
         <IconBtn name="barcode-outline" label="Scan food" onPress={() => router.push('/scan')} />
         {items.length ? <IconBtn name="ellipsis-horizontal" label="More" onPress={more} /> : null}
       </TopBar>

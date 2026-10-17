@@ -3,7 +3,7 @@
 // publisher's legal name and contact address) before publishing to the App Store or Play Store.
 import { router, useLocalSearchParams } from 'expo-router';
 import { ScrollView, View } from 'react-native';
-import { IconBtn, Screen, TopBar, Txt } from '../components/ui';
+import { IconBtn, Screen, TopBar, Txt, PageTitle } from '../components/ui';
 import { AI_NAME } from '../lib/chat-store';
 import { useTheme } from '../lib/theme';
 
@@ -57,7 +57,7 @@ export default function LegalScreen() {
     <Screen>
       <TopBar>
         <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
-        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>{doc.title}</Txt>
+        <PageTitle>{doc.title}</PageTitle>
       </TopBar>
       <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 8, paddingBottom: 48, gap: 18 }}>
         <Txt muted size={13} weight="bold">Last updated {UPDATED}</Txt>

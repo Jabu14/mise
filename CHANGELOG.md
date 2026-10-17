@@ -2,6 +2,22 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.21.0 (2026-10-17)
+
+### Added
+- **Navbar lens** (like iOS's newest tab bar): press and hold, or slide your finger along the navigation bar, and a glass lens lifts out a little bigger than the bar, follows your finger (the icon under it grows, with a light tick per tab), and opens that tab when you let go. Taps work as before.
+- **QR scanner**: its own full-screen camera with a square viewfinder, corner brackets, a gliding scan line and a torch button. It only reads QR codes, says "That's not a Mise code" for anything else, and opens Mise codes straight away. The food scanner reads barcodes only again.
+- **Choose what to share on its own page**: on the QR share page, "Choose recipe / cookbook / chat" opens a picker with search and filter chips (recipes: Recently added, Cooked, Not cooked yet and each collection; chats: Pinned, This week).
+- **Settings pages**: Account → App now has its own row for Appearance, Cook mode, Units, Hands-free, Timers & alarms and Vibration, each opening a page for just that.
+- **Developer tools hub**: Account layout (move Account sections up or down, or hide them; reset), Navigation bar (per-tab text with a live preview), Test data (sample recipe, 6 weeks of cooks for the streak, a test notification in 5 seconds, clear the journal, plan or list) and Storage (what's saved on the phone with sizes, peek inside, erase everything).
+
+### Changed
+- **Help center**: a "How can we help?" header with search, six topic cards with icons (Getting started, Cooking, Planning & shopping, Timers & alarms, Sous, App & sharing), questions grouped under each topic, and a "Still stuck?" card with Report an issue and Send feedback.
+- **Page titles are centred** on every page.
+- **Plan** is now the first section on Account, above Your kitchen.
+- **Streak and cooked are separate**: the streak page shows only streak numbers (current, best, active weeks); what you cooked stays on the Cooked page.
+- The QR share page no longer shows the "Ask them to scan it…" line.
+
 ## 1.20.0 (2026-10-17)
 
 ### Added

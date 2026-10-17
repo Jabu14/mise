@@ -6,7 +6,7 @@ import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, TextInput, View } from 'react-native';
 import { DishArt } from '../components/art/dish-art';
-import { Btn, Card, Icon, IconBtn, Screen, TopBar, Txt } from '../components/ui';
+import { Btn, Card, Icon, IconBtn, Screen, TopBar, Txt, PageTitle } from '../components/ui';
 import { AI_NAME } from '../lib/chat-store';
 import { parseLine } from '../lib/shopping';
 import { useApp, type Recipe } from '../lib/store';
@@ -65,7 +65,7 @@ export default function PantryScreen() {
     <Screen>
       <TopBar>
         <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
-        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>What can I make?</Txt>
+        <PageTitle>What can I make?</PageTitle>
         {have.length ? <IconBtn name="refresh" label="Clear my list" onPress={() => setHave([])} /> : null}
       </TopBar>
 

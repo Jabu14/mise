@@ -3,12 +3,15 @@ import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { ScrollView, View } from 'react-native';
 import { Row } from '../components/settings-ui';
-import { Card, Icon, IconBtn, Label, Screen, TopBar, Txt } from '../components/ui';
+import { Card, Icon, IconBtn, Label, Screen, TopBar, Txt, PageTitle } from '../components/ui';
 import { AI_NAME } from '../lib/chat-store';
 import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
+  'Hold and slide along the navigation bar: a glass lens follows your finger',
+  'A proper QR scanner, a new Help center and centred page titles',
+  'Settings split into their own pages: Cook mode, Units, Hands-free and more',
   'Share recipes, cookbooks, lists and chats with a QR code',
   'A new cooking streak page, and history pages for your kitchen',
   'Mise’s own pop-up sheets replace the plain phone alerts',
@@ -48,7 +51,7 @@ export default function AboutScreen() {
     <Screen>
       <TopBar>
         <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
-        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>About</Txt>
+        <PageTitle>About</PageTitle>
       </TopBar>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 8, paddingBottom: 48, gap: 18 }}>

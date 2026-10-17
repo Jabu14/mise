@@ -91,6 +91,7 @@ function Shell({ fontsLoaded }: { fontsLoaded: boolean }) {
         <Stack.Screen name="journal" />
         <Stack.Screen name="pantry" />
         <Stack.Screen name="developer" />
+        <Stack.Screen name="dev/[tool]" />
         <Stack.Screen name="prep/[id]" />
         <Stack.Screen name="scan" />
         <Stack.Screen name="product/[code]" />
@@ -102,6 +103,8 @@ function Shell({ fontsLoaded }: { fontsLoaded: boolean }) {
         <Stack.Screen name="activity/[kind]" />
         <Stack.Screen name="streak" />
         <Stack.Screen name="share" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="share-pick" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="scan-qr" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
         <Stack.Screen name="s/[code]" options={{ presentation: 'modal' }} />
         </Stack.Protected>
         <Stack.Screen name="sign-in" options={{ presentation: user ? 'modal' : 'card', gestureEnabled: !!user, animation: user ? 'default' : 'fade' }} />

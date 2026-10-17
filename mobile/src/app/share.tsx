@@ -1,19 +1,20 @@
 // Share with a QR code: pick what to share (a recipe, a cookbook, your shopping list, a Sous chat or
-// your kitchen setup) and show the code to someone. They scan it in Mise (Account → QR → Scan, or
-// the scanner) and get a copy. Everything is inside the code, so no account or internet is needed.
+// your kitchen setup), choose which one on its own page, and show the code. They scan it with Mise's
+// QR scanner and get a copy. Everything is inside the code, so no account or internet is needed.
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, View, useWindowDimensions } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { allCollections } from '../components/collection-sheet';
-import { Btn, Icon, IconBtn, Screen, TopBar, Txt, type IconName } from '../components/ui';
+import { Btn, Icon, IconBtn, Screen, TopBar, Txt, type IconName, PageTitle } from '../components/ui';
 import { AI_NAME, useChats } from '../lib/chat-store';
 import { MAX_CODE, chatForShare, encodeShare, recipeForShare, setupForShare, type Payload } from '../lib/share-code';
 import { useShopping, itemLabel } from '../lib/shopping';
 import { useApp } from '../lib/store';
+import { usePicked, type ShareKind } from '../lib/share-pick';
 import { useTheme } from '../lib/theme';
 
-type Kind = 'recipe' | 'book' | 'list' | 'chat' | 'setup';
+type Kind = ShareKind;
 const KINDS: [Kind, string, IconName][] = [
   ['recipe', 'Recipe', 'book-outline'],
   ['book', 'Cookbook', 'folder-outline'],
@@ -31,6 +32,14 @@ export default function ShareScreen() {
   const books = allCollections(recipes);
   const [kind, setKind] = useState<Kind>('recipe');
   const [pick, setPick] = useState<Record<Kind, string>>({ recipe: recipes[0]?.id ?? '', book: books[0]?.name ?? '', list: '', chat: chats[0]?.id ?? '', setup: '' });
+  // Coming back from the picker page with a choice.
+  const picked = usePicked();
+  const [seen, setSeen] = useState(picked?.at ?? 0);
+  if (picked && picked.at !== seen) {
+    setSeen(picked.at);
+    setKind(picked.kind);
+    setPick(p => ({ ...p, [picked.kind]: picked.id }));
+  }
 
   // What's being shared, and the options to choose from.
   let payload: Payload | null = null;
@@ -71,8 +80,8 @@ export default function ShareScreen() {
     <Screen>
       <TopBar>
         <IconBtn name="close" label="Close" onPress={() => router.back()} />
-        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>Share with a QR code</Txt>
-        <IconBtn name="scan-outline" label="Scan a code" onPress={() => router.push('/scan')} />
+        <PageTitle>Share with a QR code</PageTitle>
+        <IconBtn name="scan-outline" label="Scan a code" onPress={() => router.push('/scan-qr')} />
       </TopBar>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 4, paddingBottom: 48, gap: 16 }}>
@@ -97,7 +106,6 @@ export default function ShareScreen() {
                 <QRCode value={code} size={size} ecl="L" color="#141414" backgroundColor="#FFFFFF" />
               </View>
               <Txt weight="black" size={17} numberOfLines={2} style={{ textAlign: 'center' }}>{label}</Txt>
-              <Txt muted size={13} style={{ textAlign: 'center' }}>Ask them to scan it in Mise: Account → QR → Scan.</Txt>
             </>
           ) : payload ? (
             <View style={{ alignItems: 'center', gap: 8, paddingVertical: 30 }}>
@@ -114,25 +122,23 @@ export default function ShareScreen() {
         </View>
 
         {choices.length ? (
-          <View style={{ gap: 8 }}>
-            <Txt muted weight="black" size={13} style={{ letterSpacing: 0.5, marginLeft: 4 }}>CHOOSE</Txt>
-            {choices.map(c => {
-              const on = pick[kind] === c.id;
-              return (
-                <Pressable key={c.id} onPress={() => setPick(p => ({ ...p, [kind]: c.id }))} accessibilityRole="radio" accessibilityState={{ checked: on }}
-                  style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 18, backgroundColor: pressed ? th.c.soft : th.c.surface, borderWidth: 1.5, borderColor: on ? th.c.accent : th.c.line })}>
-                  <View style={{ flex: 1 }}>
-                    <Txt weight="bold" numberOfLines={1}>{c.title}</Txt>
-                    {c.sub ? <Txt muted size={13}>{c.sub}</Txt> : null}
-                  </View>
-                  <Icon name={on ? 'radio-button-on' : 'radio-button-off'} size={22} color={on ? th.c.accent : th.c.muted} />
-                </Pressable>
-              );
-            })}
-          </View>
+          <Pressable onPress={() => router.push({ pathname: '/share-pick', params: { kind, current: pick[kind] } })} accessibilityRole="button"
+            style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 20, backgroundColor: pressed ? th.c.soft : th.c.surface, borderWidth: 1, borderColor: th.c.line })}>
+            <View style={{ width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.accentSoft }}>
+              <Icon name={KINDS.find(k => k[0] === kind)![2]} size={22} color={th.c.accent} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Txt muted size={12} weight="bold">{`CHOOSE ${KINDS.find(k => k[0] === kind)![1].toUpperCase()}`}</Txt>
+              <Txt weight="black" size={16} numberOfLines={1}>{choices.find(c => c.id === pick[kind])?.title ?? 'Pick one'}</Txt>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999, backgroundColor: th.c.soft }}>
+              <Txt weight="bold" size={13}>Change</Txt>
+              <Icon name="chevron-forward" size={14} />
+            </View>
+          </Pressable>
         ) : null}
 
-        <Btn title="Scan someone’s code" icon="scan-outline" variant="secondary" onPress={() => router.push('/scan')} />
+        <Btn title="Scan someone’s code" icon="qr-code-outline" variant="secondary" onPress={() => router.push('/scan-qr')} />
       </ScrollView>
     </Screen>
   );

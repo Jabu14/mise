@@ -5,7 +5,7 @@ import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, TextInput, View } from 'react-native';
-import { Btn, Card, IconBtn, Screen, TopBar, Txt } from '../components/ui';
+import { Btn, Card, IconBtn, Screen, TopBar, Txt, PageTitle } from '../components/ui';
 import { RECIPE_PROMPT } from '../shared/content';
 import { useApp } from '../lib/store';
 import { useTheme } from '../lib/theme';
@@ -35,7 +35,7 @@ export default function RecipePromptScreen() {
     <Screen>
       <TopBar>
         <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
-        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>Mise Prompt</Txt>
+        <PageTitle>Mise Prompt</PageTitle>
         <IconBtn name={editing ? 'checkmark' : 'create-outline'} label={editing ? 'Done editing' : 'Edit prompt'} tinted={editing} onPress={() => setEditing(e => !e)} />
       </TopBar>
 

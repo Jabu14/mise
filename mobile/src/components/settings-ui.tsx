@@ -9,7 +9,7 @@ import { Icon, Txt, type IconName } from './ui';
 export function Group({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <View style={{ gap: 14 }}>
-      <Txt kind="head" weight="bold" size={21}>{title}</Txt>
+      {title ? <Txt kind="head" weight="bold" size={21}>{title}</Txt> : null}
       {children}
     </View>
   );

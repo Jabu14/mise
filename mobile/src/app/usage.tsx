@@ -3,7 +3,7 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
-import { Card, Icon, Screen, TopBar, Txt } from '../components/ui';
+import { Card, Icon, Screen, TopBar, Txt, PageTitle } from '../components/ui';
 import { AI_NAME, useChats } from '../lib/chat-store';
 import { useApp, useTimers } from '../lib/store';
 import { useTheme } from '../lib/theme';
@@ -45,7 +45,7 @@ export default function UsageScreen() {
     <Screen>
       <TopBar>
         <CircleBtn icon="chevron-back" label="Back" onPress={() => router.back()} />
-        <Txt weight="black" size={18} style={{ flex: 1, textAlign: 'center' }}>Usage</Txt>
+        <PageTitle>Usage</PageTitle>
         <View style={{ flexDirection: 'row', height: 46, borderRadius: 23, marginRight: 8, backgroundColor: th.c.surface, borderWidth: 1, borderColor: th.c.line }}>
           <Pressable onPress={refresh} accessibilityLabel="Refresh" hitSlop={4} style={{ width: 46, alignItems: 'center', justifyContent: 'center' }}><Icon name="refresh" size={20} color={th.c.text} /></Pressable>
           <Pressable onPress={info} accessibilityLabel="About usage" hitSlop={4} style={{ width: 46, alignItems: 'center', justifyContent: 'center' }}><Icon name="information-circle-outline" size={21} color={th.c.text} /></Pressable>
