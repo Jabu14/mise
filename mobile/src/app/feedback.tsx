@@ -6,10 +6,11 @@ import Constants from 'expo-constants';
 import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Linking, Platform, Pressable, ScrollView, Share, TextInput, View } from 'react-native';
+import { Linking, Platform, Pressable, ScrollView, Share, TextInput, View } from 'react-native';
 import { Btn, IconBtn, Screen, TopBar, Txt } from '../components/ui';
 import { useApp } from '../lib/store';
 import { useTheme } from '../lib/theme';
+import { showAlert } from '../components/sheet';
 
 const FEEDBACK_EMAIL = (process.env.EXPO_PUBLIC_FEEDBACK_EMAIL ?? '').trim();
 const MOODS = ['😣', '😕', '😐', '🙂', '😍'];
@@ -49,7 +50,7 @@ export default function FeedbackScreen() {
       sent = result?.action === Share.sharedAction;
     }
     if (sent) {
-      Alert.alert('Thank you!', issue ? 'We’ll look into it.' : 'Every note helps make Mise better.');
+      showAlert('Thank you!', issue ? 'We’ll look into it.' : 'Every note helps make Mise better.');
       router.back();
     }
   };

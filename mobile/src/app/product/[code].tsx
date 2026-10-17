@@ -2,12 +2,13 @@
 // 100 g, allergens and ingredients. Add it to the shopping list, or ask Sous about it.
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Linking, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Image, Linking, ScrollView, View } from 'react-native';
 import { Btn, Card, IconBtn, Screen, TopBar, Txt } from '../../components/ui';
 import { AI_NAME } from '../../lib/chat-store';
 import { FoodError, LEVEL_COLORS, NOVA_LABELS, NUTRISCORE_COLORS, fetchProduct, rememberScan, type Level, type Product } from '../../lib/food';
 import { useShopping } from '../../lib/shopping';
 import { useTheme } from '../../lib/theme';
+import { showAlert } from '../../components/sheet';
 
 const LEVEL_NAMES: Record<string, string> = { fat: 'Fat', 'saturated-fat': 'Saturated fat', sugars: 'Sugars', salt: 'Salt' };
 const LEVEL_WORDS: Record<Level, string> = { low: 'Low', moderate: 'Moderate', high: 'High' };
@@ -35,7 +36,7 @@ export default function ProductScreen() {
   const addToList = () => {
     if (!p) return;
     addText([p.brand, p.name].filter(Boolean).join(' '));
-    Alert.alert('Added to your shopping list', p.name, [{ text: 'OK', style: 'cancel' }, { text: 'View list', onPress: () => router.push('/shopping') }]);
+    showAlert('Added to your shopping list', p.name, [{ text: 'OK', style: 'cancel' }, { text: 'View list', onPress: () => router.push('/shopping') }]);
   };
 
   const ask = () => {

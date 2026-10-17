@@ -29,6 +29,7 @@ const PLACEHOLDER = `I'm not connected yet, but soon I'll be able to answer ques
 
 type ChatValue = {
   chats: Chat[];
+  importChat: (title: string, messages: { role: 'user' | 'assistant'; text: string }[]) => string;
   getChat: (id: string | null) => Chat | undefined;
   send: (chatId: string | null, message: Pick<ChatMessage, 'kind' | 'text' | 'audioUri' | 'durationMs' | 'attachment'>) => string;
   renameChat: (id: string, title: string) => void;
@@ -95,6 +96,15 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     return id;
   }, []);
 
+  // A chat someone shared with you (from a QR code), saved as a new chat.
+  const importChat = useCallback((title: string, messages: { role: 'user' | 'assistant'; text: string }[]) => {
+    const id = newId();
+    const time = Date.now();
+    const msgs: ChatMessage[] = messages.slice(0, 40).map((m, i) => ({ id: newId() + i, role: m.role, kind: 'text', text: m.text.slice(0, 4000), at: time + i }));
+    setChats(list => [{ id, title: (title.trim() || 'Shared chat').slice(0, 60), autoTitle: false, pinned: false, createdAt: time, updatedAt: time, messages: msgs }, ...list]);
+    return id;
+  }, []);
+
   const renameChat = useCallback((id: string, title: string) => {
     const clean = title.replace(/\s+/g, ' ').trim().slice(0, 60);
     if (clean) setChats(list => list.map(c => (c.id === id ? { ...c, title: clean, autoTitle: false } : c)));
@@ -112,6 +122,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const value = useMemo(() => ({ chats, getChat, send, renameChat, togglePin, deleteChats }), [chats, getChat, send, renameChat, togglePin, deleteChats]);
+  const value = useMemo(() => ({ chats, getChat, send, importChat, renameChat, togglePin, deleteChats }), [chats, getChat, send, importChat, renameChat, togglePin, deleteChats]);
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 }

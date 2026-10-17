@@ -104,3 +104,18 @@ export function CookLogProvider({ children }: { children: ReactNode }) {
   const value = useMemo(() => ({ entries, log, update, remove, forRecipe }), [entries, log, update, remove, forRecipe]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
+
+// Monday-based week number for a time, shared by the streak screens.
+export function weekNumber(t: number) {
+  const d = new Date(t);
+  const monday = new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((d.getDay() + 6) % 7));
+  return Math.round(monday.getTime() / (7 * 864e5));
+}
+
+// The longest run of weeks in a row with at least one cook.
+export function bestStreak(entries: CookEntry[]) {
+  const weeks = [...new Set(entries.map(e => weekNumber(e.at)))].sort((a, b) => a - b);
+  let best = 0, run = 0;
+  weeks.forEach((w, i) => { run = i && w === weeks[i - 1] + 1 ? run + 1 : 1; best = Math.max(best, run); });
+  return best;
+}

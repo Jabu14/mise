@@ -2,7 +2,7 @@
 // Saved now; Sous uses them once it is connected to the AI.
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, TextInput, View } from 'react-native';
 import { Group, Segmented, Toggle } from '../components/settings-ui';
 import { Btn, Card, Icon, IconBtn, Screen, TopBar, Txt } from '../components/ui';
 import { AI_NAME, useChats } from '../lib/chat-store';
@@ -11,6 +11,7 @@ import { usePlanner } from '../lib/planner';
 import { buildSousContext } from '../lib/sous-context';
 import { useApp } from '../lib/store';
 import { useTheme } from '../lib/theme';
+import { showAlert } from '../components/sheet';
 
 const DIETS = ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-free', 'Dairy-free', 'Nut-free', 'Halal', 'Kosher'];
 
@@ -32,7 +33,7 @@ export default function SousSettings() {
   };
 
   const clearChats = () =>
-    Alert.alert('Delete all chats?', `All ${chats.length} chats and their voice messages will be deleted. This can’t be undone.`, [
+    showAlert('Delete all chats?', `All ${chats.length} chats and their voice messages will be deleted. This can’t be undone.`, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Delete all', style: 'destructive', onPress: () => deleteChats(chats.map(c => c.id)) },
     ]);

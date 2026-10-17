@@ -3,13 +3,14 @@
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, Share, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, Share, TextInput, View } from 'react-native';
 import { DishArt } from '../components/art/dish-art';
 import { SwipeRow } from '../components/swipe-row';
 import { Card, Icon, IconBtn, Screen, TopBar, Txt } from '../components/ui';
 import { AISLES, itemLabel, useShopping, type ShopItem } from '../lib/shopping';
 import { useApp } from '../lib/store';
 import { useTheme } from '../lib/theme';
+import { showAlert } from '../components/sheet';
 
 export default function ShoppingScreen() {
   const th = useTheme();
@@ -39,10 +40,10 @@ export default function ShoppingScreen() {
   };
 
   const more = () =>
-    Alert.alert('Shopping list', undefined, [
+    showAlert('Shopping list', undefined, [
       { text: 'Share list', onPress: share },
       ...(inCart.length ? [{ text: `Remove ${inCart.length} ticked`, onPress: clearChecked }] : []),
-      { text: 'Clear the whole list', style: 'destructive' as const, onPress: () => Alert.alert('Clear the list?', 'Every item will be removed.', [{ text: 'Cancel', style: 'cancel' }, { text: 'Clear', style: 'destructive', onPress: clearAll }]) },
+      { text: 'Clear the whole list', style: 'destructive' as const, onPress: () => showAlert('Clear the list?', 'Every item will be removed.', [{ text: 'Cancel', style: 'cancel' }, { text: 'Clear', style: 'destructive', onPress: clearAll }]) },
       { text: 'Cancel', style: 'cancel' as const },
     ]);
 

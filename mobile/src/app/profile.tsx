@@ -1,7 +1,7 @@
 // Profile: your photo, name, email (when signed in) and cooking level.
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
-import { Alert, Image, Pressable, ScrollView, TextInput, View } from 'react-native';
+import { Image, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { Group, Row, Segmented } from '../components/settings-ui';
 import { Card, Icon, IconBtn, Screen, TopBar, Txt } from '../components/ui';
 import { AI_NAME } from '../lib/chat-store';
@@ -10,6 +10,7 @@ import { keepPhoto } from '../lib/cook-log';
 import { useApp } from '../lib/store';
 import { useTheme } from '../lib/theme';
 import { LIMITS } from '../lib/validate';
+import { showAlert } from '../components/sheet';
 
 export default function ProfileScreen() {
   const th = useTheme();
@@ -25,16 +26,16 @@ export default function ProfileScreen() {
     if (uri) updateSettings({ avatar: await keepPhoto(uri, 'avatar').catch(() => uri) });
   };
   const photoMenu = () =>
-    Alert.alert('Profile picture', undefined, [
+    showAlert('Profile picture', undefined, [
       { text: 'Take photo', onPress: () => pickPhoto(true) },
       { text: 'Choose from library', onPress: () => pickPhoto(false) },
       ...(settings.avatar ? [{ text: 'Remove photo', style: 'destructive' as const, onPress: () => updateSettings({ avatar: '' }) }] : []),
       { text: 'Cancel', style: 'cancel' },
     ]);
   const confirmDelete = () =>
-    Alert.alert('Delete your account?', 'Your account is removed. Recipes, plans and your journal stay on this phone.', [
+    showAlert('Delete your account?', 'Your account is removed. Recipes, plans and your journal stay on this phone.', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete account', style: 'destructive', onPress: () => deleteAccount().then(() => router.back()).catch(e => Alert.alert('Couldn’t delete', e instanceof AuthError ? e.message : 'Try again later.')) },
+      { text: 'Delete account', style: 'destructive', onPress: () => deleteAccount().then(() => router.back()).catch(e => showAlert('Couldn’t delete', e instanceof AuthError ? e.message : 'Try again later.')) },
     ]);
   const initial = settings.name.trim().charAt(0).toUpperCase();
   const diets = settings.aiDiet.split(',').filter(Boolean);

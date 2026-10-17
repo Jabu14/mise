@@ -37,6 +37,7 @@ export const GLYPHS: Record<string, Shape[]> = {
   'pin-outline': pin,
   pin: [{ d: 'M9 3.5h6' }, { d: 'M10 3.5v5.5L7 13.5h10L14 9V3.5Z', fill: true }, { d: 'M12 13.5V21' }],
   add: [{ d: 'M12 5v14' }, { d: 'M5 12h14' }],
+  'qr-code-outline': [{ rect: [3.5, 3.5, 7, 7, 1.8] }, { rect: [13.5, 3.5, 7, 7, 1.8] }, { rect: [3.5, 13.5, 7, 7, 1.8] }, { d: 'M14 14h2.5v2.5H14Z' }, { d: 'M19.5 14v.01' }, { d: 'M14 20v.01' }, { d: 'M17.5 17.5h3v3h-3Z' }],
   remove: [{ d: 'M5 12h14' }],
   checkmark: [{ d: 'M20 6.5 9.5 17 4 11.5' }],
   'settings-outline': [{ d: 'M4 7h9' }, { d: 'M17 7h3' }, { circle: [15, 7, 2.2] }, { d: 'M4 17h3' }, { d: 'M11 17h9' }, { circle: [9, 17, 2.2] }],

@@ -9,6 +9,9 @@ import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
+  'Share recipes, cookbooks, lists and chats with a QR code',
+  'A new cooking streak page, and history pages for your kitchen',
+  'Mise’s own pop-up sheets replace the plain phone alerts',
   'Sign in and create an account',
   'A new Account page: profile photo, an emoji status and your kitchen at a glance',
   'The meal plan is a real calendar now: tap any day to plan it',

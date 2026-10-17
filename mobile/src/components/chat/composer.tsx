@@ -11,7 +11,7 @@ import {
 import { File } from 'expo-file-system';
 import * as Haptics from 'expo-haptics';
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Image, Pressable, TextInput, View } from 'react-native';
+import { Image, Pressable, TextInput, View } from 'react-native';
 import { AI_NAME, type ChatAttachment } from '../../lib/chat-store';
 import { useApp } from '../../lib/store';
 import { useTheme } from '../../lib/theme';
@@ -19,6 +19,7 @@ import { VoiceWaveIcon } from '../icons';
 import { Icon, Txt, type IconName } from '../ui';
 import { Glass } from '../glass';
 import { formatSeconds } from './voice-message';
+import { showAlert } from '../sheet';
 
 const MAX_RECORDING_MS = 5 * 60 * 1000;
 
@@ -56,7 +57,7 @@ export function Composer({ attachment, onClearAttachment, onAttach, onSendText, 
   const startRecording = async () => {
     const permission = await requestRecordingPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert('Microphone is off', 'Allow microphone access for Mise in Settings to record voice messages.');
+      showAlert('Microphone is off', 'Allow microphone access for Mise in Settings to record voice messages.');
       return;
     }
     haptic();

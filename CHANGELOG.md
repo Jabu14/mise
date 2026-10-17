@@ -2,6 +2,25 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.20.0 (2026-10-17)
+
+### Added
+- **Sign-in gate.** Signed out, Mise shows only the sign-in screen (no tabs or navbar); signing in or creating an account opens the app, and signing out goes straight back to sign-in.
+- **Mise's own pop-up sheets.** Menus and confirmations slide up from the bottom while the app behind shrinks back with rounded corners (like WhatsApp). Drag down or tap outside to close. Used for the account menu, sign out, delete account, profile photo, deleting recipes and chats, clearing lists and plans, and other confirmations.
+- **Account sheet** (tap your name): who you're signed in as with a check, "Add another account", Edit profile and Sign out.
+- **QR sharing** (the QR button on Account): share a recipe, a cookbook (collection), your shopping list, a Sous chat or your kitchen setup (colours, font, units, cook mode). The code holds everything, compressed, so no internet or account is needed. Scan it in Mise (the scanner now reads QR codes too) to preview and save. The code is a mise:// link, so other apps (like an authenticator) simply see it isn't for them.
+- **Cooking streak page**: a big flame card, this week day by day, best streak, total cooks, this month, the last 12 weeks as bars, and a share button (text for now).
+- **Kitchen history pages**: Recipes (when each was added, steps, times cooked), Cooked (every cook with date, time, stars and notes, plus average rating and most cooked) and Timers (recent timers with when you last used them), grouped by month.
+
+### Changed
+- **Your kitchen** is a normal list (Recipes, Cooked, Cooking streak, Timers) that opens those history pages instead of jumping to other tabs.
+- **Status bubble** floats gently, pops when you change it, and the emoji picker is a sheet.
+- **Navbar without text**: icons get bigger and the highlight grows to match.
+- **Edit (pencil) button** uses Mise's heavier icon style, and Share became a QR button.
+
+### Fixed
+- Signing out no longer leaves you inside the app.
+
 ## 1.19.0 (2026-10-17)
 
 ### Added

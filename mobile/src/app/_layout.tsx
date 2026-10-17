@@ -9,9 +9,10 @@ import { StatusBar } from 'expo-status-bar';
 import { Pressable, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ReminderHost } from '../components/reminder-host';
+import { SheetHost } from '../components/sheet';
 import { TimerIslandHost } from '../components/timer-island';
 import { ChatProvider } from '../lib/chat-store';
-import { AuthProvider } from '../lib/auth';
+import { AuthProvider, useAuth } from '../lib/auth';
 import { CookLogProvider } from '../lib/cook-log';
 import { PlannerProvider } from '../lib/planner';
 import { ShoppingProvider } from '../lib/shopping';
@@ -60,14 +61,17 @@ export default function RootLayout() {
 
 function Shell({ fontsLoaded }: { fontsLoaded: boolean }) {
   const { ready } = useApp();
+  const { ready: authReady, user } = useAuth();
   const th = useTheme();
-  if (!ready || !fontsLoaded) return <View style={{ flex: 1, backgroundColor: th.c.bg }} />;
+  if (!ready || !authReady || !fontsLoaded) return <View style={{ flex: 1, backgroundColor: th.c.bg }} />;
   return (
-    <>
+    <SheetHost>
       <StatusBar style={th.dark ? 'light' : 'dark'} />
-      <ReminderHost />
+      {user ? <ReminderHost /> : null}
       <TimerIslandHost>
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: th.c.bg } }}>
+        {/* Signed out, only the sign-in screen (and the legal text it links to) can be reached. */}
+        <Stack.Protected guard={!!user}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="recipe/[id]" />
         <Stack.Screen name="edit/[id]" options={{ presentation: 'modal' }} />
@@ -77,7 +81,6 @@ function Shell({ fontsLoaded }: { fontsLoaded: boolean }) {
         <Stack.Screen name="feedback" />
         <Stack.Screen name="recipe-prompt" />
         <Stack.Screen name="help" />
-        <Stack.Screen name="legal" />
         <Stack.Screen name="sous-settings" />
         <Stack.Screen name="profile" />
         <Stack.Screen name="notifications" />
@@ -87,7 +90,6 @@ function Shell({ fontsLoaded }: { fontsLoaded: boolean }) {
         <Stack.Screen name="planner" />
         <Stack.Screen name="journal" />
         <Stack.Screen name="pantry" />
-        <Stack.Screen name="sign-in" options={{ presentation: 'modal' }} />
         <Stack.Screen name="developer" />
         <Stack.Screen name="prep/[id]" />
         <Stack.Screen name="scan" />
@@ -97,8 +99,15 @@ function Shell({ fontsLoaded }: { fontsLoaded: boolean }) {
         <Stack.Screen name="timer-new" options={{ presentation: 'modal' }} />
         <Stack.Screen name="voice" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
         <Stack.Screen name="cook/[id]" options={{ gestureEnabled: false, animation: 'fade_from_bottom' }} />
+        <Stack.Screen name="activity/[kind]" />
+        <Stack.Screen name="streak" />
+        <Stack.Screen name="share" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="s/[code]" options={{ presentation: 'modal' }} />
+        </Stack.Protected>
+        <Stack.Screen name="sign-in" options={{ presentation: user ? 'modal' : 'card', gestureEnabled: !!user, animation: user ? 'default' : 'fade' }} />
+        <Stack.Screen name="legal" />
       </Stack>
       </TimerIslandHost>
-    </>
+    </SheetHost>
   );
 }

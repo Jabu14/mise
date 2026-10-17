@@ -1,5 +1,5 @@
-// Nutrition scanner: point the camera at a food barcode to see how healthy it is.
-// You can also type the barcode, or reopen a recent scan.
+// Scanner: point the camera at a food barcode to see how healthy it is, or at a Mise QR code to
+// open what someone shared. You can also type a barcode, or reopen a recent scan.
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as Haptics from 'expo-haptics';
 import { router, useFocusEffect } from 'expo-router';
@@ -7,6 +7,7 @@ import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, TextInput, View, useWindowDimensions } from 'react-native';
 import { Btn, Card, Icon, IconBtn, Screen, TopBar, Txt } from '../components/ui';
 import { NUTRISCORE_COLORS, isBarcode, readRecentScans, type RecentScan } from '../lib/food';
+import { SHARE_PREFIX } from '../lib/share-code';
 import { useApp } from '../lib/store';
 import { useTheme } from '../lib/theme';
 
@@ -26,6 +27,13 @@ export default function ScanScreen() {
   }, []));
 
   const open = (c: string) => {
+    // A Mise share code: open what was shared.
+    if (c.startsWith(SHARE_PREFIX)) {
+      setPaused(true);
+      if (settings.haptics) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      router.push({ pathname: '/s/[code]', params: { code: c.slice(SHARE_PREFIX.length) } });
+      return;
+    }
     if (!isBarcode(c)) return;
     setPaused(true);
     if (settings.haptics) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
@@ -38,7 +46,7 @@ export default function ScanScreen() {
     <Screen>
       <TopBar>
         <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
-        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>Scan food</Txt>
+        <Txt kind="head" weight="bold" size={19} style={{ flex: 1, paddingLeft: 4 }}>Scan</Txt>
       </TopBar>
       <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 4, paddingBottom: 48, gap: 16 }} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
         <View style={{ width: box, height: box * 0.78, alignSelf: 'center', borderRadius: 28, overflow: 'hidden', backgroundColor: '#111' }}>
@@ -47,12 +55,12 @@ export default function ScanScreen() {
               <CameraView
                 style={{ flex: 1 }}
                 facing="back"
-                barcodeScannerSettings={{ barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e'] }}
+                barcodeScannerSettings={{ barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'qr'] }}
                 onBarcodeScanned={paused ? undefined : r => open(r.data)}
               />
               <View pointerEvents="none" style={{ position: 'absolute', inset: 0, alignItems: 'center', justifyContent: 'center' }}>
                 <View style={{ width: '72%', height: '42%', borderRadius: 18, borderWidth: 3, borderColor: '#FFFFFFDD' }} />
-                <Txt weight="bold" size={14} color="#FFFFFF" style={{ marginTop: 14, opacity: 0.9 }}>Line up the barcode inside the frame</Txt>
+                <Txt weight="bold" size={14} color="#FFFFFF" style={{ marginTop: 14, opacity: 0.9 }}>Line up a barcode or Mise QR code</Txt>
               </View>
             </>
           ) : (

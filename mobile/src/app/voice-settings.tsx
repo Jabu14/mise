@@ -4,7 +4,7 @@ import * as Haptics from 'expo-haptics';
 import * as Speech from 'expo-speech';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Animated, Easing, FlatList, Pressable, ScrollView, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Animated, Easing, FlatList, Pressable, ScrollView, View, useWindowDimensions } from 'react-native';
 import Svg, { Defs, RadialGradient, Circle, Stop } from 'react-native-svg';
 import { Toggle } from '../components/settings-ui';
 import { Card, Icon, Screen, TopBar, Txt, type IconName } from '../components/ui';
@@ -12,6 +12,7 @@ import { AI_NAME } from '../lib/chat-store';
 import { useApp } from '../lib/store';
 import { useTheme } from '../lib/theme';
 import { phoneVoices, speak, voiceId, type PhoneVoice } from '../lib/voices';
+import { showAlert } from '../components/sheet';
 
 const SAMPLE = `Hi, I'm ${AI_NAME}. Let's get cooking!`;
 const ORBS: [string, string][] = [
@@ -57,7 +58,7 @@ export default function VoiceSettings() {
   };
 
   const pickRate = () =>
-    Alert.alert('Speed', 'How fast should Mise talk?', [
+    showAlert('Speed', 'How fast should Mise talk?', [
       ...Object.entries(RATE_NAMES).map(([k, label]) => ({ text: label + (settings.aiVoiceRate === k ? '  ✓' : ''), onPress: () => { updateSettings({ aiVoiceRate: k }); speak(SAMPLE, { ...settings, aiVoiceRate: k }); } })),
       { text: 'Cancel', style: 'cancel' as const },
     ]);
@@ -117,7 +118,7 @@ export default function VoiceSettings() {
 
         <View style={{ paddingHorizontal: 16, gap: 12, marginTop: 10 }}>
           <PillRow icon="speedometer-outline" label="Speed" value={RATE_NAMES[settings.aiVoiceRate] ?? 'Normal'} onPress={pickRate} />
-          <PillRow icon="globe-outline" label="Language" value="English" onPress={() => Alert.alert('Language', 'Mise speaks English for now. More languages are coming.')} />
+          <PillRow icon="globe-outline" label="Language" value="English" onPress={() => showAlert('Language', 'Mise speaks English for now. More languages are coming.')} />
 
           <Card style={{ paddingHorizontal: 16, paddingVertical: 2, marginTop: 6 }}>
             <Toggle k="aiVoiceReplies" label={`Read ${AI_NAME}'s answers out loud`} />

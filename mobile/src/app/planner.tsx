@@ -4,7 +4,7 @@
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Modal, PanResponder, Pressable, ScrollView, TextInput, View } from 'react-native';
+import { Modal, PanResponder, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { DishArt } from '../components/art/dish-art';
 import { Btn, Card, Icon, IconBtn, Screen, TopBar, Txt } from '../components/ui';
 import { AI_NAME } from '../lib/chat-store';
@@ -12,6 +12,7 @@ import { MEALS, dayKey, usePlanner, weekDays, type Meal } from '../lib/planner';
 import { useShopping } from '../lib/shopping';
 import { useApp } from '../lib/store';
 import { artColor, useTheme } from '../lib/theme';
+import { showAlert } from '../components/sheet';
 
 const QUICK = ['Leftovers', 'Eating out', 'Takeaway', 'Something simple'];
 const MEAL_ICON = { breakfast: 'sunny-outline', lunch: 'partly-sunny-outline', dinner: 'moon-outline' } as const;
@@ -73,7 +74,7 @@ export default function PlannerScreen() {
   const toShopping = () => {
     if (!weekRecipes.length) return;
     const n = weekRecipes.reduce((sum, r) => sum + addFromRecipe(r), 0);
-    Alert.alert('Added to your shopping list', `${n} ingredients from ${weekRecipes.length} ${weekRecipes.length === 1 ? 'recipe' : 'recipes'}. Matching items are combined.`, [
+    showAlert('Added to your shopping list', `${n} ingredients from ${weekRecipes.length} ${weekRecipes.length === 1 ? 'recipe' : 'recipes'}. Matching items are combined.`, [
       { text: 'OK', style: 'cancel' },
       { text: 'View list', onPress: () => router.push('/shopping') },
     ]);
@@ -86,7 +87,7 @@ export default function PlannerScreen() {
   };
 
   const more = () =>
-    Alert.alert(sel.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' }), undefined, [
+    showAlert(sel.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' }), undefined, [
       ...(dayEntries.length ? [{ text: 'Clear this day', style: 'destructive' as const, onPress: () => clearWeek([selected]) }] : []),
       { text: 'Clear this week', style: 'destructive', onPress: () => clearWeek(week) },
       { text: 'Cancel', style: 'cancel' },

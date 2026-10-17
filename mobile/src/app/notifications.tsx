@@ -3,12 +3,13 @@
 import * as Notifications from 'expo-notifications';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState, type ReactNode } from 'react';
-import { Alert, Linking, Pressable, ScrollView, View } from 'react-native';
+import { Linking, Pressable, ScrollView, View } from 'react-native';
 import { Segmented, Toggle } from '../components/settings-ui';
 import { ToneRow, ToneSheet } from '../components/tone-sheet';
 import { Btn, Card, Icon, IconBtn, Screen, TopBar, Txt } from '../components/ui';
 import { useApp } from '../lib/store';
 import { useTheme } from '../lib/theme';
+import { showAlert } from '../components/sheet';
 
 type Status = 'loading' | 'on' | 'off' | 'blocked';
 
@@ -36,7 +37,7 @@ export default function NotificationsScreen() {
   };
 
   const reset = () =>
-    Alert.alert('Reset notification settings?', 'Timer notifications, sounds, previews, reminders and the app icon badge go back to how they were.', [
+    showAlert('Reset notification settings?', 'Timer notifications, sounds, previews, reminders and the app icon badge go back to how they were.', [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Reset', style: 'destructive', onPress: () => updateSettings(DEFAULTS) },
     ]);

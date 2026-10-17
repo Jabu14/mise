@@ -6,10 +6,7 @@
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import {
-  Alert, Animated, BackHandler, Dimensions, Keyboard, Modal, PanResponder, Pressable, ScrollView, View,
-  useWindowDimensions, type GestureResponderEvent, type PanResponderInstance,
-} from 'react-native';
+import { Animated, BackHandler, Dimensions, Keyboard, Modal, PanResponder, Pressable, ScrollView, View, useWindowDimensions, type GestureResponderEvent, type PanResponderInstance } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AI_NAME, useChats, type Chat } from '../../lib/chat-store';
 import { useIslandSpace } from '../../lib/island';
@@ -18,6 +15,7 @@ import { useTheme } from '../../lib/theme';
 import { Icon, Txt, type IconName } from '../ui';
 import { ChatMenu, RenameDialog, type Menu } from './chat-menus';
 import { ChatSearch } from './chat-search';
+import { showAlert } from '../sheet';
 
 const panelWidth = () => Math.min(Dimensions.get('window').width * 0.82, 340);
 const SPRING = { friction: 12, tension: 80, useNativeDriver: true } as const;
@@ -159,7 +157,7 @@ function ChatSidebar({ panel, closeSwipe }: { panel: number; closeSwipe: PanResp
 
   const confirmDelete = (chat: Chat) => {
     setMenu(null);
-    setTimeout(() => Alert.alert('Delete chat?', `“${chat.title}” and its voice messages will be deleted.`, [
+    setTimeout(() => showAlert('Delete chat?', `“${chat.title}” and its voice messages will be deleted.`, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Delete', style: 'destructive', onPress: () => { deleteChats([chat.id]); if (chat.id === chatId) newChat(); } },
     ]), 220);

@@ -1,19 +1,25 @@
-// Sign in / Create account. Opens as a sheet from the Account tab. In demo mode (no online database
-// yet) accounts are kept on this phone, and the screen says so.
+// Sign in / Create account. Signed out, this is the only screen (the app opens once you're in);
+// signed in, it opens as a sheet to add another account. In demo mode (no online database yet)
+// accounts are kept on this phone, and the screen says so.
 import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { SlidingChoice } from '../components/sliding-choice';
 import { Icon, IconBtn, Screen, Txt } from '../components/ui';
 import { AuthError, useAuth } from '../lib/auth';
 import { useApp } from '../lib/store';
 import { useTheme } from '../lib/theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function SignInScreen() {
   const th = useTheme();
-  const params = useLocalSearchParams<{ mode?: string }>();
-  const { signIn, signUp, resetPassword, mode: backend } = useAuth();
+  const insets = useSafeAreaInsets();
+  const params = useLocalSearchParams<{ mode?: string; switch?: string }>();
+  const { signIn, signUp, resetPassword, mode: backend, user } = useAuth();
+  // Opened from inside the app (adding another account) rather than as the front door.
+  const [asSheet] = useState(() => !!user);
+  const wasSignedIn = useRef(!!user);
   const { settings, updateSettings } = useApp();
   const [mode, setMode] = useState<'in' | 'up'>(params.mode === 'up' ? 'up' : 'in');
   const [name, setName] = useState(settings.name);
@@ -23,10 +29,15 @@ export default function SignInScreen() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
+  // Once signed in from the front door, open the app (the screens unlock with the new account).
+  useEffect(() => {
+    if (user && !wasSignedIn.current && !asSheet) router.replace('/');
+    wasSignedIn.current = !!user;
+  }, [user, asSheet]);
+
   const done = () => {
     if (settings.haptics) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-    if (router.canGoBack()) router.back();
-    else router.replace('/account');
+    if (asSheet && router.canGoBack()) router.back();
   };
 
   const submit = async () => {
@@ -77,15 +88,15 @@ export default function SignInScreen() {
   return (
     <Screen>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingHorizontal: 8, paddingTop: 4 }}>
-          <IconBtn name="close" label="Close" onPress={() => (router.canGoBack() ? router.back() : router.replace('/account'))} />
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingHorizontal: 8, paddingTop: asSheet ? 4 : insets.top + 8, minHeight: 52 }}>
+          {asSheet ? <IconBtn name="close" label="Close" onPress={() => router.back()} /> : null}
         </View>
         <ScrollView contentContainerStyle={{ padding: 24, paddingTop: 0, gap: 16 }} keyboardShouldPersistTaps="handled">
           <View style={{ alignItems: 'center', gap: 8, marginBottom: 6 }}>
             <View style={{ width: 72, height: 72, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.accent }}>
               <Icon name="restaurant" size={34} color={th.c.onAccent} />
             </View>
-            <Txt kind="head" weight="bold" size={28}>{mode === 'in' ? 'Welcome back' : 'Join Mise'}</Txt>
+            <Txt kind="head" weight="bold" size={28}>{params.switch ? 'Add an account' : mode === 'in' ? 'Welcome back' : 'Join Mise'}</Txt>
             <Txt muted style={{ textAlign: 'center', maxWidth: 300 }}>
               {mode === 'in' ? 'Sign in to your account.' : 'Create an account to keep your recipes, plans and journal with you.'}
             </Txt>

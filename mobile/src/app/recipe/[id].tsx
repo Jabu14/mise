@@ -1,7 +1,7 @@
 // Recipe overview: servings, ingredient checklist, steps, notes.
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import { DishArt } from '../../components/art/dish-art';
 import { CookEntryRow } from '../../components/cook-log-ui';
 import { CollectionSheet } from '../../components/collection-sheet';
@@ -16,6 +16,7 @@ import { useApp } from '../../lib/store';
 import { artColor, useTheme } from '../../lib/theme';
 import { UNIT_CHOICES, convertUnits, type UnitMode } from '../../lib/units';
 import { SlidingChoice } from '../../components/sliding-choice';
+import { showAlert } from '../../components/sheet';
 
 export default function RecipeScreen() {
   const th = useTheme();
@@ -39,14 +40,14 @@ export default function RecipeScreen() {
 
   const addToList = () => {
     const n = addFromRecipe(r);
-    Alert.alert('Added to your shopping list', `${n} ${n === 1 ? 'ingredient' : 'ingredients'} from ${r.title}. Matching items are combined.`, [
+    showAlert('Added to your shopping list', `${n} ${n === 1 ? 'ingredient' : 'ingredients'} from ${r.title}. Matching items are combined.`, [
       { text: 'OK', style: 'cancel' },
       { text: 'View list', onPress: () => router.push('/shopping') },
     ]);
   };
 
   const confirmDelete = () =>
-    Alert.alert('Delete this recipe?', `“${r.title}” will be removed from this phone.`, [
+    showAlert('Delete this recipe?', `“${r.title}” will be removed from this phone.`, [
       { text: 'Keep it', style: 'cancel' },
       { text: 'Delete', style: 'destructive', onPress: () => { deleteRecipe(r.id); router.back(); } },
     ]);

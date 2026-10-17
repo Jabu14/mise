@@ -2,13 +2,14 @@
 // a search bar at the bottom, and New chat on the right. Long-press a chat to Rename, Pin or Delete.
 import * as Haptics from 'expo-haptics';
 import { useRef, useState } from 'react';
-import { Alert, FlatList, KeyboardAvoidingView, Modal, Platform, Pressable, TextInput, View, useWindowDimensions } from 'react-native';
+import { FlatList, KeyboardAvoidingView, Modal, Platform, Pressable, TextInput, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AI_NAME, useChats, type Chat } from '../../lib/chat-store';
 import { useApp } from '../../lib/store';
 import { useTheme } from '../../lib/theme';
 import { Icon, Txt } from '../ui';
 import { ChatMenu, RenameDialog, snippet, timeAgo, type Menu } from './chat-menus';
+import { showAlert } from '../sheet';
 
 export function ChatSearch({ visible, openedAt, onClose, onSelect, onNewChat }: {
   visible: boolean; openedAt: number; onClose: () => void; onSelect: (id: string) => void; onNewChat: () => void;
@@ -33,7 +34,7 @@ export function ChatSearch({ visible, openedAt, onClose, onSelect, onNewChat }: 
 
   const confirmDelete = (chat: Chat) => {
     setMenu(null);
-    setTimeout(() => Alert.alert('Delete chat?', `“${chat.title}” and its voice messages will be deleted.`, [
+    setTimeout(() => showAlert('Delete chat?', `“${chat.title}” and its voice messages will be deleted.`, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Delete', style: 'destructive', onPress: () => deleteChats([chat.id]) },
     ]), 200);

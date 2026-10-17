@@ -1,7 +1,7 @@
 // The "…" menu at the top right of an open chat (like ChatGPT): Share, Rename, Pin and Delete.
 // It grows out of the button when it opens and shrinks back into it when it closes.
 import { useEffect, useState } from 'react';
-import { Alert, Animated, Modal, Pressable, Share, View } from 'react-native';
+import { Animated, Modal, Pressable, Share, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AI_NAME, useChats, type Chat } from '../../lib/chat-store';
 import { useIslandSpace } from '../../lib/island';
@@ -9,6 +9,7 @@ import { useTheme } from '../../lib/theme';
 import { Icon, Txt, type IconName } from '../ui';
 import { Glass } from '../glass';
 import { RenameDialog } from './chat-menus';
+import { showAlert } from '../sheet';
 
 function transcript(chat: Chat) {
   const lines = chat.messages.map(m => `${m.role === 'user' ? 'Me' : AI_NAME}: ${m.kind === 'voice' ? '[Voice message]' : m.text}`);
@@ -43,7 +44,7 @@ export function ChatActions({ chat, visible, onClose, onDeleted }: { chat: Chat;
   const after = (fn: () => void) => { onClose(); setTimeout(fn, 220); };
 
   const confirmDelete = () => after(() =>
-    Alert.alert('Delete chat?', `“${chat.title}” and its voice messages will be deleted.`, [
+    showAlert('Delete chat?', `“${chat.title}” and its voice messages will be deleted.`, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Delete', style: 'destructive', onPress: () => { deleteChats([chat.id]); onDeleted(); } },
     ]));

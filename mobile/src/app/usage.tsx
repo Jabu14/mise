@@ -2,12 +2,13 @@
 // when it resets), Sous, and your cooking activity. Everything is counted on this phone.
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState, type ReactNode } from 'react';
-import { Alert, Pressable, ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import { Card, Icon, Screen, TopBar, Txt } from '../components/ui';
 import { AI_NAME, useChats } from '../lib/chat-store';
 import { useApp, useTimers } from '../lib/store';
 import { useTheme } from '../lib/theme';
 import { AI_IMPORTS_PER_DAY, readUsage, type Usage } from '../lib/usage';
+import { showAlert } from '../components/sheet';
 
 // "5 hr 12 min" until local midnight.
 function untilMidnight(now: number) {
@@ -38,7 +39,7 @@ export default function UsageScreen() {
   const today = usage?.importsToday ?? 0;
   const share = Math.min(1, today / AI_IMPORTS_PER_DAY);
 
-  const info = () => Alert.alert('About usage', `On the free plan you can use Import with AI ${AI_IMPORTS_PER_DAY} times a day; it resets at midnight. ${AI_NAME} is a free preview for now. Mise Plus removes the limits.`);
+  const info = () => showAlert('About usage', `On the free plan you can use Import with AI ${AI_IMPORTS_PER_DAY} times a day; it resets at midnight. ${AI_NAME} is a free preview for now. Mise Plus removes the limits.`);
 
   return (
     <Screen>

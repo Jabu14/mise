@@ -2,12 +2,13 @@
 // Opened with ?recipe=<id> it shows just that recipe's cooks.
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Modal, ScrollView, View } from 'react-native';
+import { Modal, ScrollView, View } from 'react-native';
 import { CookEntryEditor, CookEntryRow } from '../components/cook-log-ui';
 import { Btn, Card, Icon, IconBtn, Screen, TopBar, Txt } from '../components/ui';
 import { useCookLog, weekStreak } from '../lib/cook-log';
 import { useApp } from '../lib/store';
 import { useTheme } from '../lib/theme';
+import { showAlert } from '../components/sheet';
 
 export default function JournalScreen() {
   const th = useTheme();
@@ -27,7 +28,7 @@ export default function JournalScreen() {
   const entry = entries.find(e => e.id === editing);
 
   const options = (id: string) =>
-    Alert.alert('This cook', undefined, [
+    showAlert('This cook', undefined, [
       { text: 'Edit', onPress: () => setEditing(id) },
       { text: 'Delete', style: 'destructive', onPress: () => remove(id) },
       { text: 'Cancel', style: 'cancel' },

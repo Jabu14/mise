@@ -2,13 +2,14 @@
 import * as Clipboard from 'expo-clipboard';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, TextInput, View } from 'react-native';
 import { AiImportCard } from './ai-import';
 import { Btn, Card, Dock, IconBtn, Label, Screen, TopBar, Txt } from './ui';
 import { RECIPE_PROMPT } from '../shared/content';
 import { parseRecipe, plainText, guessEmoji } from '../shared/parser';
 import { useApp } from '../lib/store';
 import { useTheme } from '../lib/theme';
+import { showAlert } from './sheet';
 
 // Used by the Add tab (no id) and the Edit screen (with the recipe's id).
 export function Editor({ existingId }: { existingId?: string }) {
@@ -32,12 +33,12 @@ export function Editor({ existingId }: { existingId?: string }) {
 
   const copyPrompt = async () => {
     await Clipboard.setStringAsync(prompt);
-    Alert.alert('Prompt copied', 'Paste it into your AI chat, right after the recipe.');
+    showAlert('Prompt copied', 'Paste it into your AI chat, right after the recipe.');
   };
 
   const paste = async () => {
     const text = await Clipboard.getStringAsync();
-    if (!text) return Alert.alert('Clipboard is empty', "Copy the recipe or the AI's answer first.");
+    if (!text) return showAlert('Clipboard is empty', "Copy the recipe or the AI's answer first.");
     setSource(text);
     setDebounced(text);
   };

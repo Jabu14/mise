@@ -7,6 +7,7 @@ import { AI_NAME } from '../lib/chat-store';
 import { useTheme } from '../lib/theme';
 
 const FAQ: { q: string; a: string }[] = [
+  { q: 'How do I share a recipe with a QR code?', a: 'Account → the QR button at the top. Pick a recipe, a cookbook (collection), your shopping list, a Sous chat or your kitchen setup, and show the code. The other person scans it in Mise (the scan button on that screen, or the barcode scanner) and saves a copy. Everything is inside the code, so no internet is needed.' },
   { q: 'Do I need an account?', a: 'No. Everything works without one. Signing in will let your recipes follow you to other devices once sync arrives. Tap “Sign in or create account” on the Account tab.' },
   { q: 'How do I know when to start cooking?', a: 'On a recipe, tap “Ready by…”, choose when you want to eat, and Mise works backwards to when each step should start. Tap “Remind me” to get a notification when it’s time to begin.' },
   { q: 'How do I find a recipe for what’s in my fridge?', a: 'On the Recipes page, tap “What can I make?” and add what you have. Your saved recipes are sorted by how little you’re missing. Salt, pepper, oil and water are always counted.' },

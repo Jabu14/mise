@@ -18,6 +18,7 @@ export const TabPosition = createContext<Animated.Value | null>(null);
 
 const PAD = 6;
 const PILL = 56;
+const BIG_PILL = 64;
 
 export function TabBar({ state, navigation }: BottomTabBarProps) {
   const th = useTheme();
@@ -40,12 +41,13 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
   // Developer setting: tabs that show only their icon.
   const noLabel = new Set(settings.navHideLabels.split(',').filter(Boolean));
 
-  const TABS: Record<string, { label: string; icon: (on: boolean, color: string) => ReactNode }> = {
-    index: { label: 'Recipes', icon: (on, color) => <RecipeBookIcon open={on} color={color} /> },
-    chat: { label: AI_NAME, icon: (on, color) => <ChatSparkIcon active={on} color={color} /> },
-    add: { label: 'Add', icon: (on, color) => <Icon name={on ? 'add-circle' : 'add-circle-outline'} size={24} color={color} /> },
-    timers: { label: 'Timers', icon: (on, color) => <Icon name={on ? 'timer' : 'timer-outline'} size={22} color={color} /> },
-    account: { label: 'Account', icon: (on, color) => <Icon name={on ? 'person-circle' : 'person-circle-outline'} size={22} color={color} /> },
+  // Icons grow when a tab shows no text, so the bar still feels full.
+  const TABS: Record<string, { label: string; icon: (on: boolean, color: string, big: boolean) => ReactNode }> = {
+    index: { label: 'Recipes', icon: (on, color, big) => <RecipeBookIcon open={on} color={color} size={big ? 28 : 22} /> },
+    chat: { label: AI_NAME, icon: (on, color, big) => <ChatSparkIcon active={on} color={color} size={big ? 28 : 22} /> },
+    add: { label: 'Add', icon: (on, color, big) => <Icon name={on ? 'add-circle' : 'add-circle-outline'} size={big ? 31 : 24} color={color} /> },
+    timers: { label: 'Timers', icon: (on, color, big) => <Icon name={on ? 'timer' : 'timer-outline'} size={big ? 28 : 22} color={color} /> },
+    account: { label: 'Account', icon: (on, color, big) => <Icon name={on ? 'person-circle' : 'person-circle-outline'} size={big ? 28 : 22} color={color} /> },
   };
 
   // Count of timers; red when one is ringing; a pause sign when every timer is paused.
@@ -72,8 +74,10 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
       <View style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} onLayout={e => setRowWidth(e.nativeEvent.layout.width)} pointerEvents="none">
         {tabWidth && pos ? (
           <Animated.View style={{
-            position: 'absolute', top: noLabel.has(state.routes[state.index]?.name) ? 18 : 9, width: PILL, height: 32, borderRadius: 16, backgroundColor: th.c.accentSoft,
-            left: PAD + (tabWidth - PILL) / 2,
+            ...(noLabel.has(state.routes[state.index]?.name)
+              ? { top: 10, width: BIG_PILL, height: 48, borderRadius: 24, left: PAD + (tabWidth - BIG_PILL) / 2 }
+              : { top: 9, width: PILL, height: 32, borderRadius: 16, left: PAD + (tabWidth - PILL) / 2 }),
+            position: 'absolute', backgroundColor: th.c.accentSoft,
             transform: [{ translateX: Animated.multiply(pos, tabWidth) }],
           }} />
         ) : null}
@@ -101,8 +105,8 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
             accessibilityLabel={tab.label}
             style={({ pressed }) => ({ flex: 1, alignItems: 'center', gap: 3, transform: [{ scale: pressed ? 0.94 : 1 }] })}
           >
-            <View style={[{ width: PILL, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }, focused && !pos && { backgroundColor: th.c.accentSoft }]}>
-              {tab.icon(focused, color)}
+            <View style={[{ width: noLabel.has(route.name) ? BIG_PILL : PILL, height: noLabel.has(route.name) ? 48 : 32, borderRadius: 24, alignItems: 'center', justifyContent: 'center' }, focused && !pos && { backgroundColor: th.c.accentSoft }]}>
+              {tab.icon(focused, color, noLabel.has(route.name))}
               {route.name === 'timers' && renderTimerBadge()}
             </View>
             {noLabel.has(route.name) ? null : <Txt weight={focused ? 'black' : 'bold'} size={12} color={color}>{tab.label}</Txt>}
