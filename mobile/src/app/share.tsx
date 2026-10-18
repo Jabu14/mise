@@ -78,7 +78,7 @@ export default function ShareScreen() {
 
   return (
     <Screen>
-      <TopBar>
+      <TopBar sheet>
         <IconBtn name="close" label="Close" onPress={() => router.back()} />
         <PageTitle>Share with a QR code</PageTitle>
         <IconBtn name="scan-outline" label="Scan a code" onPress={() => router.push('/scan-qr')} />

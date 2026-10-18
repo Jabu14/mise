@@ -2,7 +2,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { BottomTabBarHeightContext } from 'expo-router/js-tabs';
 import { useContext, type ComponentProps, type ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View, type StyleProp, type TextProps, type TextStyle, type ViewProps, type ViewStyle } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View, type StyleProp, type TextProps, type TextStyle, type ViewProps, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GLYPHS, Glyph } from './glyphs';
 import { useIslandSpace } from '../lib/island';
@@ -131,12 +131,14 @@ export function Screen({ children }: { children: ReactNode }) {
   return <View style={{ flex: 1, backgroundColor: th.c.bg }}>{children}</View>;
 }
 
-export function TopBar({ children }: { children: ReactNode }) {
+// sheet: the page opens as a sheet (presentation 'modal'). On iPhone a sheet already starts below the
+// status bar, so it only needs a little space on top instead of the full status-bar height.
+export function TopBar({ children, sheet }: { children: ReactNode; sheet?: boolean }) {
   const th = useTheme();
   const insets = useSafeAreaInsets();
   const island = useIslandSpace();
   return (
-    <View style={{ paddingTop: insets.top + 6 + island, paddingHorizontal: 8, paddingBottom: 6, backgroundColor: th.c.bg }}>
+    <View style={{ paddingTop: sheet && Platform.OS === 'ios' ? 12 : insets.top + 6 + island, paddingHorizontal: 8, paddingBottom: 6, backgroundColor: th.c.bg }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, minHeight: 44 }}>{children}</View>
     </View>
   );

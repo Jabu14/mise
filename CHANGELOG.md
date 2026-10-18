@@ -2,6 +2,11 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.22.1 (2026-10-18)
+
+### Fixed
+- **Sheet titles sat too low.** Pages that slide up as a sheet on iPhone (Share with a QR code, Choose a recipe, Shared with you, Edit recipe) no longer add the status-bar gap on top, so their title and buttons sit near the top of the sheet.
+
 ## 1.22.0 (2026-10-17)
 
 ### Added

@@ -55,7 +55,7 @@ export function Editor({ existingId }: { existingId?: string }) {
 
   return (
     <Screen>
-      <TopBar>
+      <TopBar sheet={!!existingId}>
         {existing ? (
           <>
             <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />

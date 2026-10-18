@@ -82,7 +82,7 @@ export default function ReceivedScreen() {
 
   return (
     <Screen>
-      <TopBar>
+      <TopBar sheet>
         <IconBtn name="close" label="Close" onPress={() => router.back()} />
         <PageTitle>Shared with you</PageTitle>
       </TopBar>

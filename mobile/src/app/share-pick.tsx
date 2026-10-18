@@ -58,7 +58,7 @@ export default function SharePickScreen() {
 
   return (
     <Screen>
-      <TopBar>
+      <TopBar sheet>
         <IconBtn name="arrow-back" label="Back" onPress={() => router.back()} />
         <PageTitle>{title}</PageTitle>
       </TopBar>
