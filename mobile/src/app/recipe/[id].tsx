@@ -3,6 +3,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { DishArt } from '../../components/art/dish-art';
+import { LinearGradient } from 'expo-linear-gradient';
 import { CookEntryRow } from '../../components/cook-log-ui';
 import { CollectionSheet } from '../../components/collection-sheet';
 import { PlanSheet } from '../../components/plan-sheet';
@@ -62,11 +63,16 @@ export default function RecipeScreen() {
         <IconBtn name="trash-outline" label="Delete recipe" onPress={confirmDelete} />
       </TopBar>
 
-      <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 0, paddingBottom: dockH + 24 }}>
-        <View style={{ alignItems: 'center', gap: 10 }}>
-          <View style={{ borderRadius: 32, paddingHorizontal: 8, backgroundColor: artColor(r.title, th.dark) }}>
-            <DishArt title={`${r.title} ${r.description}`} width={220} />
-          </View>
+      <ScrollView contentContainerStyle={{ paddingBottom: dockH + 24 }}>
+        {/* Full-width colour band with the dish, melting into the page below. */}
+        <LinearGradient
+          colors={[artColor(r.title, th.dark), artColor(r.title, th.dark), th.c.bg]}
+          locations={[0, 0.5, 1]}
+          style={{ alignItems: 'center', paddingTop: 12, paddingBottom: 28 }}
+        >
+          <DishArt title={`${r.title} ${r.description}`} width={240} />
+        </LinearGradient>
+        <View style={{ alignItems: 'center', gap: 10, paddingHorizontal: 16, marginTop: -8 }}>
           <EditableTitle recipe={r} />
           {r.description ? <Txt muted style={{ textAlign: 'center' }}>{plainText(r.description)}</Txt> : null}
           {r.times.length ? (

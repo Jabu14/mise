@@ -9,6 +9,7 @@ import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
+  'A recipe’s dish now fills the top of the page and blends into it',
   'A new Help center with topics and full how-to articles',
   'Attach screenshots and screen recordings when you send feedback',
   'See an example of your units before you choose',

@@ -2,6 +2,11 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.23.0 (2026-10-18)
+
+### Changed
+- **Recipe header**: the dish picture no longer sits in a small rounded box. It now fills the full width at the top of the recipe, on a soft colour band that fades smoothly into the page below.
+
 ## 1.22.1 (2026-10-18)
 
 ### Fixed
