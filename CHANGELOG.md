@@ -2,6 +2,20 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.25.0 (2026-10-18)
+
+### Added
+- **Pull to refresh on a recipe.** Pull down and the dish band stretches (a Snap-style bounce); let go to refresh (the dish redraws).
+
+### Changed
+- **Recipe photo fills the header.** When a recipe has a photo it now covers the whole top band and fades into the page, so the header colour always matches the photo. The drawn art keeps its soft colour band.
+- **Blank timers stay blank.** Starting a timer with no label no longer invents an "X min timer" name — it's left empty.
+- **Editing shows a line, not a box**, in the timer number wheel too (matching the recipe title and amount).
+- The **Mise Prompt** page is back in Account → Sous for good (it's not hidden any more); editing a recipe stays a direct editor with no prompt.
+
+### Fixed
+- On **Edit recipe**, the "add a photo" menu opened behind the editor; it now uses the system menu so it sits on top.
+
 ## 1.24.0 (2026-10-18)
 
 ### Added

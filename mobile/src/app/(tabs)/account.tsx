@@ -183,7 +183,7 @@ export default function AccountTab() {
                   <Row icon="chatbubble-outline" title={`${AI_NAME} settings`} onPress={() => router.push('/sous-settings')} />
                   <Row icon="mic-outline" title="Voice" value={voiceLabel(settings.aiVoice)} onPress={() => router.push('/voice-settings')} />
                   <Row icon="stats-chart-outline" title="Usage" onPress={() => router.push('/usage')} />
-                  {settings.showMisePrompt ? <Row icon="document-text-outline" title="Mise Prompt" onPress={() => router.push('/recipe-prompt')} last /> : null}
+                  <Row icon="document-text-outline" title="Mise Prompt" onPress={() => router.push('/recipe-prompt')} last />
                 </Section>
               );
               case 'app': return (

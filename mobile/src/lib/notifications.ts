@@ -59,7 +59,7 @@ export async function scheduleAlarm(label: string, recipeTitle: string, ms: numb
   try {
     return await Notifications.scheduleNotificationAsync({
       content: {
-        title: prefs.preview ? `⏰ ${label}` : '⏰ Timer done',
+        title: prefs.preview ? `⏰ ${label.trim() || 'Timer'}` : '⏰ Timer done',
         body: prefs.preview ? (recipeTitle ? `${recipeTitle}: time's up!` : "Time's up!") : 'Your timer has finished.',
         sound: prefs.sound ? 'default' : false,
       },

@@ -157,7 +157,7 @@ function Wheel({ count, value, onChange, unit, haptics, onActive }: WheelProps) 
             placeholderTextColor={th.c.muted}
             accessibilityLabel={`Type ${unit}`}
             style={[
-              { position: 'absolute', left: 4, right: 0, top: WHEEL_ITEM * 2 + 4, height: WHEEL_ITEM - 8, borderRadius: (WHEEL_ITEM - 8) / 2, textAlign: 'right', paddingRight: 6, backgroundColor: th.c.surface, borderWidth: 2, borderColor: th.c.accent, color: th.c.text, fontSize: th.fs(24) },
+              { position: 'absolute', left: 4, right: 0, top: WHEEL_ITEM * 2 + 4, height: WHEEL_ITEM - 8, textAlign: 'right', paddingRight: 6, borderBottomWidth: 2, borderColor: th.c.accent, color: th.c.text, fontSize: th.fs(24) },
               th.f('head', 'bold'),
             ]}
           />

@@ -57,7 +57,6 @@ export const DEFAULT_SETTINGS = {
   navHideLabels: '',
   showStatus: true,     // developer: the emoji status bubble on Account
   navLens: true,        // developer: hold or slide on the navbar to get the lens
-  showMisePrompt: false, // developer: show the editable Mise Prompt page in Account → Sous
   accountOrder: '',     // developer: order of the Account sections, comma-separated ('' = default)
   accountHidden: '',    // developer: Account sections to hide, comma-separated    // developer: tabs whose navbar label is hidden, comma-separated (index,chat,add,timers,account)
   recipePrompt: '',     // empty = the built-in prompt

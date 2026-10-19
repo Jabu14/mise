@@ -2,7 +2,6 @@
 import * as Haptics from 'expo-haptics';
 import { useState } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
-import { formatDuration } from '../shared/parser';
 import { useApp, useTimers } from '../lib/store';
 import { useTheme } from '../lib/theme';
 import { ToneRow, ToneSheet } from './tone-sheet';
@@ -37,7 +36,7 @@ export function TimerPicker({ onStarted, onCancel, onWheelActive }: { onStarted?
   const start = () => {
     if (!(minutes > 0)) return;
     if (settings.haptics) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
-    startTimer({ minutes, label: label.trim() || `${formatDuration(minutes)} timer` });
+    startTimer({ minutes, label: label.trim() });
     setLabel('');
     onStarted?.();
   };

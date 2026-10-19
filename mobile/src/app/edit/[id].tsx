@@ -5,8 +5,7 @@ import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Image, Pressable, ScrollView, TextInput, View } from 'react-native';
-import { showAlert } from '../../components/sheet';
+import { ActionSheetIOS, Alert, Image, Platform, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { Btn, Card, Dock, Icon, IconBtn, Label, PageTitle, Screen, TopBar, Txt, type IconName } from '../../components/ui';
 import { keepPhoto } from '../../lib/cook-log';
 import { useApp, type Group, type Step } from '../../lib/store';
@@ -43,12 +42,20 @@ export default function EditRecipe() {
       const uri = !res.canceled ? res.assets?.[0]?.uri : null;
       if (uri) setPhoto(await keepPhoto(uri, `recipe-${r.id}`).catch(() => uri));
     };
-    showAlert('Recipe photo', undefined, [
-      { text: 'Take photo', onPress: () => choose(true) },
-      { text: 'Choose from library', onPress: () => choose(false) },
-      ...(photo ? [{ text: 'Remove photo', style: 'destructive' as const, onPress: () => setPhoto(undefined) }] : []),
-      { text: 'Cancel', style: 'cancel' },
-    ]);
+    // Native menu here: this screen is a modal, so a custom sheet would open behind it.
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        { title: 'Recipe photo', options: photo ? ['Take photo', 'Choose from library', 'Remove photo', 'Cancel'] : ['Take photo', 'Choose from library', 'Cancel'], cancelButtonIndex: photo ? 3 : 2, destructiveButtonIndex: photo ? 2 : undefined },
+        i => { if (i === 0) choose(true); else if (i === 1) choose(false); else if (photo && i === 2) setPhoto(undefined); },
+      );
+    } else {
+      Alert.alert('Recipe photo', undefined, [
+        { text: 'Take photo', onPress: () => choose(true) },
+        { text: 'Choose from library', onPress: () => choose(false) },
+        ...(photo ? [{ text: 'Remove photo', style: 'destructive' as const, onPress: () => setPhoto(undefined) }] : []),
+        { text: 'Cancel', style: 'cancel' },
+      ]);
+    }
   };
 
   // ---- ingredient helpers ----

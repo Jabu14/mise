@@ -61,10 +61,9 @@ function RoundBtn({ icon, label, onPress, disabled, active, small }: { icon: Ico
 function FeaturesTool() {
   const th = useTheme();
   const { settings, updateSettings } = useApp();
-  const items: ['showStatus' | 'navLens' | 'showMisePrompt', string, string, IconName][] = [
+  const items: ['showStatus' | 'navLens', string, string, IconName][] = [
     ['showStatus', 'Status bubble', 'The emoji thought bubble above your picture on Account', 'happy-outline'],
     ['navLens', 'Navbar lens', 'Hold or slide on the navigation bar to get the glass lens', 'scan-circle-outline'],
-    ['showMisePrompt', 'Mise Prompt page', 'Show the editable Mise Prompt row in Account → Sous', 'document-text-outline'],
   ];
   return (
     <>

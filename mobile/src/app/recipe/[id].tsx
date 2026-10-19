@@ -1,7 +1,9 @@
 // Recipe overview: servings, ingredient checklist, steps, notes.
+import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Image, Pressable, ScrollView, View } from 'react-native';
+import { Animated, Image, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
+// (ScrollView replaced by Animated.ScrollView for the stretchy pull-to-refresh header.)
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DishArt } from '../../components/art/dish-art';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -35,6 +37,17 @@ export default function RecipeScreen() {
   const [readyBy, setReadyBy] = useState(false);
   const [folders, setFolders] = useState(false);
   const cooks = useCookLog().entries.filter(e => e.recipeId === id);
+  const [scrollY] = useState(() => new Animated.Value(0));
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const onRefresh = () => {
+    if (settings.haptics) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+    setRefreshing(true);
+    setRefreshKey(k => k + 1); // replays the dish animation
+    if (id) patchRecipe(id, { lastOpened: Date.now() });
+    setTimeout(() => setRefreshing(false), 700);
+  };
 
   useEffect(() => { if (id) patchRecipe(id, { lastOpened: Date.now() }); }, [id, patchRecipe]);
 
@@ -59,21 +72,43 @@ export default function RecipeScreen() {
 
   const band = artColor(r.title, th.dark);
   const topGap = insets.top + island;
+  const photoH = topGap + 300;
+  // Stretchy header: pulling down grows the dish band (anchored at the top), like Snap's refresh.
+  const stretch = {
+    transform: [
+      { translateY: scrollY.interpolate({ inputRange: [-240, 0], outputRange: [-120, 0], extrapolateRight: 'clamp' }) },
+      { scale: scrollY.interpolate({ inputRange: [-240, 0], outputRange: [1.28, 1], extrapolateRight: 'clamp' }) },
+    ],
+  };
   return (
     <Screen>
-      <ScrollView contentContainerStyle={{ paddingBottom: dockH + 24 }}>
+      <Animated.ScrollView
+        contentContainerStyle={{ paddingBottom: dockH + 24 }}
+        scrollEventThrottle={16}
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={th.c.accent} colors={[th.c.accent]} progressViewOffset={topGap} />}
+      >
         {/* Full-width dish band that fades into the page, behind the top buttons. */}
-        <LinearGradient
-          colors={[band, band, band, th.c.bg]}
-          locations={[0, 0.45, 0.72, 1]}
-          style={{ alignItems: 'center', paddingTop: topGap + 58, paddingBottom: 46 }}
-        >
-          {r.photo
-            ? <Image source={{ uri: r.photo }} style={{ width: '100%', height: 230 }} resizeMode="cover" />
-            : <DishArt title={`${r.title} ${r.description}`} width={240} />}
-        </LinearGradient>
+        <Animated.View style={stretch}>
+          {r.photo ? (
+            <View>
+              <Image source={{ uri: r.photo }} style={{ width: '100%', height: photoH }} resizeMode="cover" />
+              {/* fade the photo into the page, and darken the top a touch so the buttons read */}
+              <LinearGradient colors={['transparent', 'transparent', th.c.bg]} locations={[0, 0.62, 1]} style={StyleSheet.absoluteFill} pointerEvents="none" />
+              <LinearGradient colors={['rgba(0,0,0,0.3)', 'transparent']} locations={[0, 1]} style={{ position: 'absolute', left: 0, right: 0, top: 0, height: topGap + 64 }} pointerEvents="none" />
+            </View>
+          ) : (
+            <LinearGradient
+              colors={[band, band, band, th.c.bg]}
+              locations={[0, 0.45, 0.72, 1]}
+              style={{ alignItems: 'center', paddingTop: topGap + 58, paddingBottom: 46 }}
+            >
+              <DishArt key={refreshKey} title={`${r.title} ${r.description}`} width={240} />
+            </LinearGradient>
+          )}
+        </Animated.View>
 
-        <View style={{ paddingHorizontal: 16, marginTop: -12 }}>
+        <View style={{ paddingHorizontal: 16, marginTop: r.photo ? 8 : -12 }}>
           <View style={{ alignItems: 'center', gap: 8 }}>
             <EditableTitle recipe={r} />
             {r.description ? <Txt muted style={{ textAlign: 'center' }}>{plainText(r.description)}</Txt> : null}
@@ -175,7 +210,7 @@ export default function RecipeScreen() {
           </Section>
         ) : null}
         </View>
-      </ScrollView>
+      </Animated.ScrollView>
 
       {/* Floating buttons over the dish band. */}
       <View pointerEvents="box-none" style={{ position: 'absolute', top: topGap + 6, left: 8, right: 8, flexDirection: 'row', alignItems: 'center' }}>

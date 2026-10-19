@@ -9,6 +9,8 @@ import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
+  'Pull down on a recipe to refresh, with a stretchy header',
+  'A recipe photo now fills the whole header; blank timers stay blank',
   'A clearer Edit recipe: change the photo, name, ingredients and steps directly',
   'Recipe dish fills the top and fades in behind the buttons; tidier header',
   'Editing a title or amount shows just a line, not a box',
