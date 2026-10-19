@@ -2,6 +2,11 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.26.3 (2026-10-19)
+
+### Changed
+- **Shorter photo fade.** The photo now stays crisp until a short fade at its bottom, instead of a long gradient, so more of the photo shows.
+
 ## 1.26.2 (2026-10-19)
 
 ### Fixed

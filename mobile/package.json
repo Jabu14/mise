@@ -1,6 +1,6 @@
 {
   "name": "mise",
-  "version": "1.26.2",
+  "version": "1.26.3",
   "main": "expo-router/entry",
   "dependencies": {
     "@expo-google-fonts/fraunces": "^0.4.1",

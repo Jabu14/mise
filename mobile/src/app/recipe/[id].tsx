@@ -118,12 +118,12 @@ export default function RecipeScreen() {
             // Keeping it all in one view means there's no seam between the photo and the colour.
             <View>
               <Image source={{ uri: r.photo }} style={{ width: '100%', height: photoH }} resizeMode="cover" />
-              {/* dissolve the photo's bottom into its own edge colour */}
-              <LinearGradient colors={['transparent', 'transparent', edge]} locations={[0, 0.6, 1]} style={{ position: 'absolute', top: 0, left: 0, right: 0, height: photoH }} pointerEvents="none" />
+              {/* a short fade of the photo's bottom into its own edge colour */}
+              <LinearGradient colors={['transparent', edge]} style={{ position: 'absolute', left: 0, right: 0, top: photoH - 88, height: 88 }} pointerEvents="none" />
               {/* darken the top a touch so the buttons read on the photo */}
               <LinearGradient colors={['rgba(0,0,0,0.32)', 'transparent']} locations={[0, 1]} style={{ position: 'absolute', left: 0, right: 0, top: 0, height: topGap + 64 }} pointerEvents="none" />
-              {/* melt the edge colour into the page (sits right under the photo, no gap) */}
-              <LinearGradient colors={[edge, th.c.bg]} style={{ height: 140 }} pointerEvents="none" />
+              {/* short melt into the page (sits right under the photo, no gap) */}
+              <LinearGradient colors={[edge, th.c.bg]} style={{ height: 44 }} pointerEvents="none" />
             </View>
           ) : (
             <LinearGradient

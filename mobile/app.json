@@ -2,7 +2,7 @@
   "expo": {
     "name": "Mise",
     "slug": "mise",
-    "version": "1.26.2",
+    "version": "1.26.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
