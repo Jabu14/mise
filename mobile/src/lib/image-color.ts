@@ -2,7 +2,7 @@
 // colour (a seamless dissolve) and then into the page. Works in Expo Go (no native colour module):
 // crop the bottom strip, shrink it to 1×1 with expo-image-manipulator, and read that pixel out of
 // the tiny PNG (inflated with pako).
-import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { inflate } from 'pako';
 import { Image } from 'react-native';
 
@@ -54,10 +54,10 @@ const getSize = (uri: string) => new Promise<{ w: number; h: number }>((res, rej
 export async function imageBottomColor(uri: string): Promise<string | null> {
   try {
     const { w, h } = await getSize(uri);
-    let ctx = ImageManipulator.manipulate(uri);
-    if (w > 1 && h > 1) ctx = ctx.crop({ originX: 0, originY: Math.floor(h * 0.68), width: w, height: Math.max(1, Math.floor(h * 0.32)) });
-    const img = await ctx.resize({ width: 1, height: 1 }).renderAsync();
-    const out = await img.saveAsync({ base64: true, format: SaveFormat.PNG });
+    const actions = [];
+    if (w > 1 && h > 1) actions.push({ crop: { originX: 0, originY: Math.floor(h * 0.68), width: w, height: Math.max(1, Math.floor(h * 0.32)) } });
+    actions.push({ resize: { width: 1, height: 1 } });
+    const out = await manipulateAsync(uri, actions, { base64: true, format: SaveFormat.PNG });
     return out.base64 ? pixelFromPng(out.base64) : null;
   } catch {
     return null;

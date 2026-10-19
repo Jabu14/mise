@@ -2,6 +2,11 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.26.2 (2026-10-19)
+
+### Fixed
+- **Photo header seam.** The photo and its colour band are now one piece (the melt-into-page band sits directly under the photo), so there's no line or white gap between them when you scroll. Also switched to a more reliable way of reading the photo's colour.
+
 ## 1.26.1 (2026-10-19)
 
 ### Fixed

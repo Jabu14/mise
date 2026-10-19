@@ -2,7 +2,7 @@
 import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Image, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Animated, Image, Pressable, View } from 'react-native';
 // ScrollView is Animated.ScrollView, for the stretchy pull-to-refresh header.
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DishArt, dishTint } from '../../components/art/dish-art';
@@ -114,12 +114,16 @@ export default function RecipeScreen() {
         {/* Full-width dish band that fades into the page, behind the top buttons. */}
         <Animated.View style={[stretch, r.photo ? { backgroundColor: edge } : null]}>
           {r.photo ? (
+            // One container: photo, then a band that melts its bottom-edge colour into the page.
+            // Keeping it all in one view means there's no seam between the photo and the colour.
             <View>
               <Image source={{ uri: r.photo }} style={{ width: '100%', height: photoH }} resizeMode="cover" />
-              {/* dissolve the photo's bottom into its own edge colour (seamless) */}
-              <LinearGradient colors={['transparent', 'transparent', edge]} locations={[0, 0.66, 1]} style={StyleSheet.absoluteFill} pointerEvents="none" />
+              {/* dissolve the photo's bottom into its own edge colour */}
+              <LinearGradient colors={['transparent', 'transparent', edge]} locations={[0, 0.6, 1]} style={{ position: 'absolute', top: 0, left: 0, right: 0, height: photoH }} pointerEvents="none" />
               {/* darken the top a touch so the buttons read on the photo */}
               <LinearGradient colors={['rgba(0,0,0,0.32)', 'transparent']} locations={[0, 1]} style={{ position: 'absolute', left: 0, right: 0, top: 0, height: topGap + 64 }} pointerEvents="none" />
+              {/* melt the edge colour into the page (sits right under the photo, no gap) */}
+              <LinearGradient colors={[edge, th.c.bg]} style={{ height: 140 }} pointerEvents="none" />
             </View>
           ) : (
             <LinearGradient
@@ -131,10 +135,8 @@ export default function RecipeScreen() {
             </LinearGradient>
           )}
         </Animated.View>
-        {/* For a photo, melt that edge colour into the page before the content. */}
-        {r.photo ? <LinearGradient colors={[edge, th.c.bg]} style={{ height: 120 }} pointerEvents="none" /> : null}
 
-        <View style={{ paddingHorizontal: 16, marginTop: r.photo ? -10 : -12 }}>
+        <View style={{ paddingHorizontal: 16, marginTop: r.photo ? -16 : -12 }}>
           <View style={{ alignItems: 'center', gap: 8 }}>
             <EditableTitle recipe={r} />
             {r.description ? <Txt muted style={{ textAlign: 'center' }}>{plainText(r.description)}</Txt> : null}
