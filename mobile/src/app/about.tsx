@@ -9,6 +9,8 @@ import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
+  'Recipe headers now match the dish or photo colour and dissolve into the page',
+  'The pull-to-refresh spinner shows right away when you pull',
   'Pull down on a recipe to refresh, with a stretchy header',
   'A recipe photo now fills the whole header; blank timers stay blank',
   'A clearer Edit recipe: change the photo, name, ingredients and steps directly',

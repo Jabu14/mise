@@ -1,13 +1,14 @@
 // Recipe overview: servings, ingredient checklist, steps, notes.
 import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { Animated, Image, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
-// (ScrollView replaced by Animated.ScrollView for the stretchy pull-to-refresh header.)
+import { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Animated, Image, Pressable, StyleSheet, View } from 'react-native';
+// ScrollView is Animated.ScrollView, for the stretchy pull-to-refresh header.
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { DishArt } from '../../components/art/dish-art';
+import { DishArt, dishTint } from '../../components/art/dish-art';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useIslandSpace } from '../../lib/island';
+import { imageAverageColor, mixHex } from '../../lib/image-color';
 import { CookEntryRow } from '../../components/cook-log-ui';
 import { CollectionSheet } from '../../components/collection-sheet';
 import { PlanSheet } from '../../components/plan-sheet';
@@ -18,7 +19,7 @@ import { formatDuration, plainText } from '../../shared/parser';
 import { useCookLog } from '../../lib/cook-log';
 import { useShopping } from '../../lib/shopping';
 import { useApp } from '../../lib/store';
-import { artColor, useTheme } from '../../lib/theme';
+import { useTheme } from '../../lib/theme';
 import { UNIT_CHOICES, convertUnits, type UnitMode } from '../../lib/units';
 import { SlidingChoice } from '../../components/sliding-choice';
 import { showAlert } from '../../components/sheet';
@@ -40,14 +41,31 @@ export default function RecipeScreen() {
   const [scrollY] = useState(() => new Animated.Value(0));
   const [refreshing, setRefreshing] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [photoColor, setPhotoColor] = useState<string | null>(null);
+  const pullY = useRef(0);
 
   const onRefresh = () => {
+    if (refreshing) return;
     if (settings.haptics) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
     setRefreshing(true);
     setRefreshKey(k => k + 1); // replays the dish animation
     if (id) patchRecipe(id, { lastOpened: Date.now() });
-    setTimeout(() => setRefreshing(false), 700);
+    setTimeout(() => setRefreshing(false), 800);
   };
+
+  // Keep the live pull offset so releasing past the threshold triggers a refresh.
+  useEffect(() => {
+    const sub = scrollY.addListener(({ value }) => { pullY.current = value; });
+    return () => scrollY.removeListener(sub);
+  }, [scrollY]);
+
+  // Sample the photo's average colour so the header matches it.
+  useEffect(() => {
+    if (!r?.photo) return;
+    let alive = true;
+    imageAverageColor(r.photo).then(c => { if (alive) setPhotoColor(c); }).catch(() => {});
+    return () => { alive = false; };
+  }, [r?.photo]);
 
   useEffect(() => { if (id) patchRecipe(id, { lastOpened: Date.now() }); }, [id, patchRecipe]);
 
@@ -70,7 +88,9 @@ export default function RecipeScreen() {
       { text: 'Delete', style: 'destructive', onPress: () => { deleteRecipe(r.id); router.back(); } },
     ]);
 
-  const band = artColor(r.title, th.dark);
+  const tint = dishTint(r.title, th.dark);
+  // When there's a photo, tint the area around and below it to the photo's own colour.
+  const softPhoto = photoColor ? mixHex(photoColor, th.c.bg, 0.5) : th.c.bg;
   const topGap = insets.top + island;
   const photoH = topGap + 300;
   // Stretchy header: pulling down grows the dish band (anchored at the top), like Snap's refresh.
@@ -80,26 +100,29 @@ export default function RecipeScreen() {
       { scale: scrollY.interpolate({ inputRange: [-240, 0], outputRange: [1.28, 1], extrapolateRight: 'clamp' }) },
     ],
   };
+  const pullOpacity = scrollY.interpolate({ inputRange: [-75, -18], outputRange: [1, 0], extrapolate: 'clamp' });
+  const pullRotate = scrollY.interpolate({ inputRange: [-120, -30], outputRange: ['180deg', '0deg'], extrapolate: 'clamp' });
   return (
     <Screen>
       <Animated.ScrollView
         contentContainerStyle={{ paddingBottom: dockH + 24 }}
         scrollEventThrottle={16}
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true })}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={th.c.accent} colors={[th.c.accent]} progressViewOffset={topGap} />}
+        onScrollEndDrag={() => { if (pullY.current <= -72) onRefresh(); }}
       >
         {/* Full-width dish band that fades into the page, behind the top buttons. */}
-        <Animated.View style={stretch}>
+        <Animated.View style={[stretch, r.photo ? { backgroundColor: softPhoto } : null]}>
           {r.photo ? (
             <View>
               <Image source={{ uri: r.photo }} style={{ width: '100%', height: photoH }} resizeMode="cover" />
-              {/* fade the photo into the page, and darken the top a touch so the buttons read */}
-              <LinearGradient colors={['transparent', 'transparent', th.c.bg]} locations={[0, 0.62, 1]} style={StyleSheet.absoluteFill} pointerEvents="none" />
-              <LinearGradient colors={['rgba(0,0,0,0.3)', 'transparent']} locations={[0, 1]} style={{ position: 'absolute', left: 0, right: 0, top: 0, height: topGap + 64 }} pointerEvents="none" />
+              {/* dissolve the photo's bottom into the matched tint */}
+              <LinearGradient colors={['transparent', 'transparent', softPhoto]} locations={[0, 0.5, 1]} style={StyleSheet.absoluteFill} pointerEvents="none" />
+              {/* darken the top a touch so the buttons read on the photo */}
+              <LinearGradient colors={['rgba(0,0,0,0.32)', 'transparent']} locations={[0, 1]} style={{ position: 'absolute', left: 0, right: 0, top: 0, height: topGap + 64 }} pointerEvents="none" />
             </View>
           ) : (
             <LinearGradient
-              colors={[band, band, band, th.c.bg]}
+              colors={[tint, tint, tint, th.c.bg]}
               locations={[0, 0.45, 0.72, 1]}
               style={{ alignItems: 'center', paddingTop: topGap + 58, paddingBottom: 46 }}
             >
@@ -107,8 +130,10 @@ export default function RecipeScreen() {
             </LinearGradient>
           )}
         </Animated.View>
+        {/* For a photo, melt the matched tint into the page before the content. */}
+        {r.photo ? <LinearGradient colors={[softPhoto, th.c.bg]} style={{ height: 96 }} pointerEvents="none" /> : null}
 
-        <View style={{ paddingHorizontal: 16, marginTop: r.photo ? 8 : -12 }}>
+        <View style={{ paddingHorizontal: 16, marginTop: r.photo ? -72 : -12 }}>
           <View style={{ alignItems: 'center', gap: 8 }}>
             <EditableTitle recipe={r} />
             {r.description ? <Txt muted style={{ textAlign: 'center' }}>{plainText(r.description)}</Txt> : null}
@@ -211,6 +236,15 @@ export default function RecipeScreen() {
         ) : null}
         </View>
       </Animated.ScrollView>
+
+      {/* Pull-to-refresh indicator, near the top so it shows the moment you pull. */}
+      <Animated.View pointerEvents="none" style={{ position: 'absolute', top: topGap + 50, alignSelf: 'center', opacity: refreshing ? 1 : pullOpacity }}>
+        <View style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: th.c.surface, shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 5 }}>
+          {refreshing
+            ? <ActivityIndicator size="small" color={th.c.accent} />
+            : <Animated.View style={{ transform: [{ rotate: pullRotate }] }}><Icon name="arrow-down" size={22} color={th.c.accent} /></Animated.View>}
+        </View>
+      </Animated.View>
 
       {/* Floating buttons over the dish band. */}
       <View pointerEvents="box-none" style={{ position: 'absolute', top: topGap + 6, left: 8, right: 8, flexDirection: 'row', alignItems: 'center' }}>

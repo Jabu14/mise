@@ -2,6 +2,13 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.26.0 (2026-10-18)
+
+### Changed
+- **Recipe header matches the dish's colour.** The drawn-art band now takes its colour from the dish itself (a curry is warm red, bread is golden, a salad is green…), instead of a colour picked from the name.
+- **Photo headers match the photo and dissolve in.** When a recipe has a photo, Mise samples the photo's colour and uses it to tint the area around and below the image, so there's no white gap — the photo melts smoothly into the page.
+- **Pull-to-refresh shows straight away.** A refresh indicator now appears near the top the moment you pull down (it used to be hidden behind the header), with an arrow that turns into a spinner.
+
 ## 1.25.0 (2026-10-18)
 
 ### Added

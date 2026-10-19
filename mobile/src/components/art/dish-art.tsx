@@ -189,3 +189,22 @@ export function DishArt({ title, width, still }: { title: string; width: number;
     </Scene>
   );
 }
+
+// The main colour of each drawn dish, so the recipe header can match it.
+const DISH_COLOR: Record<DishKey, string> = {
+  pancakes: C.doughShade, pizza: C.pot, cookie: C.crust, cake: C.cheek,
+  bread: C.crust, pasta: C.sauce, soup: C.pot, salad: C.green, cloche: C.steel,
+};
+export function dishBaseColor(title: string): string {
+  const key = DISHES.find(([re]) => re.test(title.toLowerCase()))?.[1] ?? 'cloche';
+  return DISH_COLOR[key];
+}
+// A soft version of that colour for the header band (pastel in light mode, deep in dark).
+export function dishTint(title: string, dark: boolean): string {
+  const base = dishBaseColor(title);
+  const target = dark ? '#161616' : '#ffffff';
+  const t = dark ? 0.68 : 0.78;
+  const pa = [1, 3, 5].map(i => parseInt(base.slice(i, i + 2), 16));
+  const pb = [1, 3, 5].map(i => parseInt(target.slice(i, i + 2), 16));
+  return `#${pa.map((v, i) => Math.round(v * (1 - t) + pb[i] * t).toString(16).padStart(2, '0')).join('')}`;
+}
