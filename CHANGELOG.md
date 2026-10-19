@@ -2,6 +2,11 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.26.1 (2026-10-19)
+
+### Fixed
+- **Photo recipe headers left a white gap.** The header now reads the colour along the photo's bottom edge and fades the photo straight into it (a seamless dissolve) before melting into the page, so there's no white band. If that colour can't be read, it falls back to the dish's own colour instead of white.
+
 ## 1.26.0 (2026-10-18)
 
 ### Changed

@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DishArt, dishTint } from '../../components/art/dish-art';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useIslandSpace } from '../../lib/island';
-import { imageAverageColor, mixHex } from '../../lib/image-color';
+import { imageBottomColor } from '../../lib/image-color';
 import { CookEntryRow } from '../../components/cook-log-ui';
 import { CollectionSheet } from '../../components/collection-sheet';
 import { PlanSheet } from '../../components/plan-sheet';
@@ -63,7 +63,7 @@ export default function RecipeScreen() {
   useEffect(() => {
     if (!r?.photo) return;
     let alive = true;
-    imageAverageColor(r.photo).then(c => { if (alive) setPhotoColor(c); }).catch(() => {});
+    imageBottomColor(r.photo).then(c => { if (alive) setPhotoColor(c); }).catch(() => {});
     return () => { alive = false; };
   }, [r?.photo]);
 
@@ -89,8 +89,9 @@ export default function RecipeScreen() {
     ]);
 
   const tint = dishTint(r.title, th.dark);
-  // When there's a photo, tint the area around and below it to the photo's own colour.
-  const softPhoto = photoColor ? mixHex(photoColor, th.c.bg, 0.5) : th.c.bg;
+  // The colour the photo fades into at its bottom (its own edge colour for a seamless dissolve);
+  // if we couldn't read it yet, fall back to the dish's colour so there's never a white gap.
+  const edge = photoColor ?? tint;
   const topGap = insets.top + island;
   const photoH = topGap + 300;
   // Stretchy header: pulling down grows the dish band (anchored at the top), like Snap's refresh.
@@ -111,12 +112,12 @@ export default function RecipeScreen() {
         onScrollEndDrag={() => { if (pullY.current <= -72) onRefresh(); }}
       >
         {/* Full-width dish band that fades into the page, behind the top buttons. */}
-        <Animated.View style={[stretch, r.photo ? { backgroundColor: softPhoto } : null]}>
+        <Animated.View style={[stretch, r.photo ? { backgroundColor: edge } : null]}>
           {r.photo ? (
             <View>
               <Image source={{ uri: r.photo }} style={{ width: '100%', height: photoH }} resizeMode="cover" />
-              {/* dissolve the photo's bottom into the matched tint */}
-              <LinearGradient colors={['transparent', 'transparent', softPhoto]} locations={[0, 0.5, 1]} style={StyleSheet.absoluteFill} pointerEvents="none" />
+              {/* dissolve the photo's bottom into its own edge colour (seamless) */}
+              <LinearGradient colors={['transparent', 'transparent', edge]} locations={[0, 0.66, 1]} style={StyleSheet.absoluteFill} pointerEvents="none" />
               {/* darken the top a touch so the buttons read on the photo */}
               <LinearGradient colors={['rgba(0,0,0,0.32)', 'transparent']} locations={[0, 1]} style={{ position: 'absolute', left: 0, right: 0, top: 0, height: topGap + 64 }} pointerEvents="none" />
             </View>
@@ -130,10 +131,10 @@ export default function RecipeScreen() {
             </LinearGradient>
           )}
         </Animated.View>
-        {/* For a photo, melt the matched tint into the page before the content. */}
-        {r.photo ? <LinearGradient colors={[softPhoto, th.c.bg]} style={{ height: 96 }} pointerEvents="none" /> : null}
+        {/* For a photo, melt that edge colour into the page before the content. */}
+        {r.photo ? <LinearGradient colors={[edge, th.c.bg]} style={{ height: 120 }} pointerEvents="none" /> : null}
 
-        <View style={{ paddingHorizontal: 16, marginTop: r.photo ? -72 : -12 }}>
+        <View style={{ paddingHorizontal: 16, marginTop: r.photo ? -10 : -12 }}>
           <View style={{ alignItems: 'center', gap: 8 }}>
             <EditableTitle recipe={r} />
             {r.description ? <Txt muted style={{ textAlign: 'center' }}>{plainText(r.description)}</Txt> : null}

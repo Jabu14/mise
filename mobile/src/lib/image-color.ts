@@ -1,8 +1,10 @@
-// The average colour of a photo, used to tint a recipe's header so it matches the image.
-// Trick that works in Expo Go (no native colour module): shrink the image to 1×1 with
-// expo-image-manipulator, read that single pixel out of the tiny PNG (inflated with pako).
+// The colour along a photo's bottom edge, so a recipe header can fade the photo into that exact
+// colour (a seamless dissolve) and then into the page. Works in Expo Go (no native colour module):
+// crop the bottom strip, shrink it to 1×1 with expo-image-manipulator, and read that pixel out of
+// the tiny PNG (inflated with pako).
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import { inflate } from 'pako';
+import { Image } from 'react-native';
 
 function b64ToBytes(b64: string): Uint8Array {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
@@ -18,13 +20,12 @@ function b64ToBytes(b64: string): Uint8Array {
 }
 
 const u32 = (b: Uint8Array, i: number) => (b[i] << 24) | (b[i + 1] << 16) | (b[i + 2] << 8) | b[i + 3];
-const hex = (n: number) => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, '0');
+const hx = (n: number) => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, '0');
 
-// Reads the one pixel out of a 1×1 PNG's base64.
 function pixelFromPng(b64: string): string | null {
   try {
     const bytes = b64ToBytes(b64);
-    if (bytes[0] !== 0x89 || bytes[1] !== 0x50) return null; // not a PNG
+    if (bytes[0] !== 0x89 || bytes[1] !== 0x50) return null;
     let i = 8;
     let colorType = 6;
     const idat: number[] = [];
@@ -40,18 +41,22 @@ function pixelFromPng(b64: string): string | null {
     if (!idat.length) return null;
     const raw = inflate(Uint8Array.from(idat)); // [filter, ...channels]
     const ch = colorType === 2 ? 3 : colorType === 6 ? 4 : colorType === 0 ? 1 : 3;
-    const p = 1; // skip the per-row filter byte
-    if (ch === 1) return `#${hex(raw[p])}${hex(raw[p])}${hex(raw[p])}`;
-    return `#${hex(raw[p])}${hex(raw[p + 1])}${hex(raw[p + 2])}`;
+    if (ch === 1) return `#${hx(raw[1])}${hx(raw[1])}${hx(raw[1])}`;
+    return `#${hx(raw[1])}${hx(raw[2])}${hx(raw[3])}`;
   } catch {
     return null;
   }
 }
 
-export async function imageAverageColor(uri: string): Promise<string | null> {
+const getSize = (uri: string) => new Promise<{ w: number; h: number }>((res, rej) => Image.getSize(uri, (w, h) => res({ w, h }), rej));
+
+// The average colour of the photo's bottom ~30%.
+export async function imageBottomColor(uri: string): Promise<string | null> {
   try {
-    const ctx = ImageManipulator.manipulate(uri).resize({ width: 1, height: 1 });
-    const img = await ctx.renderAsync();
+    const { w, h } = await getSize(uri);
+    let ctx = ImageManipulator.manipulate(uri);
+    if (w > 1 && h > 1) ctx = ctx.crop({ originX: 0, originY: Math.floor(h * 0.68), width: w, height: Math.max(1, Math.floor(h * 0.32)) });
+    const img = await ctx.resize({ width: 1, height: 1 }).renderAsync();
     const out = await img.saveAsync({ base64: true, format: SaveFormat.PNG });
     return out.base64 ? pixelFromPng(out.base64) : null;
   } catch {
@@ -61,8 +66,8 @@ export async function imageAverageColor(uri: string): Promise<string | null> {
 
 // a·(1-t) + b·t for two #rrggbb colours.
 export function mixHex(a: string, b: string, t: number): string {
+  if (!/^#[0-9a-fA-F]{6}$/.test(a) || !/^#[0-9a-fA-F]{6}$/.test(b)) return b;
   const pa = [1, 3, 5].map(i => parseInt(a.slice(i, i + 2), 16));
   const pb = [1, 3, 5].map(i => parseInt(b.slice(i, i + 2), 16));
-  const m = pa.map((v, i) => Math.round(v * (1 - t) + pb[i] * t));
-  return `#${m.map(v => v.toString(16).padStart(2, '0')).join('')}`;
+  return `#${pa.map((v, i) => hx(v * (1 - t) + pb[i] * t)).join('')}`;
 }
