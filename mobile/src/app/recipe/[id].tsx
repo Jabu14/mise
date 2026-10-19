@@ -1,15 +1,17 @@
 // Recipe overview: servings, ingredient checklist, steps, notes.
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Image, Pressable, ScrollView, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DishArt } from '../../components/art/dish-art';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useIslandSpace } from '../../lib/island';
 import { CookEntryRow } from '../../components/cook-log-ui';
 import { CollectionSheet } from '../../components/collection-sheet';
 import { PlanSheet } from '../../components/plan-sheet';
 import { ReadyBySheet } from '../../components/ready-by-sheet';
 import { EditableTitle, IngredientList, MakesValue, ingCountText, scaleBy } from '../../components/recipe';
-import { Btn, Card, Chip, Dock, Icon, IconBtn, Label, RichText, Screen, TopBar, Txt } from '../../components/ui';
+import { Btn, Card, Dock, Icon, IconBtn, Label, RichText, Screen, TopBar, Txt, type IconName } from '../../components/ui';
 import { formatDuration, plainText } from '../../shared/parser';
 import { useCookLog } from '../../lib/cook-log';
 import { useShopping } from '../../lib/shopping';
@@ -21,6 +23,8 @@ import { showAlert } from '../../components/sheet';
 
 export default function RecipeScreen() {
   const th = useTheme();
+  const insets = useSafeAreaInsets();
+  const island = useIslandSpace();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { getRecipe, patchRecipe, setProgress, deleteRecipe, settings, updateSettings } = useApp();
   const units = settings.units as UnitMode;
@@ -53,63 +57,54 @@ export default function RecipeScreen() {
       { text: 'Delete', style: 'destructive', onPress: () => { deleteRecipe(r.id); router.back(); } },
     ]);
 
+  const band = artColor(r.title, th.dark);
+  const topGap = insets.top + island;
   return (
     <Screen>
-      <TopBar>
-        <IconBtn name="arrow-back" label="All recipes" onPress={() => router.back()} />
-        <View style={{ flex: 1 }} />
-        <IconBtn name="calendar-outline" label="Add to meal plan" onPress={() => setPlanning(true)} />
-        <IconBtn name="create-outline" label="Edit recipe" onPress={() => router.push(`/edit/${r.id}`)} />
-        <IconBtn name="trash-outline" label="Delete recipe" onPress={confirmDelete} />
-      </TopBar>
-
       <ScrollView contentContainerStyle={{ paddingBottom: dockH + 24 }}>
-        {/* Full-width colour band with the dish, melting into the page below. */}
+        {/* Full-width dish band that fades into the page, behind the top buttons. */}
         <LinearGradient
-          colors={[artColor(r.title, th.dark), artColor(r.title, th.dark), th.c.bg]}
-          locations={[0, 0.5, 1]}
-          style={{ alignItems: 'center', paddingTop: 12, paddingBottom: 28 }}
+          colors={[band, band, band, th.c.bg]}
+          locations={[0, 0.45, 0.72, 1]}
+          style={{ alignItems: 'center', paddingTop: topGap + 58, paddingBottom: 46 }}
         >
-          <DishArt title={`${r.title} ${r.description}`} width={240} />
+          {r.photo
+            ? <Image source={{ uri: r.photo }} style={{ width: '100%', height: 230 }} resizeMode="cover" />
+            : <DishArt title={`${r.title} ${r.description}`} width={240} />}
         </LinearGradient>
-        <View style={{ alignItems: 'center', gap: 10, paddingHorizontal: 16, marginTop: -8 }}>
-          <EditableTitle recipe={r} />
-          {r.description ? <Txt muted style={{ textAlign: 'center' }}>{plainText(r.description)}</Txt> : null}
-          {r.times.length ? (
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 6 }}>
-              {r.times.map(t => (
-                <Chip key={t.label} icon="time-outline">
-                  <Txt size={14}><Txt weight="black" size={14}>{t.label}</Txt> {t.value}</Txt>
-                </Chip>
-              ))}
-            </View>
-          ) : null}
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8 }}>
-            {r.steps.length > 1 ? (
-              <Pressable onPress={() => setReadyBy(true)} accessibilityRole="button"
-                style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, paddingVertical: 7, borderRadius: 999, backgroundColor: th.c.accentSoft, opacity: pressed ? 0.7 : 1 })}>
-                <Icon name="alarm-outline" size={16} color={th.c.accent} />
-                <Txt weight="black" size={14} color={th.c.accent}>Ready by…</Txt>
-              </Pressable>
-            ) : null}
-            <Pressable onPress={() => setFolders(true)} accessibilityRole="button" accessibilityLabel="Collections"
-              style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 6, maxWidth: 260, paddingHorizontal: 14, paddingVertical: 7, borderRadius: 999, backgroundColor: th.c.soft, opacity: pressed ? 0.7 : 1 })}>
-              <Icon name={r.collections?.length ? 'folder' : 'folder-outline'} size={16} color={th.c.accent} />
-              <Txt weight="black" size={14} numberOfLines={1} style={{ flexShrink: 1 }}>{r.collections?.length ? r.collections.join(', ') : 'Add to collection'}</Txt>
-            </Pressable>
-          </View>
-        </View>
 
-        <Card style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 18, paddingVertical: 10, paddingLeft: 18, paddingRight: 10 }}>
-          <View>
-            <Label color={th.c.muted}>{r.servings?.count ? 'Makes' : 'Recipe size'}</Label>
-            <MakesValue recipe={r} />
+        <View style={{ paddingHorizontal: 16, marginTop: -12 }}>
+          <View style={{ alignItems: 'center', gap: 8 }}>
+            <EditableTitle recipe={r} />
+            {r.description ? <Txt muted style={{ textAlign: 'center' }}>{plainText(r.description)}</Txt> : null}
           </View>
-          <View style={{ flexDirection: 'row', gap: 6 }}>
-            <IconBtn tinted name="remove" label="Make less" onPress={() => setProgress(r.id, { scale: scaleBy(r, -1) })} />
-            <IconBtn tinted name="add" label="Make more" onPress={() => setProgress(r.id, { scale: scaleBy(r, 1) })} />
+
+          {r.times.length ? (
+            <Card style={{ flexDirection: 'row', marginTop: 16, paddingVertical: 12, paddingHorizontal: 4 }}>
+              {r.times.map((t, i) => (
+                <View key={t.label} style={{ flex: 1, alignItems: 'center', gap: 3, borderLeftWidth: i ? 1 : 0, borderLeftColor: th.c.line }}>
+                  <Txt muted weight="black" size={11} style={{ letterSpacing: 0.4 }}>{t.label.toUpperCase()}</Txt>
+                  <Txt weight="bold" size={15}>{t.value}</Txt>
+                </View>
+              ))}
+            </Card>
+          ) : null}
+
+          <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
+            {r.steps.length > 1 ? <ActionPill icon="alarm-outline" label="Ready by…" onPress={() => setReadyBy(true)} /> : null}
+            <ActionPill icon={r.collections?.length ? 'folder' : 'folder-outline'} label={r.collections?.length ? r.collections.join(', ') : 'Add to collection'} onPress={() => setFolders(true)} />
           </View>
-        </Card>
+
+          <Card style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, paddingVertical: 10, paddingLeft: 18, paddingRight: 10 }}>
+            <View>
+              <Label color={th.c.muted}>{r.servings?.count ? 'Makes' : 'Recipe size'}</Label>
+              <MakesValue recipe={r} />
+            </View>
+            <View style={{ flexDirection: 'row', gap: 6 }}>
+              <IconBtn tinted name="remove" label="Make less" onPress={() => setProgress(r.id, { scale: scaleBy(r, -1) })} />
+              <IconBtn tinted name="add" label="Make more" onPress={() => setProgress(r.id, { scale: scaleBy(r, 1) })} />
+            </View>
+          </Card>
 
         {r.ingredients.length ? (
           <Section title="Ingredients" aside={ingCountText(r)}>
@@ -179,7 +174,17 @@ export default function RecipeScreen() {
             </View>
           </Section>
         ) : null}
+        </View>
       </ScrollView>
+
+      {/* Floating buttons over the dish band. */}
+      <View pointerEvents="box-none" style={{ position: 'absolute', top: topGap + 6, left: 8, right: 8, flexDirection: 'row', alignItems: 'center' }}>
+        <RoundIcon name="arrow-back" label="All recipes" onPress={() => router.back()} />
+        <View style={{ flex: 1 }} />
+        <RoundIcon name="calendar-outline" label="Add to meal plan" onPress={() => setPlanning(true)} />
+        <RoundIcon name="create-outline" label="Edit recipe" onPress={() => router.push(`/edit/${r.id}`)} />
+        <RoundIcon name="trash-outline" label="Delete recipe" onPress={confirmDelete} />
+      </View>
 
       <Dock onHeight={setDockH}>
         {!started ? <Btn variant="secondary" size="big" icon="basket-outline" title="Prep" onPress={() => router.push(`/prep/${r.id}`)} accessibilityLabel="Mise en place: get everything ready first" /> : null}
@@ -208,5 +213,28 @@ function Section({ title, aside, onAside, children }: { title: string; aside?: s
       </View>
       {children}
     </View>
+  );
+}
+
+// One of the two equal-width pills under the title (Ready by…, Add to collection).
+function ActionPill({ icon, label, onPress }: { icon: IconName; label: string; onPress: () => void }) {
+  const th = useTheme();
+  return (
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={label}
+      style={({ pressed }) => ({ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, height: 46, borderRadius: 23, backgroundColor: th.c.accentSoft, opacity: pressed ? 0.7 : 1 })}>
+      <Icon name={icon} size={17} color={th.c.accent} />
+      <Txt weight="black" size={14} color={th.c.accent} numberOfLines={1} style={{ flexShrink: 1 }}>{label}</Txt>
+    </Pressable>
+  );
+}
+
+// A round button that floats over the dish band, with a soft backing so it reads on the colour.
+function RoundIcon({ name, label, onPress }: { name: IconName; label: string; onPress: () => void }) {
+  const th = useTheme();
+  return (
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={label} hitSlop={4}
+      style={({ pressed }) => ({ width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', marginHorizontal: 2, backgroundColor: th.dark ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.6)', opacity: pressed ? 0.6 : 1 })}>
+      <Icon name={name} size={22} color={th.c.text} />
+    </Pressable>
   );
 }

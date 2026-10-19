@@ -16,7 +16,7 @@ export const LIMITS = {
   notes: 100,
   timersPerStep: 4,
   activeTimers: 20,
-  history: 12,
+  history: 80,
   maxMinutes: 72 * 60,
 };
 
@@ -96,6 +96,7 @@ export function cleanRecipe(v: unknown): Recipe | null {
     ...(typeof r.lastOpened === 'number' ? { lastOpened: num(r.lastOpened, 0, time + 1, 0) } : {}),
     ...(typeof r.lastCooked === 'number' ? { lastCooked: num(r.lastCooked, 0, time + 1, 0) } : {}),
     cookCount: Math.round(num(r.cookCount, 0, 1e6, 0)),
+    ...(typeof r.photo === 'string' && PHOTO_RE.test(r.photo) ? { photo: r.photo } : {}),
     ...(Array.isArray(r.collections) ? { collections: [...new Set(strings(r.collections, 12).map(c => c.trim().slice(0, 30)).filter(Boolean))] } : {}),
   };
 }

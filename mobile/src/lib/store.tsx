@@ -29,6 +29,7 @@ export type Recipe = {
   lastCooked?: number;
   cookCount?: number;
   collections?: string[]; // "Weeknight", "Baking"… you make these up
+  photo?: string;         // a photo of the dish (a file in the app folder); overrides the drawn art
 };
 export type Parsed = Omit<Recipe, 'id' | 'source' | 'emoji' | 'progress' | 'createdAt' | 'updatedAt' | 'lastOpened' | 'lastCooked' | 'cookCount' | 'collections'> & { warnings?: string[] };
 export type TimerHistoryItem = { minutes: number; label: string; at: number };
@@ -56,6 +57,7 @@ export const DEFAULT_SETTINGS = {
   navHideLabels: '',
   showStatus: true,     // developer: the emoji status bubble on Account
   navLens: true,        // developer: hold or slide on the navbar to get the lens
+  showMisePrompt: false, // developer: show the editable Mise Prompt page in Account → Sous
   accountOrder: '',     // developer: order of the Account sections, comma-separated ('' = default)
   accountHidden: '',    // developer: Account sections to hide, comma-separated    // developer: tabs whose navbar label is hidden, comma-separated (index,chat,add,timers,account)
   recipePrompt: '',     // empty = the built-in prompt
@@ -266,7 +268,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setNow(Date.now());
     setHistory(h => ({
       started: h.started + 1,
-      items: [{ minutes, label, at: Date.now() }, ...h.items.filter(i => !(i.minutes === minutes && i.label === label))].slice(0, LIMITS.history),
+      // A real log: every start is its own entry, newest first.
+      items: [{ minutes, label, at: Date.now() }, ...h.items].slice(0, LIMITS.history),
     }));
     const notificationId = await scheduleAlarm(label, recipeTitle, ms);
     setTimers(list => list.map(t => (t.id === timer.id ? { ...t, notificationId } : t)));

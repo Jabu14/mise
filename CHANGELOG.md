@@ -2,6 +2,19 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.24.0 (2026-10-18)
+
+### Added
+- **Recipe photos.** Edit recipe now lets you add, change or remove a photo of the dish. When set, it fills the recipe's top band instead of the drawn art.
+- **A proper Edit recipe screen.** Editing a recipe is now a direct editor (no pasting or prompts): change the photo, name, description, how much it makes, ingredients (grouped, add/remove), steps (title and text, reorder, remove — timers are picked up from the text) and notes. Save sits at the top right and the bottom.
+
+### Changed
+- **Recipe header**: the dish band now reaches up behind the top buttons and fades more smoothly into the page; the buttons float on it. The rest of the page keeps its normal width (only the dish is full-width).
+- **Prep / Cook / Total times** show as an even, divided row; **Ready by…** and **Add to collection** are two equal buttons.
+- **Inline edits** (recipe title, the "makes" amount) now show a single underline while you type instead of a boxed field.
+- **Timer history** is now a real log: every timer you start is listed with its time and when, newest first (it used to merge repeats into one row). Account → Your kitchen → Timers shows Started, This month and Recent.
+- The editable **Mise Prompt** page is hidden by default; turn it on in Developer → Feature switches. (Importing with the prompt on the Add tab is unchanged.)
+
 ## 1.23.0 (2026-10-18)
 
 ### Changed

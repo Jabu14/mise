@@ -56,10 +56,10 @@ export default function ActivityScreen() {
     empty = 'Finish a recipe in cook mode and it shows up here with the date, your stars and notes.';
   } else if (kind === 'timers') {
     title = 'Timers';
-    stats = [['Started', String(timersStarted)], ['Different timers', String(history.length)]];
+    stats = [['Started', String(timersStarted)], ['This month', String(history.filter(h => h.at >= monthStart).length)], ['Recent', String(history.length)]];
     items = history.map((h, i) => ({
       key: `${i}-${h.at}`, at: h.at, title: h.label || 'Timer', icon: 'timer-outline',
-      lines: [`${formatDuration(h.minutes)} · last used ${when(h.at)}`],
+      lines: [`${formatDuration(h.minutes)} · ${when(h.at)}`],
     }));
     empty = 'Timers you start show up here.';
   }

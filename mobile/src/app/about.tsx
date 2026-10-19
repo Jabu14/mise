@@ -9,6 +9,9 @@ import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
+  'A clearer Edit recipe: change the photo, name, ingredients and steps directly',
+  'Recipe dish fills the top and fades in behind the buttons; tidier header',
+  'Editing a title or amount shows just a line, not a box',
   'A recipe’s dish now fills the top of the page and blends into it',
   'A new Help center with topics and full how-to articles',
   'Attach screenshots and screen recordings when you send feedback',

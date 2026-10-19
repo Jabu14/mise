@@ -76,7 +76,7 @@ export function EditableTitle({ recipe: r }: { recipe: Recipe }) {
         onBlur={save}
         onSubmitEditing={save}
         accessibilityLabel="Recipe name"
-        style={[{ alignSelf: 'stretch', textAlign: 'center', color: th.c.text, fontSize: th.fs(30), paddingVertical: 6, paddingHorizontal: 10, borderRadius: 14, borderWidth: 2, borderColor: th.c.accent, backgroundColor: th.c.surface }, th.f('head', 'bold')]}
+        style={[{ alignSelf: 'stretch', textAlign: 'center', color: th.c.text, fontSize: th.fs(30), paddingVertical: 6, paddingHorizontal: 4, borderBottomWidth: 2, borderColor: th.c.accent }, th.f('head', 'bold')]}
       />
     );
   }
@@ -118,7 +118,7 @@ export function MakesValue({ recipe: r }: { recipe: Recipe }) {
           onSubmitEditing={commit}
           returnKeyType="done"
           accessibilityLabel="How much to make"
-          style={[{ minWidth: 56, height: 36, paddingHorizontal: 10, borderRadius: 10, borderWidth: 2, borderColor: th.c.accent, backgroundColor: th.c.bg, color: th.c.text, fontSize: th.fs(18), textAlign: 'center' }, th.f('body', 'black')]}
+          style={[{ minWidth: 56, height: 36, paddingHorizontal: 6, borderBottomWidth: 2, borderColor: th.c.accent, color: th.c.text, fontSize: th.fs(18), textAlign: 'center' }, th.f('body', 'black')]}
         />
         <Txt weight="black" size={18}>{unit}</Txt>
       </View>
