@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FBF6EF">
+  <title>Terms &amp; Privacy — Mise</title>
+  <meta name="description" content="Mise terms of use and privacy policy.">
+  <link rel="icon" href="../app/icons/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito:wght@500;600;700;800&display=swap">
+  <link rel="stylesheet" href="../marketing.css">
+  <style>
+    .legal-body { max-width: 760px; margin: 0 auto; }
+    .legal-body h2 { font-size: 1.5rem; margin: 36px 0 10px; }
+    .legal-body p, .legal-body li { color: var(--muted); }
+    .legal-body ul { padding-left: 22px; }
+    .legal-body li { margin: 6px 0; }
+    .legal-body .updated { color: var(--muted); font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="../">
+        <svg class="logo" viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D27A3B"/><stop offset="1" stop-color="#A6511E"/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#g)"/><path d="M112 306c0-90 64-156 144-156s144 66 144 156v34c0 18-14 32-32 32H144c-18 0-32-14-32-32Z" fill="#FBEBD3"/><path d="M186 248l44 44M252 222l44 44M318 248l36 36" stroke="#DDA36A" stroke-width="20" stroke-linecap="round"/></svg>
+        Mise
+      </a>
+      <nav class="nav-links"><a href="index.html">Help center</a><a href="../">Home</a></nav>
+      <div class="nav-cta"><a class="btn primary sm" href="../app/">Open app</a></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="help-hero"><div class="wrap"><span class="eyebrow">The fine print</span><h1>Terms &amp; Privacy</h1></div></section>
+    <section style="padding-top:20px;">
+      <div class="wrap legal-body">
+        <p class="updated">A plain-English summary of how Mise works with your data. This is a starting template — have it reviewed before launch.</p>
+
+        <h2>Your recipes stay with you</h2>
+        <p>Mise keeps your recipes, meal plans, cooking journal, chats and settings on your own device. They are not uploaded to our servers. Deleting the app deletes this data, so keep a copy of anything you want to save.</p>
+
+        <h2>What leaves your device</h2>
+        <ul>
+          <li><b>Nutrition scanner:</b> when you scan a barcode, only the barcode number is sent to Open Food Facts (a free, open food database) to look up the product.</li>
+          <li><b>AI features (Sous &amp; Import with AI):</b> the text you send is sent to Mise's server to generate a reply. Along with it we may include the preferences you set (such as diet) so answers fit you — you control this in Sous settings.</li>
+          <li><b>Feedback:</b> when you send feedback or report an issue, your message, any screenshots you attach, the app version and your device type are shared with the Mise team.</li>
+        </ul>
+
+        <h2>Accounts</h2>
+        <p>You can use Mise without an account. If you create one, we store your name, email and a securely hashed password so you can sign in. We never store your password in plain text. Sync across devices is coming later.</p>
+
+        <h2>No tracking or ads</h2>
+        <p>Mise does not sell your data and does not show third-party advertising.</p>
+
+        <h2>Using Mise</h2>
+        <ul>
+          <li>Mise is provided "as is" while in active development. Features may change.</li>
+          <li>Cooking information, timings and AI answers are guidance — always use your own judgement, especially around food safety, allergies and the use of heat and sharp tools.</li>
+          <li>Don't use Mise to break the law or infringe others' rights.</li>
+        </ul>
+
+        <h2>Contact</h2>
+        <p>Questions about privacy or these terms? <a href="contact.html" style="color:var(--accent-dark);font-weight:800;">Contact us</a>.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><div class="wrap"><div class="legal"><span>© <span id="yr"></span> Mise</span><span><a href="../" style="color:var(--muted);">Home</a> · <a href="index.html" style="color:var(--muted);">Help</a> · <a href="contact.html" style="color:var(--muted);">Contact</a></span></div></div></footer>
+  <script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+</body>
+</html>

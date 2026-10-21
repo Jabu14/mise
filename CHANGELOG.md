@@ -2,6 +2,13 @@
 
 Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
 
+## 1.27.0 (2026-10-20)
+
+### Added
+- **Mise website.** A commercial landing page at the site root (`web/index.html`): hero, feature grid, how-it-works, a Sous highlight, FAQ and footer, in Mise's warm brand. The installable web app moved to `/app/`.
+- **Online Help center** (`web/help/`): searchable topics and articles matching the in-app help, plus Contact and Terms & Privacy pages.
+- In the app's Help center, buttons now link out to the online Help center and the web Contact page (an "Open the full Help center on the web" row, and web links under "Need more help?").
+
 ## 1.26.3 (2026-10-19)
 
 ### Changed

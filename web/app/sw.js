@@ -1,6 +1,6 @@
 // Offline support: the app shell is cached so Mise opens without internet.
 // Same-origin files are network-first (so updates show up right away), fonts are cache-first.
-const CACHE = 'mise-v4';
+const CACHE = 'mise-v5';
 const SHELL = [
   './', './index.html', './styles.css', './manifest.webmanifest',
   './js/app.js', './js/parser.js', './js/store.js', './js/timers.js', './js/content.js', './js/icons.js', './js/validate.js',

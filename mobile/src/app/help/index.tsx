@@ -6,6 +6,7 @@ import { Pressable, ScrollView, TextInput, View } from 'react-native';
 import { HelpHeader, ListCard, NeedMoreHelp } from '../../components/help-ui';
 import { Icon, Screen, Txt } from '../../components/ui';
 import { ALL_ARTICLES, HELP, POPULAR, articleText, findArticle } from '../../lib/help-content';
+import { HELP_URL, openUrl } from '../../lib/links';
 import { useTheme } from '../../lib/theme';
 
 export default function HelpHome() {
@@ -48,6 +49,7 @@ export default function HelpHome() {
               <Txt kind="head" weight="bold" size={20} style={{ paddingHorizontal: 4 }}>Popular articles</Txt>
               <ListCard rows={POPULAR.map(findArticle).filter(a => !!a).map(a => ({ key: a!.id, title: a!.title, icon: 'document-text-outline', onPress: () => router.push(`/help/article/${a!.id}`) }))} />
             </View>
+            <ListCard rows={[{ key: 'web', title: 'Open the full Help center on the web', sub: 'Opens mise in your browser', icon: 'globe-outline', onPress: () => openUrl(HELP_URL) }]} />
           </>
         )}
 

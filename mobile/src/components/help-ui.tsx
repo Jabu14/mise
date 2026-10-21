@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { Fragment, type ReactNode } from 'react';
 import { Pressable, Share, View } from 'react-native';
 import type { Block } from '../lib/help-content';
+import { CONTACT_URL, HELP_URL, openUrl } from '../lib/links';
 import { useTheme } from '../lib/theme';
 import { Icon, IconBtn, PageTitle, TopBar, Txt, type IconName } from './ui';
 
@@ -106,10 +107,19 @@ export function NeedMoreHelp() {
         <Icon name="chatbubbles-outline" size={28} color={th.c.muted} />
       </View>
       <Txt kind="head" weight="bold" size={22}>Need more help?</Txt>
-      <Txt muted style={{ textAlign: 'center', maxWidth: 300 }}>Contact us and we’ll get back to you by email.</Txt>
-      <Pressable onPress={() => router.push('/feedback?mode=issue')} hitSlop={8} style={{ marginTop: 6 }}>
-        <Txt weight="black" size={17} color={th.c.accent}>Contact us</Txt>
-      </Pressable>
+      <Txt muted style={{ textAlign: 'center', maxWidth: 300 }}>Browse the full Help center on the web, or contact us and we’ll get back to you by email.</Txt>
+      <View style={{ flexDirection: 'row', gap: 10, marginTop: 8 }}>
+        <Pressable onPress={() => openUrl(HELP_URL)} hitSlop={6}
+          style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, height: 44, borderRadius: 22, backgroundColor: th.c.accentSoft, opacity: pressed ? 0.7 : 1 })}>
+          <Icon name="globe-outline" size={17} color={th.c.accent} />
+          <Txt weight="black" size={14} color={th.c.accent}>Help center online</Txt>
+        </Pressable>
+        <Pressable onPress={() => openUrl(CONTACT_URL)} hitSlop={6}
+          style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, height: 44, borderRadius: 22, backgroundColor: th.c.soft, opacity: pressed ? 0.7 : 1 })}>
+          <Icon name="mail-outline" size={17} />
+          <Txt weight="black" size={14}>Contact us</Txt>
+        </Pressable>
+      </View>
     </View>
   );
 }

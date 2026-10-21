@@ -9,6 +9,7 @@ import { useTheme } from '../lib/theme';
 
 // Keep in step with CHANGELOG.md at the project root.
 const WHATS_NEW = [
+  'A new Mise website and online Help center',
   'Recipe headers now match the dish or photo colour and dissolve into the page',
   'The pull-to-refresh spinner shows right away when you pull',
   'Pull down on a recipe to refresh, with a stretchy header',

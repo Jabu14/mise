@@ -2,32 +2,244 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
-  <meta name="referrer" content="no-referrer">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#FBF6EF">
-  <meta name="description" content="Paste a recipe, cook it step by step.">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Mise">
-  <title>Mise</title>
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <title>Mise — Cook without scrolling back</title>
+  <meta name="description" content="Mise turns any recipe into big, clear steps with built-in timers. Plan meals, shop smart, cook hands-free, and keep a cooking journal. Free on iPhone, Android and the web.">
+  <meta property="og:title" content="Mise — Cook without scrolling back">
+  <meta property="og:description" content="Any recipe, one clear step at a time, with timers that ring even when your phone is locked.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="app/icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="app/icons/icon-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Nunito:wght@500;700;800&display=swap">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Nunito:wght@500;600;700;800&display=swap">
+  <link rel="stylesheet" href="marketing.css">
 </head>
 <body>
-  <div id="app"></div>
-  <div id="dock">
-    <div id="timer-tray" aria-live="polite"></div>
-    <div id="bar"></div>
-  </div>
-  <div id="sheet-root"></div>
-  <div id="toast" role="status"></div>
-  <script type="module" src="js/app.js"></script>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="./">
+        <svg class="logo" viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D27A3B"/><stop offset="1" stop-color="#A6511E"/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#g)"/><path d="M112 306c0-90 64-156 144-156s144 66 144 156v34c0 18-14 32-32 32H144c-18 0-32-14-32-32Z" fill="#FBEBD3"/><path d="M186 248l44 44M252 222l44 44M318 248l36 36" stroke="#DDA36A" stroke-width="20" stroke-linecap="round"/></svg>
+        Mise
+      </a>
+      <nav class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#sous">Sous AI</a>
+        <a href="help/">Help</a>
+      </nav>
+      <div class="nav-cta">
+        <a class="btn ghost sm" href="app/">Open web app</a>
+        <a class="btn primary sm" href="#get">Get the app</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="wrap">
+        <div>
+          <span class="eyebrow">Your calmer kitchen</span>
+          <h1>Cook without <span class="hl">scrolling back</span>.</h1>
+          <p class="sub">Mise turns any recipe into big, clear steps with timers that ring even when your phone is locked. Paste it, plan it, cook it.</p>
+          <div class="cta-row">
+            <a class="btn primary" href="#get">Get Mise free</a>
+            <a class="btn ghost" href="app/">Try it in your browser</a>
+          </div>
+          <p class="note">Free on iPhone, Android and the web. No account needed to start.</p>
+        </div>
+        <div class="phone-wrap">
+          <div class="phone">
+            <div class="notch"></div>
+            <div class="screen">
+              <div class="mk-hero">
+                <svg width="150" height="120" viewBox="0 0 240 200" aria-hidden="true">
+                  <g class="mk-steam" fill="none" stroke-width="5" stroke-linecap="round" opacity="0.6">
+                    <path d="M96 44 q-8 -12 0 -24"/><path d="M120 40 q-8 -12 0 -24"/><path d="M144 44 q-8 -12 0 -24"/>
+                  </g>
+                  <ellipse cx="120" cy="178" rx="70" ry="10" fill="#000" opacity="0.06"/>
+                  <rect x="52" y="92" width="136" height="74" rx="18" fill="#F05D4F"/>
+                  <rect x="44" y="84" width="152" height="20" rx="10" fill="#C8443A"/>
+                  <rect x="36" y="118" width="18" height="26" rx="9" fill="#C8443A"/>
+                  <rect x="186" y="118" width="18" height="26" rx="9" fill="#C8443A"/>
+                  <circle cx="104" cy="124" r="6" fill="#2A1F17"/><circle cx="136" cy="124" r="6" fill="#2A1F17"/>
+                  <path d="M110 138 q10 10 20 0" fill="none" stroke="#2A1F17" stroke-width="4" stroke-linecap="round"/>
+                  <ellipse cx="97" cy="136" rx="7" ry="4" fill="#FF9DA0" opacity="0.8"/><ellipse cx="143" cy="136" rx="7" ry="4" fill="#FF9DA0" opacity="0.8"/>
+                </svg>
+              </div>
+              <div class="mk-body">
+                <div class="mk-title">Creamy Pantry Curry</div>
+                <div class="mk-sub">A rich, golden curry in 20 minutes</div>
+                <div class="mk-times">
+                  <div><div class="k">PREP</div><div class="v">5 min</div></div>
+                  <div><div class="k">COOK</div><div class="v">15 min</div></div>
+                  <div><div class="k">TOTAL</div><div class="v">20 min</div></div>
+                </div>
+                <div class="mk-start">▶  Start cooking</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Everything but the dishes</span>
+          <h2>A whole kitchen in your pocket</h2>
+          <p>From the first ingredient to the last timer, Mise keeps you moving.</p>
+        </div>
+        <div class="features">
+          <div class="feature">
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div>
+            <h3>Big, clear steps</h3>
+            <p>One step at a time, in large type, so you never lose your place with messy hands.</p>
+          </div>
+          <div class="feature">
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg></div>
+            <h3>Timers that find you</h3>
+            <p>Every step's timer is one tap. They ring even when your phone is locked or Mise is closed.</p>
+          </div>
+          <div class="feature">
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></svg></div>
+            <h3>Import with AI</h3>
+            <p>Paste a link, a photo or messy text and Mise tidies it into clean steps with timers.</p>
+          </div>
+          <div class="feature">
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></div>
+            <h3>Plan your week</h3>
+            <p>Drop recipes onto a calendar, then send the whole week's ingredients to your shopping list.</p>
+          </div>
+          <div class="feature">
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h2l2 11h9l2-7H7"/><circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/></svg></div>
+            <h3>Smart shopping list</h3>
+            <p>Ingredients combine across recipes and sort by aisle. Scan a barcode to check what's healthy.</p>
+          </div>
+          <div class="feature">
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4"/></svg></div>
+            <h3>Hands-free cooking</h3>
+            <p>Mise reads each step aloud and listens for "next" — perfect when your hands are covered in dough.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section id="how" style="background:var(--soft);">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Three taps to dinner</span>
+          <h2>How it works</h2>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="num">1</div>
+            <h3>Add a recipe</h3>
+            <p>Paste any recipe, import one with AI, or start from a photo. Mise splits it into steps.</p>
+          </div>
+          <div class="step">
+            <div class="num">2</div>
+            <h3>Prep &amp; plan</h3>
+            <p>Lay out your mise en place, scale the servings, and send what you need to your list.</p>
+          </div>
+          <div class="step">
+            <div class="num">3</div>
+            <h3>Cook, calmly</h3>
+            <p>Follow one big step at a time with timers, then rate it in your cooking journal.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sous -->
+    <section id="sous">
+      <div class="wrap split">
+        <div>
+          <span class="eyebrow">Meet Sous</span>
+          <h2>A cooking buddy who knows your kitchen</h2>
+          <p class="muted" style="margin-top:14px;font-size:1.1rem;">Ask Sous anything mid-recipe. Out of buttermilk? Too salty? Can you pause the dough overnight? Sous answers about <em>this</em> dish, using your diet, your recipes and what you're cooking right now.</p>
+          <div class="cta-row" style="margin-top:22px;">
+            <a class="btn primary" href="#get">Cook with Sous</a>
+          </div>
+        </div>
+        <div class="card-visual">
+          <div class="chat-bubble you">I don't have buttermilk for this — what can I use?</div>
+          <div class="chat-bubble sous">No problem! Stir 1 tbsp lemon juice into 1 cup of the milk you have and let it sit 5 minutes. It'll curdle slightly — that's perfect for this recipe. 🥛</div>
+          <div class="chat-bubble you">Can I pause after the first rise?</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section id="get">
+      <div class="wrap">
+        <div class="cta-band">
+          <h2>Start cooking with Mise today</h2>
+          <p>Free to use, with no account needed. Install it on your phone or open it right in your browser.</p>
+          <div class="cta-row">
+            <a class="btn light" href="app/">Open the web app</a>
+            <a class="btn light" href="#" aria-disabled="true" onclick="return false;" style="opacity:.75;">iPhone — coming soon</a>
+            <a class="btn light" href="#" aria-disabled="true" onclick="return false;" style="opacity:.75;">Android — coming soon</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Good to know</span>
+          <h2>Common questions</h2>
+        </div>
+        <div class="faq">
+          <details><summary>Is Mise free?</summary><p>Yes. The core app is free, and you can use it without an account. Paid plans with extra AI features are coming later.</p></details>
+          <details><summary>Do I need an account?</summary><p>No. Everything works on your device. Signing in (coming soon) will let your recipes follow you across devices.</p></details>
+          <details><summary>Will timers ring if I leave the app?</summary><p>On the phone app, yes — timers send a notification even when the phone is locked or Mise is closed. The web app rings while it's open.</p></details>
+          <details><summary>Where do my recipes come from?</summary><p>Paste them from anywhere, or let the AI import tidy up a link, photo or messy text into clean steps.</p></details>
+          <details><summary>Is my data private?</summary><p>Your recipes, plans and journal live on your device. See the <a href="help/#privacy" style="color:var(--accent-dark);font-weight:800;">Help center</a> for details.</p></details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="cols">
+        <div class="about">
+          <a class="brand" href="./">
+            <svg class="logo" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#B8622B"/><path d="M112 306c0-90 64-156 144-156s144 66 144 156v34c0 18-14 32-32 32H144c-18 0-32-14-32-32Z" fill="#FBEBD3"/><path d="M186 248l44 44M252 222l44 44M318 248l36 36" stroke="#DDA36A" stroke-width="20" stroke-linecap="round"/></svg>
+            Mise
+          </a>
+          <p>Cook without scrolling back. Any recipe, one clear step at a time.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Product</h4>
+          <a href="#features">Features</a>
+          <a href="#how">How it works</a>
+          <a href="app/">Web app</a>
+        </div>
+        <div class="footer-col">
+          <h4>Support</h4>
+          <a href="help/">Help center</a>
+          <a href="help/#faq">FAQ</a>
+          <a href="help/contact.html">Contact us</a>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <a href="help/legal.html">Terms &amp; Privacy</a>
+        </div>
+      </div>
+      <div class="legal">
+        <span>© <span id="yr"></span> Mise. Made for home cooks.</span>
+        <span>Cook calmly. 🍳</span>
+      </div>
+    </div>
+  </footer>
+  <script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
 </body>
 </html>

@@ -7,7 +7,7 @@ There are two versions with the same features and look:
 | | `web/` | `mobile/` |
 |---|---|---|
 | What | Installable web app (PWA) | Native iPhone + Android app (React Native / Expo) |
-| Use it | https://jabu14.github.io/mise/ → Share → Add to Home Screen | Expo Go app on your phone (see below) |
+| Use it | https://jabu14.github.io/mise/app/ → Share → Add to Home Screen | Expo Go app on your phone (see below) |
 | Timer alarms | Only while the app is open | Ring even when the phone is locked |
 
 ## How to use it
@@ -38,9 +38,12 @@ python -m http.server 5173 --directory web
 
 Changes pushed to `web/` are published to GitHub Pages automatically.
 
+The site is organised as: `web/` (marketing landing at the root), `web/app/` (the installable web app), and `web/help/` (the Help center website).
+
 ## Files
 
-- `web/`: the web app (`js/parser.js` reads recipes, `js/app.js` has the screens)
+- `web/index.html`, `web/marketing.css`: the marketing website; `web/help/`: the Help center website
+- `web/app/`: the installable web app (`js/parser.js` reads recipes, `js/app.js` has the screens)
 - `mobile/src/app/`: native screens (library, add/edit, recipe, cook mode, settings)
 - `mobile/src/lib/`: saved data, timers + notifications, themes
 - `mobile/src/shared/`: copied from `web/js/` by `npm run sync-shared` so both apps read recipes the same way
