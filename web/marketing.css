@@ -168,3 +168,15 @@ section { padding: 60px 0; }
 .topic-section > h2 { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
 .topic-section > h2 svg { width: 24px; height: 24px; stroke: var(--accent-dark); }
 .hidden { display: none !important; }
+
+/* App-store download buttons */
+.store-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.hero .store-row { margin-top: 28px; }
+.store-btn { display: inline-flex; align-items: center; gap: 10px; background: #1C1714; color: #fff; padding: 11px 20px; border-radius: 15px; transition: transform .12s ease, box-shadow .12s ease; box-shadow: var(--shadow-sm); }
+.store-btn:hover { transform: translateY(-2px); }
+.store-btn:active { transform: scale(0.97); }
+.store-btn svg { width: 26px; height: 26px; flex: none; }
+.store-btn span { display: flex; flex-direction: column; line-height: 1.1; text-align: left; }
+.store-btn small { font-size: 0.68rem; opacity: 0.8; font-weight: 600; }
+.store-btn strong { font-size: 1.05rem; font-weight: 800; font-family: 'Fraunces', serif; }
+.store-btn.on-dark { background: #fff; color: var(--ink); }

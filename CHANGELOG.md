@@ -1,11 +1,17 @@
 # Changelog
 
-Versions follow the mobile app (`mobile/app.json`). The web app's offline cache name (`web/sw.js`) is bumped whenever the web files change.
+Versions follow the mobile app (`mobile/app.json`).
+
+## 1.28.0 (2026-10-20)
+
+### Changed
+- **Website is app-only now.** Removed the installable web app (PWA). The website is purely a marketing landing page plus the online Help center; Mise itself is the iPhone/Android app. The landing page now leads with "Get the app" and App Store / Google Play buttons instead of an "Open app" link.
+- The recipe reader and Mise Prompt now live only in `mobile/src/shared/` (the old `web/app/js/` copies and the `sync-shared` script were removed).
 
 ## 1.27.0 (2026-10-20)
 
 ### Added
-- **Mise website.** A commercial landing page at the site root (`web/index.html`): hero, feature grid, how-it-works, a Sous highlight, FAQ and footer, in Mise's warm brand. The installable web app moved to `/app/`.
+- **Mise website.** A commercial landing page at the site root (`web/index.html`): hero, feature grid, how-it-works, a Sous highlight, FAQ and footer, in Mise's warm brand.
 - **Online Help center** (`web/help/`): searchable topics and articles matching the in-app help, plus Contact and Terms & Privacy pages.
 - In the app's Help center, buttons now link out to the online Help center and the web Contact page (an "Open the full Help center on the web" row, and web links under "Need more help?").
 

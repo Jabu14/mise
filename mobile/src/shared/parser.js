@@ -1,4 +1,4 @@
-// AUTO-COPIED from web/js/parser.js by scripts/sync-shared.js. Edit the web file, then run: npm run sync-shared
+// Recipe reader for Mise. This file is the source of truth (the old web-app copy was removed).
 // Turns pasted recipe text into a structured recipe.
 // Understands the JSON format our recipe prompt asks for, and falls back to
 // reading ordinary markdown / plain-text recipes (headings, bullets, numbered steps).

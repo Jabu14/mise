@@ -1,4 +1,4 @@
-// AUTO-COPIED from web/js/content.js by scripts/sync-shared.js. Edit the web file, then run: npm run sync-shared
+// The Mise Prompt and the sample recipe. Source of truth (the old web-app copy was removed).
 // The prompt you give your AI assistant, and a sample recipe to try the app with.
 
 export const RECIPE_PROMPT = `Please rewrite the recipe from our conversation for my cooking app.
